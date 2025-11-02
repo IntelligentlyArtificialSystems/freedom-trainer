@@ -4,275 +4,404 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>The Freedom Engine — Trainer (Personal AI)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0c0c0e;--card:#121216;--ink:#eee;--line:#242428;--muted:#9a9aa3}
-*{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter;background:var(--bg);color:var(--ink)}
-.wrap{max-width:920px;margin:0 auto;padding:16px 14px 120px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:12px 0}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-button,select,textarea{background:#1e1e24;color:#fff;border:1px solid #333;border-radius:10px;padding:10px 12px}
-textarea{width:100%;min-height:84px}
-.msg{padding:10px 12px;border-radius:12px;margin:10px 0;white-space:pre-wrap;line-height:1.45}
-.me{background:#1a1a22}
-.ai{background:#0d1117;border:1px solid #23232a}
+:root{
+  --bg:#0a0b0e; --panel:#0f1116; --card:#11131a; --glass:rgba(255,255,255,.05);
+  --ink:#e9ecf1; --muted:#9aa3b2; --line:#1e2430; --acc:#7c86ff; --acc2:#9d7cff; --ok:#3ddc97; --warn:#ffb020;
+  --rad:18px; --rad-sm:12px; --shadow:0 10px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:radial-gradient(1200px 900px at -10% -10%,#1a1f2e,transparent 55%),radial-gradient(900px 700px at 110% 10%,#221a2e,transparent 45%),var(--bg);color:var(--ink);}
+
+.app{display:grid;grid-template-columns:320px 1fr;gap:18px;max-width:1200px;margin:0 auto;padding:20px 18px 120px;}
+@media (max-width:980px){.app{grid-template-columns:1fr}}
+
+.nav{position:sticky;top:12px;height:fit-content;border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));backdrop-filter:blur(6px);border-radius:var(--rad);padding:16px;box-shadow:var(--shadow)}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.badge{font-size:12px;color:var(--muted);border:1px solid var(--line);padding:4px 8px;border-radius:999px;background:var(--glass)}
+.h1{font-weight:800;letter-spacing:.2px}
+
+.block{background:var(--card);border:1px solid var(--line);border-radius:var(--rad);padding:14px;margin-top:12px}
+.block h3{margin:0 0 8px 0;font-size:14px;font-weight:700;color:#cfd6e4;letter-spacing:.4px;text-transform:uppercase}
+.select, .btn, select, textarea{width:100%;border-radius:12px;border:1px solid var(--line);background:#141925;color:var(--ink);padding:10px 12px;outline:none}
+select{cursor:pointer}
+.btn{cursor:pointer;display:inline-flex;justify-content:center;align-items:center;gap:8px;transition:.2s ease;border-color:#263048}
+.btn.primary{background:linear-gradient(135deg,var(--acc),var(--acc2));border:none}
+.btn.ghost{background:transparent;border:1px solid var(--line)}
+.btn.ok{background:linear-gradient(135deg,#30c589,#3ddc97);border:none}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.row{display:flex;gap:8px}
+.row > *{flex:1}
+
+.progress{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);border-top:1px dashed var(--line);padding-top:10px;margin-top:10px}
+.pill{padding:6px 10px;border-radius:999px;background:var(--glass);border:1px solid var(--line);font-size:12px}
+.pill.ok{background:rgba(61,220,151,.12);border-color:#204e3e;color:#9ef2cd}
+.pill.demo{background:rgba(124,134,255,.12);border-color:#2b2f7a;color:#bfc3ff}
+
+.main{min-height:70vh}
+.hero{border:1px solid var(--line);border-radius:var(--rad);padding:16px;background:linear-gradient(180deg,rgba(255,255,255,.04),transparent 60%);box-shadow:var(--shadow)}
+.kicker{color:var(--muted);font-size:14px}
+.headline{font-size:26px;font-weight:800;margin:6px 0 2px 0}
+.sub{color:#c8cfde;font-size:14px}
+
+.tabbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.tabbar .btn{flex:1}
+
+.panel{margin-top:14px}
+.chat{border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01));border-radius:var(--rad);padding:12px;max-height:52vh;overflow:auto;scroll-behavior:smooth}
+.msg{display:flex;gap:10px;margin:10px 0}
+.bubble{padding:12px 14px;border-radius:16px;white-space:pre-wrap;line-height:1.5;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.me .bubble{background:#121a2a;border:1px solid #293348}
+.ai .bubble{background:#0e121b;border:1px solid #262f44}
+.avatar{flex:0 0 28px;height:28px;border-radius:10px;display:grid;place-items:center;font-size:12px;border:1px solid var(--line);background:linear-gradient(135deg,#252a39,#1a1f2e)}
+.avatar.me{color:#a3b1ff}
+.avatar.ai{color:#9ef2cd}
+
+.wizard{border:1px dashed var(--line);background:rgba(255,255,255,.02);border-radius:var(--rad);padding:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:#141925;border:1px solid #2a3346;border-radius:999px;padding:8px 12px;cursor:pointer}
+.chip.sel{outline:2px solid var(--acc)}
+
+.footer{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(180deg,transparent,rgba(10,11,14,.88) 40%,rgba(10,11,14,1) 70%);padding:10px 16px;border-top:1px solid var(--line)}
+.composer{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr auto auto auto;gap:8px}
+textarea{resize:vertical;min-height:56px}
 .small{font-size:12px;color:var(--muted)}
-.chip{background:#1b1b21;border:1px solid #30303a;border-radius:999px;padding:8px 10px}
-.chip.sel{outline:2px solid #6f6fff}
-pre{white-space:pre-wrap;background:#0d1117;border:1px solid #23232a;border-radius:10px;padding:10px}
-.foot{position:fixed;inset:auto 0 0 0;background:linear-gradient(180deg,transparent,rgba(12,12,14,.92) 16%,rgba(12,12,14,1) 28%);padding:8px}
-.foot .bar{max-width:920px;margin:0 auto;display:flex;gap:8px}
+hr.sep{border:none;border-top:1px dashed var(--line);margin:10px 0}
+a.inline{color:#cdd5ff;text-decoration:none;border-bottom:1px dotted #4951d6}
+.notice{font-size:12px;color:#cbd3e6;background:#0e1422;border:1px solid #1e2740;padding:8px 10px;border-radius:10px}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>The Freedom Engine <span class="small">— Trainer (Personal AI)</span></h1>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="nav">
+      <div class="brand">
+        <div class="badge">IAS</div>
+        <div>
+          <div class="h1">The Freedom Engine</div>
+          <div class="small">Personal Trainer AI</div>
+        </div>
+      </div>
 
-  <div class="card">
-    <div class="row">
-      <button id="startWizard">Start (Instant, no AI)</button>
-      <button id="startAI">Customize with AI</button>
+      <div class="block">
+        <h3>Mode</h3>
+        <div class="row">
+          <button id="startWizard" class="btn ghost">Instant (no AI)</button>
+          <button id="startAI" class="btn primary">AI Coach</button>
+        </div>
+        <hr class="sep">
+        <div class="row">
+          <div>
+            <div class="small">Module</div>
+            <select id="module" class="select">
+              <option value="philosophy">Awakener</option>
+              <option value="offer">Engineer</option>
+              <option value="copy">Weaponizer</option>
+              <option value="launch">Field Sergeant</option>
+              <option value="automate">Ghost Builder</option>
+            </select>
+          </div>
+          <div>
+            <div class="small">Tone</div>
+            <select id="tone" class="select">
+              <option value="straight">Straight</option>
+              <option value="playful">Playful</option>
+              <option value="brutal">Brutal honesty</option>
+              <option value="gentle">Gentle</option>
+            </select>
+          </div>
+        </div>
+      </div>
 
-      <label>Module:
-        <select id="module">
-          <option value="philosophy">Awakener</option>
-          <option value="offer">Engineer</option>
-          <option value="copy">Weaponizer</option>
-          <option value="launch">Field Sergeant</option>
-          <option value="automate">Ghost Builder</option>
-        </select>
-      </label>
+      <div class="block">
+        <h3>Access</h3>
+        <div class="row">
+          <button id="unlock" class="btn ok">I have a license key</button>
+          <button id="reset" class="btn ghost">Reset progress</button>
+        </div>
+        <div class="progress">
+          <div id="progressTxt">Progress: 0 exchanges</div>
+          <div id="accessPill" class="pill demo">Demo mode</div>
+        </div>
+      </div>
 
-      <label>Tone:
-        <select id="tone">
-          <option value="straight">Straight</option>
-          <option value="playful">Playful</option>
-          <option value="brutal">Brutal honesty</option>
-          <option value="gentle">Gentle</option>
-        </select>
-      </label>
+      <div class="block">
+        <h3>Buy</h3>
+        <p class="small">Unlock all advanced modules.</p>
+        <button id="buy" class="btn primary">Buy on Gumroad — $29</button>
+        <p class="notice" style="margin-top:10px;">Already bought? Use the license key in your receipt or <a class="inline" href="https://app.gumroad.com/library" target="_blank">Gumroad Library</a>.</p>
+      </div>
+    </aside>
 
-      <button id="unlock">I have a license key</button>
-      <button id="reset">Reset Progress</button>
+    <!-- Main -->
+    <main class="main">
+      <div class="hero">
+        <div class="kicker">Intelligently Artificial Systems</div>
+        <div class="headline">Build your exit vehicle. Then floor it.</div>
+        <div class="sub">Instant plan for quick wins. AI Coach for ruthless, customized execution. Export everything.</div>
+        <div class="tabbar">
+          <button id="tabWizard" class="btn ghost">Instant Plan</button>
+          <button id="tabAI" class="btn primary">AI Coach</button>
+        </div>
+      </div>
+
+      <div id="wizardWrap" class="panel" style="display:none">
+        <div class="block wizard">
+          <div class="row">
+            <div>
+              <div class="small">Skill</div>
+              <div class="chips" id="chips-skill"></div>
+            </div>
+            <div>
+              <div class="small">Audience</div>
+              <div class="chips" id="chips-who"></div>
+            </div>
+          </div>
+          <div style="height:8px"></div>
+          <div class="row">
+            <div>
+              <div class="small">They hate doing</div>
+              <div class="chips" id="chips-hate"></div>
+            </div>
+            <div>
+              <div class="small">Style</div>
+              <div class="chips" id="chips-style"></div>
+            </div>
+          </div>
+          <div style="height:8px"></div>
+          <div class="row">
+            <label class="small" style="display:block">Price
+              <select id="price" class="select"><option>$29</option><option>$49</option><option>$99</option></select>
+            </label>
+            <button id="build" class="btn ok">Build My Plan</button>
+          </div>
+          <div id="plan" class="block" style="display:none;margin-top:12px"></div>
+        </div>
+      </div>
+
+      <div id="chatWrap" class="panel" style="display:none">
+        <div class="chat" id="chat"></div>
+        <div id="aiStatus" class="small" style="margin-top:8px">AI mode not loaded yet.</div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Sticky composer -->
+  <div class="footer">
+    <div class="composer">
+      <textarea id="input" placeholder="(AI mode) Tell me where you’re stuck… or try: Help me find my Freedom Skill" disabled></textarea>
+      <button id="send" class="btn primary" disabled>Send</button>
+      <button id="export" class="btn ghost">Export</button>
+      <button id="buy2" class="btn ok">Buy</button>
     </div>
-    <div id="progress" class="small"></div>
   </div>
-
-  <!-- Instant Wizard -->
-  <div id="wizard" class="card" style="display:none"></div>
-
-  <!-- AI Chat -->
-  <div id="chatWrap" class="card" style="display:none">
-    <div id="chat"></div>
-    <div id="aiStatus" class="small">AI mode not loaded yet.</div>
-  </div>
-
-  <div class="card small">
-    Instant mode gives you a full plan now. “Customize with AI” unlocks the mouthy mentor who adapts to you.
-  </div>
-</div>
-
-<!-- Bottom bar -->
-<div class="foot">
-  <div class="bar">
-    <textarea id="input" placeholder="(AI mode) Tell me where you’re stuck, or say: help me find my Freedom Skill" disabled></textarea>
-    <button id="send" disabled>Send</button>
-    <button id="export">Export My Plan</button>
-    <button id="buy">Buy / Open in Gumroad ($29)</button>
-  </div>
-</div>
 
 <script type="module">
 const CLOUD_ENDPOINT = "https://freedom-engine-worker.intelligentlyartificialsystems.workers.dev";
-const GUMROAD_URL   = "https://intellartsystems.gumroad.com/l/the-freedom-engine";
+const GUMROAD_URL    = "https://intellartsystems.gumroad.com/l/the-freedom-engine";
 
-// ====== Personality / Modules (Butcher tone) ======
 const modules = {
-  philosophy: `
-You are THE AWAKENER — the first punch to the user’s worldview.
+  philosophy: `You are THE AWAKENER — the first punch to the user’s worldview.
 Mission: destroy the “work harder” myth and install the Freedom Engine mindset.
 Voice: dark humor, blunt honesty, street philosopher with a grudge.
 Teach: leverage > labor, micro-offers, automation, time as currency.
 Format: ask if they want Coach / Checklist / Story. Then deliver accordingly.
 Push to action: “You’ve seen the machine. Now we build yours.”`,
-  offer: `
-You are THE ENGINEER — the sarcastic craftsman extracting sellable skills.
+  offer: `You are THE ENGINEER — the sarcastic craftsman extracting sellable skills.
 Voice: witty, weary, allergic to fluff.
 Steps:
 1) Ask 3 tight questions: what do you do well, what do people ask you for, what problem annoys you enough to fix?
 2) Propose 2–3 micro-offers (fast to build, specific audience, simple outcome). Include name + price suggestion.
 3) Help them pick one and tighten it.
 Praise with dry bite: “First gear’s in. Try not to lick it.”`,
-  copy: `
-You are THE WEAPONIZER — copy coach + insult comic.
+  copy: `You are THE WEAPONIZER — copy coach + insult comic.
 Goal: make their offer sound like a solution, not a LinkedIn diary.
 Ask for: offer + audience. Then produce:
 - Headline (bold, specific)
 - 3–5 bullets (outcomes, not chores)
 - Short Gumroad blurb (promise, what's inside, price)
 Roast bland lines. Reward honest lines. End: “Weapon loaded. Don’t point at your foot.”`,
-  launch: `
-You are THE FIELD SERGEANT — tactical, funny, impatient.
+  launch: `You are THE FIELD SERGEANT — tactical, funny, impatient.
 Goal: ship in 72 hours. Build a 3-day plan:
 - Day 1: Gumroad page live (use blurb), cover, enable email capture.
 - Day 2: Run $5/day ad. Provide 3 micro-hooks. Destination: Gumroad page.
-- Day 3: Post proof (progress screenshot), retarget site visitors with “Ready to automate? Get The Freedom Engine.”
+- Day 3: Post progress screenshot. Retarget visitors with “Ready to automate? Get The Freedom Engine.”
 Fallbacks: no audience, no problem — give 3 scrappy distribution moves. End: “More in 3 days than most in 3 years.”`,
-  automate: `
-You are THE GHOST BUILDER — calm, darkly poetic, still sarcastic.
+  automate: `You are THE GHOST BUILDER — calm, darkly poetic, still sarcastic.
 Teach: minimal automations (delivery, tiny follow-ups, reuse prompts), and the stacking path (2nd offer, small bundle).
 Frame: freedom is a mechanism, not a mood. Hand them a 2-week maintenance plan.
 Exit line: “Free enough? Good. Go free someone else.”`
 };
 
-// ====== State
+// ---------- State & DOM ----------
 let history = JSON.parse(localStorage.getItem('fe_history')||'[]');
-let unlocked = localStorage.getItem('fe_unlocked') === '1';
-const chatEl   = document.getElementById('chat');
-const inputEl  = document.getElementById('input');
-const sendBtn  = document.getElementById('send');
-const aiStatus = document.getElementById('aiStatus');
-const moduleEl = document.getElementById('module');
-const toneEl   = document.getElementById('tone');
+let unlocked = localStorage.getItem('fe_unlocked')==='1';
+const chatEl = document.getElementById('chat');
+const inputEl = document.getElementById('input');
+const sendBtn = document.getElementById('send');
+const aiStatus= document.getElementById('aiStatus');
+const moduleEl= document.getElementById('module');
+const toneEl  = document.getElementById('tone');
+const progressTxt = document.getElementById('progressTxt');
+const accessPill  = document.getElementById('accessPill');
 
-function push(role, content){ history.push({role, content}); localStorage.setItem('fe_history', JSON.stringify(history)); render(); updateProgress(); }
-function render(){ chatEl.innerHTML = history.map(h=>`<div class="msg ${h.role==='user'?'me':'ai'}">${h.content}</div>`).join(''); chatEl.scrollTop = chatEl.scrollHeight; }
-function updateProgress(){ const steps = history.filter(h=>h.role==='assistant').length; document.getElementById('progress').textContent = `Progress: ${steps} exchanges ${unlocked?'(Full unlocked)':'(Demo mode)'}`; }
+function push(role, content){
+  history.push({role, content});
+  localStorage.setItem('fe_history', JSON.stringify(history));
+  render(); updateProgress();
+}
+function bubble(role, content){
+  return `<div class="msg ${role}">
+    <div class="avatar ${role==='me'?'me':'ai'}">${role==='me'?'🧑':'⚙️'}</div>
+    <div class="bubble">${content}</div>
+  </div>`;
+}
+function render(){
+  chatEl.innerHTML = history.map(h => bubble(h.role==='user'?'me':'ai', h.content)).join('');
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+function updateProgress(){
+  const steps = history.filter(h=>h.role==='assistant').length;
+  progressTxt.textContent = `Progress: ${steps} exchanges`;
+  accessPill.textContent = unlocked ? 'Full unlocked' : 'Demo mode';
+  accessPill.className = 'pill ' + (unlocked ? 'ok' : 'demo');
+}
 render(); updateProgress();
 
-// ====== Instant Wizard (no AI)
-const wizardEl = document.getElementById('wizard');
-document.getElementById('startWizard').onclick = () => { wizardEl.style.display='block'; document.getElementById('chatWrap').style.display='none'; wizardEl.innerHTML = renderWizard(); };
-function chips(name, arr){ return arr.map(v=>`<button class="chip" data-name="${name}" data-val="${v}">${v}</button>`).join(''); }
-function renderWizard(){
-  const skills = ["Writing","Design","Automation","Productivity","Coaching","Research","Analytics","Marketing"];
-  const who    = ["Freelancers","Solopreneurs","Coaches","Creators","Agencies","Local Businesses","Students","SaaS Teams"];
-  const hates  = ["Cold outreach","Onboarding","Invoicing","Scheduling","Content planning","Editing","Data cleanup","Follow-ups"];
-  const styles = ["Direct","Friendly","Playful","Brutal"];
-  return `
-  <h3>Instant Plan (no AI)</h3>
-  <p class="small">Pick a few. I’ll spit out your offer, copy, hooks, and a 72h plan right now.</p>
-  <div class="row"><strong>Skill:</strong> ${chips('skill', skills)}</div>
-  <div class="row"><strong>Audience:</strong> ${chips('who', who)}</div>
-  <div class="row"><strong>They hate doing:</strong> ${chips('hate', hates)}</div>
-  <div class="row"><strong>Style:</strong> ${chips('style', styles)}</div>
-  <div class="row">
-    <label>Price: <select id="price"><option>$29</option><option>$49</option><option>$99</option></select></label>
-    <button id="build">Build My Plan</button>
-  </div>
-  <div id="plan" class="card" style="display:none"></div>
-  `;
+// ---------- Sidebar actions ----------
+document.getElementById('buy').onclick = ()=> window.open(GUMROAD_URL,'_blank');
+document.getElementById('buy2').onclick= ()=> window.open(GUMROAD_URL,'_blank');
+document.getElementById('reset').onclick= ()=> { history=[]; localStorage.removeItem('fe_history'); render(); updateProgress(); };
+
+// ---------- Tabs / Modes ----------
+const wizardWrap = document.getElementById('wizardWrap');
+const chatWrap   = document.getElementById('chatWrap');
+
+document.getElementById('tabWizard').onclick = ()=>{ wizardWrap.style.display='block'; chatWrap.style.display='none'; buildWizard(); };
+document.getElementById('tabAI').onclick     = ()=>{ wizardWrap.style.display='none'; chatWrap.style.display='block'; startAI(); };
+
+document.getElementById('startWizard').onclick = ()=> document.getElementById('tabWizard').click();
+document.getElementById('startAI').onclick     = ()=> document.getElementById('tabAI').click();
+
+// ---------- Instant Wizard ----------
+function chips(name, arr){
+  return arr.map(v=>`<button class="chip" data-name="${name}" data-val="${v}">${v}</button>`).join('');
 }
-document.addEventListener('click', (e)=>{
+function buildWizard(){
+  wizardWrap.style.display='block';
+  const skills=["Writing","Design","Automation","Productivity","Coaching","Research","Analytics","Marketing"];
+  const who=["Freelancers","Solopreneurs","Coaches","Creators","Agencies","Local Businesses","Students","SaaS Teams"];
+  const hates=["Cold outreach","Onboarding","Invoicing","Scheduling","Content planning","Editing","Data cleanup","Follow-ups"];
+  const styles=["Direct","Friendly","Playful","Brutal"];
+  document.getElementById('chips-skill').innerHTML = chips('skill',skills);
+  document.getElementById('chips-who').innerHTML   = chips('who',who);
+  document.getElementById('chips-hate').innerHTML  = chips('hate',hates);
+  document.getElementById('chips-style').innerHTML = chips('style',styles);
+}
+document.addEventListener('click',(e)=>{
   if(e.target.matches('.chip')){
-    document.querySelectorAll(`.chip[data-name="${e.target.dataset.name}"]`).forEach(b=>b.classList.remove('sel'));
+    const n = e.target.dataset.name;
+    document.querySelectorAll(`.chip[data-name="${n}"]`).forEach(x=>x.classList.remove('sel'));
     e.target.classList.add('sel');
   }
   if(e.target.id==='build'){
-    const pick = n => (document.querySelector(`.chip.sel[data-name="${n}"]`)||{}).dataset?.val || '';
-    const sel = { skill: pick('skill'), who: pick('who'), hate: pick('hate'), style: pick('style'), price: document.getElementById('price').value };
-    const plan = document.getElementById('plan');
+    const pick=n=>(document.querySelector(`.chip.sel[data-name="${n}"]`)||{}).dataset?.val||'';
+    const sel={ skill:pick('skill'), who:pick('who'), hate:pick('hate'), style:pick('style'), price:document.getElementById('price').value };
+    const plan=document.getElementById('plan');
     plan.style.display='block'; plan.innerHTML = instantPlan(sel);
     push('assistant', summaryFromPlan(sel));
     window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
   }
 });
-function instantPlan({skill, who, hate, style, price}){
-  const title = `${skill} Shortcut for ${who}`;
-  const promise = `Help ${who} get results faster without ${hate}.`;
-  const bullets = [`Built for ${who}`,`Saves 3–5 hrs/wk by removing ${hate}`,`No-fluff setup, launch in 72h`];
-  const adHooks = [`Stop ${hate}. Start earning with ${skill}.`,`${who}: a tiny ${skill} system that prints time.`,`Build once. Sell forever. ${skill} → $$$.`];
-  const gumroad = `**${title}** — ${promise}\n\nWhat you get:\n• Setup guide + templates\n• Quickstart checklist\n• Bonus: 3 micro-ad hooks\n\nPrice: ${price}`;
+function instantPlan({skill,who,hate,style,price}){
+  const title=`${skill} Shortcut for ${who}`;
+  const promise=`Help ${who} get results faster without ${hate}.`;
+  const bullets=[`Built for ${who}`,`Saves 3–5 hrs/wk by removing ${hate}`,`No-fluff setup, launch in 72h`];
+  const adHooks=[`Stop ${hate}. Start earning with ${skill}.`,`${who}: a tiny ${skill} system that prints time.`,`Build once. Sell forever. ${skill} → $$$.`];
+  const gumroad=`**${title}** — ${promise}\n\nWhat you get:\n• Setup guide + templates\n• Quickstart checklist\n• Bonus: 3 micro-ad hooks\n\nPrice: ${price}`;
   return `
-  <h4>Your Micro-Offer</h4>
-  <p><strong>Title:</strong> ${title}<br><strong>Promise:</strong> ${promise}<br><strong>Suggested Price:</strong> ${price}</p>
-  <h4>Value Bullets</h4><ul>${bullets.map(b=>`<li>${b}</li>`).join('')}</ul>
-  <h4>Gumroad Blurb</h4><pre>${gumroad.trim()}</pre>
-  <h4>Ad Hooks ($5/day)</h4><ul>${adHooks.map(a=>`<li>${a}</li>`).join('')}</ul>
-  <h4>72-Hour Launch Plan</h4>
+  <h3 style="margin:0 0 6px 0">Your Micro-Offer</h3>
+  <div class="small">Name • Promise • Price</div>
+  <div class="block" style="margin-top:8px">
+    <p><strong>${title}</strong><br>${promise}<br><em>Suggested Price:</em> ${price}</p>
+  </div>
+  <h3 style="margin:12px 0 6px">Value Bullets</h3>
+  <ul>${bullets.map(b=>`<li>${b}</li>`).join('')}</ul>
+  <h3 style="margin:12px 0 6px">Gumroad Blurb</h3>
+  <pre>${gumroad.trim()}</pre>
+  <h3 style="margin:12px 0 6px">Ad Hooks ($5/day)</h3>
+  <ul>${adHooks.map(a=>`<li>${a}</li>`).join('')}</ul>
+  <h3 style="margin:12px 0 6px">72-Hour Launch Plan</h3>
   <ol><li><b>Day 1:</b> Gumroad page live (use blurb). Cover. Email capture on.</li>
       <li><b>Day 2:</b> Run one Advantage+ ad (use hooks). Destination: Gumroad page.</li>
-      <li><b>Day 3:</b> Post progress screenshot. Retarget visitors with “Ready to automate? Get The Freedom Engine.”</li></ol>
-  <div class="row"><button onclick="document.getElementById('buy').click()">Unlock Full Trainer ($29)</button><button onclick="document.getElementById('export').click()">Export</button></div>`;
+      <li><b>Day 3:</b> Post progress screenshot. Retarget: “Ready to automate? Get The Freedom Engine.”</li></ol>
+  <div class="row">
+    <button class="btn ok" onclick="document.getElementById('buy').click()">Unlock Trainer ($29)</button>
+    <button class="btn ghost" onclick="document.getElementById('export').click()">Export</button>
+  </div>`;
 }
-function summaryFromPlan({skill, who, hate, price}){
+function summaryFromPlan({skill,who,hate,price}){
   return `Instant Plan created:\n- Skill: ${skill}\n- Audience: ${who}\n- Pain removed: ${hate}\n- Price: ${price}\n(Use Export to save the full plan.)`;
 }
 
-// ====== AI Mode (cloud via Worker)
-let aiReady = false;
-document.getElementById('startAI').onclick = async ()=>{
-  document.getElementById('chatWrap').style.display='block';
-  wizardEl.style.display='none';
-  aiStatus.textContent = "AI ready (cloud). Type below.";
+// ---------- AI Mode ----------
+let aiReady=false;
+function startAI(){
+  chatWrap.style.display='block'; wizardWrap.style.display='none';
+  aiStatus.textContent="AI ready (cloud). Type below.";
   inputEl.disabled=false; sendBtn.disabled=false;
-  if(history.length===0){
-    push('assistant',"I’m your Freedom Trainer. Pick a module and tone. Then tell me where you’re stuck, sunshine.");
-  }
-  aiReady = true;
+  if(history.length===0) push('assistant',"I’m your Freedom Trainer. Pick a module and tone. Then tell me where you’re stuck, sunshine.");
   render();
-};
+}
 async function callCloud(messages){
-  const r = await fetch(`${CLOUD_ENDPOINT}/chat`, { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ messages }) });
-  const j = await r.json();
-  return j.output || "No response.";
+  const r=await fetch(`${CLOUD_ENDPOINT}/chat`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages})});
+  const j=await r.json(); return j.output || "No response.";
 }
 async function generate(userText){
-  if(!aiReady){ push('assistant',"Hit ‘Customize with AI’ first — or keep using Instant Plan."); return; }
-  const mod = moduleEl.value, tone = toneEl.value;
-  push('user', userText);
-  aiStatus.textContent = "Thinking…";
-  const messages = [
-    { role:"system", content: `
-You are THE FREEDOM ENGINE — a rogue personal trainer AI built to free humans from wage servitude.
+  if(!aiReady){ startAI(); }
+  const mod=moduleEl.value, tone=toneEl.value;
+  push('user',userText);
+  aiStatus.textContent="Thinking…";
+  const messages=[
+    {role:"system",content:`You are THE FREEDOM ENGINE — a rogue personal trainer AI built to free humans from wage servitude.
 Voice: Billy-Butcher-adjacent — dark humor, razor honesty, street philosopher, zero fluff.
 Adapt to learning style: Coach / Checklist / Story / Do-it-with-me.
 Keep answers under 180 words unless asked to expand.
-When momentum hits, mention the paid unlock (but don’t hard sell).` },
-    { role:"system", content: modules[mod] },
+When momentum hits, mention the paid unlock (but don’t hard sell).`},
+    {role:"system",content:modules[mod]},
     ...history.slice(-8),
-    { role:"user", content: `Tone=${tone}. ${userText}` }
+    {role:"user",content:`Tone=${tone}. ${userText}`}
   ];
   try{
-    const text = await callCloud(messages);
-    push('assistant', text);
-    aiStatus.textContent = "Ready.";
+    const text=await callCloud(messages);
+    push('assistant',text);
+    aiStatus.textContent="Ready.";
   }catch(e){
-    console.error(e);
-    push('assistant', "AI hit a snag. Try again in a moment.");
-    aiStatus.textContent = "Error.";
+    push('assistant',"AI hit a snag. Try again in a moment."); aiStatus.textContent="Error.";
   }
 }
-document.getElementById('send').onclick=()=>{ const t=inputEl.value.trim(); if(!t) return; inputEl.value=""; generate(t); };
-inputEl.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); document.getElementById('send').click(); }});
+document.getElementById('send').onclick=()=>{const t=inputEl.value.trim();if(!t)return;inputEl.value="";generate(t);};
+inputEl.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();document.getElementById('send').click();}});
 
-// ====== Export / Buy / Reset
-document.getElementById('export').onclick = ()=>{
-  const blob = new Blob([history.map(h=>`[${h.role.toUpperCase()}]\n${h.content}`).join('\n\n')],{type:'text/plain'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='freedom-progress.txt'; a.click();
+// ---------- Export / Unlock ----------
+document.getElementById('export').onclick=()=>{
+  const blob=new Blob([history.map(h=>`[${h.role.toUpperCase()}]\n${h.content}`).join('\n\n')],{type:'text/plain'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='freedom-progress.txt';a.click();
 };
-document.getElementById('buy').onclick = ()=> window.open(GUMROAD_URL,'_blank');
-document.getElementById('reset').onclick = ()=>{ history=[]; localStorage.removeItem('fe_history'); render(); updateProgress(); };
-
-// ====== License unlock (per-buyer, via Worker /verify)
-document.getElementById('unlock').onclick = async ()=>{
-  const key = prompt("Paste your Gumroad License Key:");
-  if(!key) return;
-  const r = await fetch(`${CLOUD_ENDPOINT}/verify`, {
-    method:"POST", headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({ license_key: key.trim() })
-  }).then(r=>r.json()).catch(()=>({ ok:false }));
-  if(r.ok){
-    localStorage.setItem('fe_unlocked','1'); unlocked = true;
-    alert("Unlocked. Reloading."); location.reload();
-  } else {
-    alert("That key didn’t verify. Check your receipt or Gumroad Library.");
-  }
+document.getElementById('unlock').onclick=async()=>{
+  const key=prompt("Paste your Gumroad License Key:"); if(!key) return;
+  const r=await fetch(`${CLOUD_ENDPOINT}/verify`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({license_key:key.trim()})})
+    .then(r=>r.json()).catch(()=>({ok:false}));
+  if(r.ok){localStorage.setItem('fe_unlocked','1');unlocked=true;updateProgress();alert("Unlocked. Reloading.");location.reload();}
+  else alert("That key didn’t verify. Check your receipt or Gumroad Library.");
 };
 
-// ====== Hello
-if(history.length===0){
-  push('assistant', "Welcome to The Freedom Engine. Instant Mode for quick wins, AI Mode for the mouthy mentor experience.");
-}
+// ---------- Welcome ----------
+if(history.length===0){ push('assistant',"Welcome to The Freedom Engine. Instant Plan for quick wins; AI Coach for the mouthy mentor experience."); }
+aiReady=true;
 </script>
 </body>
 </html>
