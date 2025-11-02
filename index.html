@@ -26,7 +26,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
 @keyframes drift{0%{transform:translate3d(0,0,0) scale(1)}100%{transform:translate3d(4rem,-3rem,0) scale(1.1)}}
 
 /* Layout */
-.container{max-width:1220px;margin:0 auto;padding:22px 18px 120px;display:grid;gap:18px;grid-template-columns:260px 1fr}
+.container{max-width:1220px;margin:0 auto;padding:22px 18px 120px;display:grid;gap:18px;grid-template-columns:260px 1fr;overflow:visible}
 @media(max-width:1024px){.container{grid-template-columns:1fr}}
 .glass{background:linear-gradient(180deg,var(--glass1),var(--glass2));border:1px solid var(--line);border-radius:var(--rad);box-shadow:var(--shadow);backdrop-filter:blur(14px) saturate(140%)}
 .neon{position:relative;isolation:isolate}
@@ -37,7 +37,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
   filter:blur(12px) saturate(140%);opacity:.35}
 
 /* Sidebar */
-.sidebar{position:sticky;top:16px;height:fit-content;padding:14px}
+.sidebar{position:sticky;top:16px;height:fit-content;padding:14px;z-index:1001} /* above chat */
 .brand{display:flex;align-items:center;gap:12px;margin-bottom:8px}
 .logo-wrap{width:54px;height:54px;border-radius:14px;display:grid;place-items:center;position:relative;background:rgba(0,0,0,.25);border:1px solid #2a2f45;overflow:hidden}
 .logo{width:42px;height:42px;object-fit:contain;display:none}
@@ -65,17 +65,17 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
 .bar{height:10px;border-radius:999px;background:#0d1222;border:1px solid #2a2f45;overflow:hidden}
 .bar>div{height:100%;background:linear-gradient(90deg,var(--neon2),var(--neon1),var(--neon3),var(--neon4));width:0%;transition:width .4s}
 
-/* Menu dropdown (fixed) */
-.menu{position:relative}
+/* Menu dropdown (fixed & on top) */
+.menu{position:relative;z-index:1002}
 .menu button{width:100%}
 .menu .panel{position:absolute;left:0;top:100%;transform:translateY(8px);width:220px;
-  background:#0b1224;border:1px solid #2a3553;border-radius:12px;display:none;padding:8px;z-index:50;
+  background:#0b1224;border:1px solid #2a3553;border-radius:12px;display:none;padding:8px;z-index:1003;
   box-shadow:0 18px 50px rgba(0,0,0,.5)}
 .menu.open .panel{display:block}
 .menu .panel .btn{display:block;width:100%;text-align:left;margin:4px 0}
 
 /* Modal */
-.modal{position:fixed;inset:0;background:rgba(7,8,11,.72);backdrop-filter:blur(6px);display:none;place-items:center;z-index:30}
+.modal{position:fixed;inset:0;background:rgba(7,8,11,.72);backdrop-filter:blur(6px);display:none;place-items:center;z-index:1100}
 .modal.open{display:grid}
 .modal-card{width:min(980px,92vw);max-height:86vh;overflow:auto}
 .module-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
@@ -85,7 +85,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
 
 /* Chat */
 .panel{padding:12px}
-.chat{max-height:74vh;overflow:auto;padding:8px 6px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01))}
+.chat{max-height:74vh;overflow:auto;padding:8px 6px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01));position:relative;z-index:1}
 .msg{display:grid;grid-template-columns:34px 1fr;gap:10px;margin:10px 0;align-items:start}
 .avatar{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:14px;border:1px solid #2c3553;background:linear-gradient(135deg,#1b2135,#121628)}
 .avatar.me{border-color:#36407a}
@@ -160,7 +160,7 @@ textarea{min-height:60px;resize:vertical;border-radius:12px;border:1px solid #26
     </div>
     <div style="padding:12px">
       <div class="module-grid" id="modulesGrid"></div>
-      <div style="margin-top:10px;color:#98a2b3;font-size:12px">Unlocked modules are stored on this device. You can add more later without breaking anything.</div>
+      <div style="margin-top:10px;color:#98a2b3;font-size:12px">Unlocked modules are stored on this device. Add more anytime.</div>
     </div>
   </div>
 </div>
@@ -257,34 +257,27 @@ if (logo){ const ok=()=>{logo.classList.add('spin');logo.style.display='block';l
 
 /* =================== HELPERS =================== */
 const esc = s => (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+const norm = s => (s||"").toLowerCase().replace(/[`~^*_[\]{}()<>:"'.,!?/\\|-]/g,'').replace(/\s+/g,' ').trim();
 function sanitizeSay(t){return (t||"").replace(/^```(?:json)?/i,'').replace(/```$/,'').replace(/\[\[[^\]]+\]\]/g,'').trim();}
 function lastAssistant(){ for(let i=history.length-1;i>=0;i--){ if(history[i].role==='assistant') return history[i]; } return null; }
-function isOpenerText(text=""){ const x=text.toLowerCase(); return x.startsWith("let's find the one skill") || x.startsWith("fresh slate."); }
-function enforceSingleOpener(){
-  let found = false;
-  history = history.filter(m=>{
-    if(m.role!=='assistant') return true;
-    if(!isOpenerText(m.content)) return true;
-    if(!found){ found = true; return true; }  // keep the first (latest) we encounter after reverse
-    return false;
-  });
-}
-function noRepeatAssistant(text){ const last=lastAssistant(); return !last || sanitizeSay(last.content)!==sanitizeSay(text); }
+function isOpenerText(text=""){ const x=norm(text); return x.startsWith("lets find the one skill") || x.startsWith("fresh slate"); }
+
+/* De-dupe & opener enforcement */
 function dedupeHistory(){
-  // remove older openers so only the latest opener remains
+  // keep only the latest opener
   for(let i=history.length-1, kept=false; i>=0; i--){
     const m=history[i];
     if(m.role==='assistant' && isOpenerText(m.content)){
       if(kept){ history.splice(i,1); } else { kept=true; }
     }
   }
-  // remove consecutive identical assistant bubbles
+  // remove near-identical consecutive assistant lines
   const out=[]; let prevA=null;
   for(const m of history){
     if(m.role==='assistant'){
-      const s=sanitizeSay(m.content);
-      if(prevA===s) continue;
-      prevA=s; out.push({role:'assistant',content:s});
+      const s=sanitizeSay(m.content); const n=norm(s);
+      if(prevA===n) continue;
+      prevA=n; out.push({role:'assistant',content:s});
     } else { prevA=null; out.push(m); }
   }
   history=out;
@@ -298,11 +291,18 @@ function bubble(role,content){
 }
 function push(role,content){
   const cleaned = role==='assistant'?sanitizeSay(content):content;
+
+  // opener policy: replace older openers
   if(role==='assistant' && isOpenerText(cleaned)){
-    // keep only this opener
     history = history.filter(m=>!(m.role==='assistant' && isOpenerText(m.content)));
   }
-  if(role==='assistant' && !noRepeatAssistant(cleaned)) return;
+
+  // near-duplicate guard for assistants
+  if(role==='assistant'){
+    const last = lastAssistant();
+    if(last && norm(last.content) === norm(cleaned)) return;
+  }
+
   history.push({role,content:cleaned});
   lastTouch = Date.now(); if(!startTs) startTs=lastTouch;
   localStorage.setItem('fe_history',JSON.stringify(history));
@@ -365,24 +365,21 @@ async function agentAsk(userTextOrNull){
   return sanitizeSay(parsed.say);
 }
 
-/* =================== BOOT (with opener guard) =================== */
+/* =================== BOOT (no extra messages if opener exists) =================== */
 function sessionResumed(){ return sessionStorage.getItem('fe_resumed')==='1'; }
 function markResumed(){ sessionStorage.setItem('fe_resumed','1'); }
 async function boot(){
   try{
     inputEl.disabled=false; sendBtn.disabled=false;
-    dedupeHistory(); enforceSingleOpener(); render(); updateProgressUI();
+    dedupeHistory(); render(); updateProgressUI();
 
-    const last = history[history.length-1];
-    const stale = Date.now() - (lastTouch||0) > 90*1000;
     const alreadyHasOpener = history.some(m=>m.role==='assistant' && isOpenerText(m.content));
-
-    if (history.length===0 || !alreadyHasOpener){
+    if (!alreadyHasOpener){
       push('assistant', PROMPTS.opener);
       markResumed();
-    } else if (!sessionResumed() && (stale || (last && last.role==='user'))){
-      const next = await agentAsk("Continue the current stage and steer me back on track.");
-      push('assistant', next); markResumed();
+    } else {
+      // opener present—do NOT auto-continue; wait for user
+      if (!sessionResumed()) markResumed();
     }
     aiStatus.textContent="Ready.";
   }catch(err){
@@ -427,7 +424,8 @@ pre{white-space:pre-wrap;background:#0d1117;border:1px solid #232c40;border-radi
 };
 
 /* =================== MENU / MODULES =================== */
-menuBtn.onclick=()=>menuRoot.classList.toggle('open');
+const menuRoot = document.getElementById('menu'); // (redeclare-safe)
+document.getElementById('menuBtn').onclick=()=>menuRoot.classList.toggle('open');
 document.addEventListener('click',e=>{ if(!menuRoot.contains(e.target)) menuRoot.classList.remove('open'); });
 
 document.getElementById('saveSnap').onclick=()=>{
@@ -443,7 +441,7 @@ document.getElementById('loadSnap').addEventListener('change',async e=>{
     localStorage.setItem('fe_stage',currentStage);
     localStorage.setItem('fe_history',JSON.stringify(history));
     localStorage.setItem('fe_modules',JSON.stringify(modules));
-    dedupeHistory(); enforceSingleOpener(); render(); updateProgressUI();
+    dedupeHistory(); render(); updateProgressUI();
     push('assistant',"Snapshot loaded. We’ll pick up exactly where you left off.");
   }catch{ alert("Bad snapshot file."); }
 });
