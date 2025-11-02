@@ -5,17 +5,18 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>The Freedom Engine — Trainer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#07080b; --glass:#0e1220cc; --ink:#eaf0ff; --muted:#98a2b3; --line:#1b2235;
+  --bg:#07080b; --ink:#eaf0ff; --muted:#98a2b3; --line:#1b2235;
+  --glass1:rgba(255,255,255,.06); --glass2:rgba(255,255,255,.02);
   --neon1:#7c86ff; --neon2:#3ddc97; --neon3:#ff7cba; --neon4:#ffa93d;
   --rad:18px; --shadow:0 18px 60px rgba(0,0,0,.55);
 }
 *{box-sizing:border-box} html,body{height:100%}
-body{margin:0;color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);overflow-y:overlay}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto;overflow-y:overlay}
 
-/* === ORIGINAL NEON CANVAS BACKGROUND (restored) === */
+/* Neon canvas background (restored) */
 .canvas{
   position:fixed; inset:-20vmax; z-index:-1; pointer-events:none;
   filter:blur(80px) saturate(140%); opacity:.35;
@@ -25,59 +26,42 @@ body{margin:0;color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe U
     conic-gradient(from 90deg at 40% 80%, var(--neon2), transparent 50%);
   animation: drift 18s linear infinite alternate;
 }
-@keyframes drift{
-  0%{transform:translate3d(0,0,0) scale(1)}
-  100%{transform:translate3d(4rem,-3rem,0) scale(1.1)}
-}
+@keyframes drift{0%{transform:translate3d(0,0,0) scale(1)}100%{transform:translate3d(4rem,-3rem,0) scale(1.1)}}
 
-/* === Layout & Glass === */
+/* Layout */
 .container{max-width:1220px;margin:0 auto;padding:22px 18px 120px;display:grid;gap:18px;grid-template-columns:300px 1fr}
 @media (max-width:1040px){.container{grid-template-columns:1fr}}
-.glass{
-  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
-  border:1px solid var(--line); border-radius:var(--rad); box-shadow:var(--shadow);
-  backdrop-filter:blur(14px) saturate(140%);
-}
+.glass{background:linear-gradient(180deg,var(--glass1),var(--glass2));border:1px solid var(--line);border-radius:var(--rad);box-shadow:var(--shadow);backdrop-filter:blur(14px) saturate(140%)}
 .neon{position:relative;isolation:isolate}
-.neon::before{
-  content:""; position:absolute; inset:-1px; z-index:-1; border-radius:calc(var(--rad)+2px);
+.neon::before{content:"";position:absolute;inset:-1px;z-index:-1;border-radius:calc(var(--rad) + 2px);
   background:
     linear-gradient(90deg,var(--neon1),transparent 30%,transparent 70%,var(--neon3)),
     linear-gradient(180deg,var(--neon2),transparent 30%,transparent 70%,var(--neon4));
-  filter:blur(12px) saturate(140%); opacity:.35; pointer-events:none;
+  filter:blur(12px) saturate(140%);opacity:.35;pointer-events:none;
 }
 
-/* === Sidebar === */
-.sidebar{position:sticky; top:16px; height:fit-content; padding:16px}
-.brand{display:flex; align-items:center; gap:12px; margin-bottom:10px}
-.logo-wrap{
-  width:56px; height:56px; border-radius:14px;
-  display:grid; place-items:center; position:relative;
-  background:rgba(0,0,0,.25); border:1px solid #2a2f45; overflow:hidden;
-}
-.logo-wrap img{
-  width:44px; height:44px; object-fit:contain; display:none; /* hidden until loaded */
-  filter:
-    drop-shadow(0 0 14px rgba(124,134,255,.65))
-    drop-shadow(0 0 24px rgba(61,220,151,.45))
-    drop-shadow(0 0 28px rgba(255,124,186,.35));
-}
-.logo-wrap img.spin{display:block;animation: spin 36s linear infinite}
+/* Sidebar */
+.sidebar{position:sticky;top:16px;height:fit-content;padding:16px}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.logo-wrap{width:56px;height:56px;border-radius:14px;display:grid;place-items:center;position:relative;background:rgba(0,0,0,.25);border:1px solid #2a2f45;overflow:hidden}
+.logo{width:44px;height:44px;object-fit:contain;display:none} /* hidden until loaded */
+.logo.spin{display:block;animation:logo-spin 36s linear infinite;filter:
+  drop-shadow(0 0 14px rgba(124,134,255,.65))
+  drop-shadow(0 0 24px rgba(61,220,151,.45))
+  drop-shadow(0 0 28px rgba(255,124,186,.35))}
+@keyframes logo-spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 .logo-fallback{
-  position:absolute; inset:0; display:grid; place-items:center;
-  font-family:"JetBrains Mono",monospace; font-weight:800; letter-spacing:.8px;
+  position:absolute;inset:0;display:grid;place-items:center;
+  font-family:"JetBrains Mono",monospace;font-weight:700;letter-spacing:.8px;
   background:linear-gradient(135deg,var(--neon2),var(--neon1),var(--neon3));
-  -webkit-background-clip:text; background-clip:text; color:transparent;
-  text-shadow:0 0 16px rgba(124,134,255,.35);
+  -webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 16px rgba(124,134,255,.35)
 }
-@keyframes spin{from{transform:rotate(0)} to{transform:rotate(360deg)}}
-
 .brand-title{line-height:1.05}
-.title{font-weight:800; font-size:18px; letter-spacing:.2px}
-.sub{color:var(--muted); font-size:12px; margin-top:2px}
+.title{font-weight:800;font-size:18px;letter-spacing:.2px}
+.sub{color:var(--muted);font-size:12px;margin-top:2px}
 
-.block{padding:12px;border-radius:14px;border:1px solid var(--line);
-  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015))}
+/* Blocks & controls */
+.block{padding:12px;border-radius:14px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015))}
 .row{display:flex;gap:10px;flex-wrap:wrap}
 .btn,textarea{border-radius:12px;border:1px solid #263048;background:#0f1424;color:var(--ink);padding:10px 12px;outline:none}
 .btn{cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:.2s ease;font-weight:600}
@@ -89,38 +73,43 @@ body{margin:0;color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe U
 .pill.demo{color:#ffd7f1;border-color:#4a2a47;background:rgba(255,124,186,.12)}
 .pill.full{color:#baffea;border-color:#1f4b3c;background:rgba(61,220,151,.12)}
 .tooltip{font-size:12px;color:var(--muted)}
+.hide{display:none !important}
 
-/* === Chat panel === */
+/* Chat */
 .panel{padding:12px;margin-top:0}
-.chat{max-height:74vh;overflow:auto;padding:8px 6px;border:1px solid var(--line);
-  border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01))}
+.chat{max-height:74vh;overflow:auto;padding:8px 6px;border:1px solid var(--line);border-radius:14px;
+  background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01))}
 .msg{display:grid;grid-template-columns:34px 1fr;gap:10px;margin:10px 0;align-items:start}
 .avatar{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:14px;border:1px solid #2c3553;background:linear-gradient(135deg,#1b2135,#121628);box-shadow:inset 0 0 8px rgba(124,134,255,.2)}
-.avatar.me{border-color:#36407a; box-shadow:inset 0 0 10px rgba(124,134,255,.3)}
-.avatar.ai{border-color:#245c46; box-shadow:inset 0 0 10px rgba(61,220,151,.28)}
-.bubble{white-space:pre-wrap; line-height:1.55; padding:12px 14px; border-radius:14px; border:1px solid #28314e;
-  background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.015)); box-shadow:0 10px 28px rgba(0,0,0,.45)}
-.me .bubble{border-color:#2f3969; box-shadow:0 0 24px rgba(124,134,255,.18)}
-.ai .bubble{border-color:#1f5843; box-shadow:0 0 24px rgba(61,220,151,.16)}
-.chat::-webkit-scrollbar{height:10px;width:10px}.chat::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--neon1),var(--neon3));border-radius:20px}
+.avatar.me{border-color:#36407a;box-shadow:inset 0 0 10px rgba(124,134,255,.3)}
+.avatar.ai{border-color:#245c46;box-shadow:inset 0 0 10px rgba(61,220,151,.28)}
+.bubble{white-space:pre-wrap;line-height:1.55;padding:12px 14px;border-radius:14px;border:1px solid #28314e;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.015));box-shadow:0 10px 28px rgba(0,0,0,.45)}
+.me .bubble{border-color:#2f3969;box-shadow:0 0 24px rgba(124,134,255,.18)}
+.ai .bubble{border-color:#1f5843;box-shadow:0 0 24px rgba(61,220,151,.16)}
+.chat::-webkit-scrollbar{height:10px;width:10px}
+.chat::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--neon1),var(--neon3));border-radius:20px}
 
-/* === Composer === */
+/* Composer */
 .footer{position:fixed;left:0;right:0;bottom:0;padding:12px 14px;background:linear-gradient(180deg,transparent,rgba(5,6,9,.88) 40%, rgba(5,6,9,1) 70%);border-top:1px solid var(--line)}
-.composer{max-width:1220px;margin:0 auto;display:grid;grid-template-columns:1fr auto auto;gap:10px}
+.composer{max-width:1220px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:10px}
 textarea{min-height:60px;resize:vertical}
-a.inline{color:#cfd6ff;text-decoration:none;border-bottom:1px dotted #7078ff}
+
+/* Premium mode: cleaner sidebar */
+.premium .sidebar .block[data-locked]{display:none}
+.premium .sub::after{content:"  •  Premium"; color:#baffea}
+.premium .footer{background:linear-gradient(180deg,transparent,rgba(5,6,9,.78) 40%, rgba(5,6,9,.92) 70%)}
 </style>
 </head>
 <body>
-<!-- Restored neon canvas background -->
 <div class="canvas"></div>
 
-<div class="container">
+<div class="container" id="app">
   <!-- Sidebar -->
   <aside class="glass neon sidebar">
     <div class="brand">
       <div class="logo-wrap">
-        <img id="iasLogo" src="assets/ias-logo.png" alt="Intelligently Artificial Systems"/>
+        <!-- If your image is at /assets/ias-logo.png it will load & spin. If it 404s, the IAS badge stays. -->
+        <img id="iasLogo" class="logo" src="assets/ias-logo.png" alt="Intelligently Artificial Systems">
         <div class="logo-fallback">IAS</div>
       </div>
       <div class="brand-title">
@@ -129,7 +118,8 @@ a.inline{color:#cfd6ff;text-decoration:none;border-bottom:1px dotted #7078ff}
       </div>
     </div>
 
-    <div class="block glass">
+    <!-- Access block (auto-hides in Premium) -->
+    <div class="block glass" data-locked>
       <div class="row">
         <button id="unlock" class="btn ok">I have a license key</button>
         <button id="reset" class="btn ghost">Reset</button>
@@ -140,17 +130,19 @@ a.inline{color:#cfd6ff;text-decoration:none;border-bottom:1px dotted #7078ff}
       </div>
     </div>
 
-    <div class="block glass">
-      <p class="tooltip">Unlock the advanced depth. License key is in your receipt &amp; <a class="inline" target="_blank" href="https://app.gumroad.com/library">Gumroad Library</a>.</p>
-      <button id="buy" class="btn primary" style="width:100%">Buy on Gumroad — $29</button>
+    <!-- Monetization block (auto-hides in Premium) -->
+    <div class="block glass" data-locked>
+      <p class="tooltip">Unlock advanced depth. License key is in your receipt &amp; <a class="inline" target="_blank" href="https://app.gumroad.com/library" style="color:#cfd6ff;text-decoration:none;border-bottom:1px dotted #7078ff">Gumroad Library</a>.</p>
+      <button id="buy" class="btn primary" style="width:100%">Buy</button>
     </div>
 
+    <!-- Export (stays in Premium) -->
     <div class="block glass">
       <button id="export" class="btn ghost" style="width:100%">Export My Plan</button>
     </div>
   </aside>
 
-  <!-- Main: chat only -->
+  <!-- Main -->
   <main>
     <section id="chatWrap" class="panel glass neon">
       <div id="chat" class="chat"></div>
@@ -164,7 +156,6 @@ a.inline{color:#cfd6ff;text-decoration:none;border-bottom:1px dotted #7078ff}
   <div class="composer">
     <textarea id="input" placeholder="Answer here. Press Enter to send." disabled></textarea>
     <button id="send" class="btn primary" disabled>Send</button>
-    <button id="buy2" class="btn ok">Buy</button>
   </div>
 </div>
 
@@ -194,20 +185,22 @@ If user stalls, give two small options to click/answer. Always end with a clear 
 
 /* ===== State & DOM ===== */
 let history = JSON.parse(localStorage.getItem('fe_history')||'[]');
-let unlocked = localStorage.getItem('fe_unlocked')==='1';
-const chatEl=document.getElementById('chat');
-const inputEl=document.getElementById('input');
-const sendBtn=document.getElementById('send');
-const aiStatus=document.getElementById('aiStatus');
-const progressEl=document.getElementById('progress');
-const accessPill=document.getElementById('accessPill');
+let unlocked = localStorage.getItem('fe_unlocked') === '1';
+const chatEl     = document.getElementById('chat');
+const inputEl    = document.getElementById('input');
+const sendBtn    = document.getElementById('send');
+const aiStatus   = document.getElementById('aiStatus');
+const progressEl = document.getElementById('progress');
+const accessPill = document.getElementById('accessPill');
+const appRoot    = document.getElementById('app');
 
-/* ===== Logo load logic (show only when real image loads) ===== */
+/* ===== Logo load / fallback (no spinning broken icon) ===== */
 const logo = document.getElementById('iasLogo');
 const logoFallback = document.querySelector('.logo-fallback');
+// Only spin after image really loads. If it fails, keep the IAS badge.
 if (logo){
   logo.addEventListener('load', ()=>{ logo.classList.add('spin'); if(logoFallback) logoFallback.style.display='none'; }, {once:true});
-  logo.addEventListener('error', ()=>{ console.warn('IAS logo failed to load. Check path: /assets/ias-logo.png'); }, {once:true});
+  logo.addEventListener('error', ()=>{ console.warn('Logo failed to load: assets/ias-logo.png'); }, {once:true});
 }
 
 /* ===== Helpers ===== */
@@ -229,20 +222,40 @@ function render(){
 }
 function updateMeta(){
   const steps = history.filter(h=>h.role==='assistant').length;
-  progressEl.textContent = `Progress: ${steps} exchanges`;
-  accessPill.textContent = unlocked ? 'Full unlocked' : 'Demo mode';
-  accessPill.className = 'pill ' + (unlocked?'full':'demo');
+  if (progressEl) progressEl.textContent = `Progress: ${steps} exchanges`;
+  if (accessPill){
+    accessPill.textContent = unlocked ? 'Premium' : 'Demo mode';
+    accessPill.className = 'pill ' + (unlocked ? 'full' : 'demo');
+  }
 }
-render(); updateMeta();
+
+/* ===== Premium UI ===== */
+function enablePremiumUI(){
+  unlocked = true;
+  localStorage.setItem('fe_unlocked','1');
+
+  // Add .premium to root container (CSS hides monetization/keys and tightens UI)
+  appRoot.classList.add('premium');
+
+  // Remove locked blocks from DOM entirely (no price, no “buy”, no license references)
+  document.querySelectorAll('[data-locked]').forEach(n=>n.remove());
+
+  // Composer stays; Buy button is gone by design in Premium
+  updateMeta();
+}
+function maybePremiumOnLoad(){
+  if (unlocked) enablePremiumUI();
+}
 
 /* ===== Cloud call ===== */
 async function callCloud(messages){
-  const r=await fetch(`${CLOUD_ENDPOINT}/chat`,{
+  const r = await fetch(`${CLOUD_ENDPOINT}/chat`,{
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({messages})
   });
-  const j=await r.json(); return j.output || "No response.";
+  const j = await r.json();
+  return j.output || "No response.";
 }
 
 /* ===== Autostart onboarding ===== */
@@ -267,7 +280,6 @@ async function boot(){
     }
   }
 }
-boot();
 
 /* ===== Conversation ===== */
 async function generate(userText){
@@ -292,31 +304,50 @@ async function generate(userText){
 sendBtn.onclick=()=>{const t=inputEl.value.trim(); if(!t) return; inputEl.value=""; generate(t);};
 inputEl.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendBtn.click();}});
 
-/* ===== Buy / Unlock / Export / Reset ===== */
-document.getElementById('buy').onclick = ()=> window.open(GUMROAD_URL,'_blank');
-document.getElementById('buy2').onclick= ()=> window.open(GUMROAD_URL,'_blank');
+/* ===== Unlock flow (verify license, then switch to Premium UI) ===== */
+const unlockBtn = document.getElementById('unlock');
+if (unlockBtn){
+  unlockBtn.onclick = async ()=>{
+    const key = prompt("Paste your license key:");
+    if(!key) return;
+    const r = await fetch(`${CLOUD_ENDPOINT}/verify`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ license_key: key.trim() })
+    }).then(r=>r.json()).catch(()=>({ok:false}));
+    if(r.ok){
+      enablePremiumUI();
+      alert("Premium unlocked.");
+      // Optional: drop a welcome line
+      push('assistant',"Premium interface engaged. No fluff, just speed. Where do you want acceleration first: offer, copy, or launch?");
+    }else{
+      alert("That key didn’t verify. Check your receipt or Gumroad Library.");
+    }
+  };
+}
 
-document.getElementById('unlock').onclick=async()=>{
-  const key=prompt("Paste your Gumroad License Key:"); if(!key) return;
-  const r=await fetch(`${CLOUD_ENDPOINT}/verify`,{
-    method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({license_key:key.trim()})
-  }).then(r=>r.json()).catch(()=>({ok:false}));
-  if(r.ok){localStorage.setItem('fe_unlocked','1');unlocked=true;updateMeta();alert("Unlocked. Reloading.");location.reload();}
-  else alert("That key didn’t verify. Check your receipt or Gumroad Library.");
-};
-
-document.getElementById('export').onclick=()=>{
-  const blob=new Blob([history.map(h=>`[${h.role.toUpperCase()}]\n${h.content}`).join('\n\n')],{type:'text/plain'});
+/* ===== Buy / Export / Reset ===== */
+const buyBtn = document.getElementById('buy');
+if (buyBtn) buyBtn.onclick = ()=> window.open(GUMROAD_URL,'_blank');
+document.getElementById('export').onclick = ()=>{
+  const blob = new Blob([history.map(h=>`[${h.role.toUpperCase()}]\n${h.content}`).join('\n\n')],{type:'text/plain'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='freedom-progress.txt'; a.click();
 };
+const resetBtn = document.getElementById('reset');
+if (resetBtn){
+  resetBtn.onclick = ()=>{
+    if(confirm("Reset all progress?")){
+      history=[]; localStorage.removeItem('fe_history');
+      render(); updateMeta();
+      push('assistant',"Progress cleared. Let’s begin again—what do you do well that people ask you for?");
+    }
+  };
+}
 
-document.getElementById('reset').onclick=()=>{
-  if(confirm("Reset all progress?")){
-    history=[]; localStorage.removeItem('fe_history'); render(); updateMeta();
-    push('assistant',"Progress cleared. Let’s begin again—what do you do well that people ask you for?");
-  }
-};
+/* ===== Init ===== */
+maybePremiumOnLoad();
+render(); updateMeta();
+boot();
 </script>
 </body>
 </html>
