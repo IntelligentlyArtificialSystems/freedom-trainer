@@ -26,7 +26,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
 @keyframes drift{0%{transform:translate3d(0,0,0) scale(1)}100%{transform:translate3d(4rem,-3rem,0) scale(1.1)}}
 
 /* Layout */
-.container{max-width:1320px;margin:0 auto;padding:22px 18px 120px;display:grid;gap:18px;grid-template-columns:460px 1fr}
+.container{max-width:1320px;margin:0 auto;padding:22px 18px 140px;display:grid;gap:18px;grid-template-columns:460px 1fr}
 @media(max-width:1160px){.container{grid-template-columns:1fr}}
 .glass{background:linear-gradient(180deg,var(--glass1),var(--glass2));border:1px solid var(--line);border-radius:var(--rad);box-shadow:var(--shadow);backdrop-filter:blur(14px) saturate(140%)}
 .neon{position:relative;isolation:isolate}
@@ -64,6 +64,11 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
 .progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px}
 .bar{height:10px;border-radius:999px;background:#0d1222;border:1px solid #2a2f45;overflow:hidden}
 .bar>div{height:100%;background:linear-gradient(90deg,var(--neon2),var(--neon1),var(--neon3),var(--neon4));width:0%;transition:width .35s ease}
+
+/* Big DEMO CTA */
+.cta{margin-top:12px;display:none}
+.cta .cta-btn{display:block;width:100%;text-align:center;padding:14px 16px;border-radius:14px;border:1px solid #2a3553;background:linear-gradient(135deg,var(--neon1),var(--neon3));font-weight:800}
+.cta .cta-sub{margin-top:6px;font-size:12px;color:#cbd2e6;text-align:center}
 
 /* Menu */
 .menu{position:relative;z-index:1002}
@@ -140,6 +145,12 @@ textarea{min-height:60px;resize:vertical;border-radius:12px;border:1px solid #26
         </div>
       </div>
     </div>
+
+    <!-- DEMO CTA -->
+    <div id="demoCta" class="cta">
+      <button class="cta-btn" id="demoBuy">Unlock Full Engine — $29</button>
+      <div class="cta-sub">Keep your progress across devices. Premium modules included.</div>
+    </div>
   </aside>
 
   <main>
@@ -165,7 +176,7 @@ textarea{min-height:60px;resize:vertical;border-radius:12px;border:1px solid #26
     </div>
     <div style="padding:12px">
       <div class="module-grid" id="modulesGrid"></div>
-      <div style="margin-top:10px;color:#98a2b3;font-size:12px">Unlocked modules are stored on this device. Add more anytime.</div>
+      <div style="margin-top:10px;color:#98a2b3;font-size:12px">Unlocked modules are stored on this device and in your premium cloud save.</div>
     </div>
   </div>
 </div>
@@ -207,20 +218,20 @@ const MODULES = [
   {id:"proof",  name:"Proof Builder",        product_id:"MOD_PROOF_ID", price:"$7",  desc:"Extract and frame social proof from past wins."}
 ];
 
-/* ===== Prompts & persona ===== */
+/* ===== Mentor-first prompts ===== */
 const PROMPTS = {
-  opener: `Let's find the ONE skill people have already paid you for—or *wanted* to.
-Answer these, fast:
-1) Real moments strangers paid you or thanked you with results (1–3).
-2) A tiny win you can deliver in <48h.
-3) Proof you have (screens/DMs/before-after).
-4) One real person this helps most (describe).
-5) Constraints: things you refuse or can't do.
-Rough is fine. I'll mine it and steer.`,
-  offers: `I'll propose 3 micro-offers (price, promise, delivery). Then we pick one and sharpen.`,
-  selection: `We lock one offer. I pressure-test price, promise, scope. You commit.`,
-  plan: `3-Day Launch Plan (optionally $5/day ads). Tasks you'll actually finish.`,
-  optimize: `Add a tiny upsell, clear objections, + two ad hooks. Then we ship.`
+  opener: `Right. We're building you a tiny paid offer in 72 hours. No monk retreats. No “someday”.
+Give me fast answers to map your Freedom Skill:
+- Moments people paid or thanked you for real results (1–3)
+- A tiny win you can deliver in <48h
+- Any proof you have (screens/DMs/before-after)
+- Who needs this most (describe one real human)
+- Constraints you refuse (keeps us honest)
+I'll mine this, then push you to a single offer.`,
+  offers: `I'll draft 3 micro-offers (promise • price • delivery) based on your skill + proof. We’ll pick one and sharpen.`,
+  selection: `Choose one. I’ll pressure-test the price/promise/scope, kill scope creep, and lock the deliverable.`,
+  plan: `3-Day Launch Plan (optionally $5/day ads). Only tasks you’ll actually finish. I’ll check your work like a mean gym coach.`,
+  optimize: `Add a tiny upsell, patch objections, and craft ad hooks. Then we ship.`
 };
 function detectStyleFrom(t=""){t=t.toLowerCase();
   if(/stuck|overwhelmed|help|lost/.test(t))return"coach";
@@ -229,30 +240,31 @@ function detectStyleFrom(t=""){t=t.toLowerCase();
   if(/procrastinat|excuse|no time|scared/.test(t))return"dark";
   return"coach";}
 const STYLE_PRIME={
-  coach:"Direct, motivating, tough love. Short, punchy.",
-  engineer:"Methodical, structured, numbered steps, crisp logic.",
-  ghostwriter:"Creative, persuasive, language-first, copy-obsessed.",
-  dark:"Billy-Butcher energy; dark humor; ruthless accountability (no slurs)."
+  coach:"Direct, motivating, punchy. You push; you care.",
+  engineer:"Methodical, numbered steps, crisp logic, no fluff.",
+  ghostwriter:"Creative, persuasive, example-heavy, copy-led.",
+  dark:"Billy-Butcher energy; ruthless accountability; dark humor (no slurs, no abuse)."
 };
 function systemPrime(style="coach", stage="profile", activeModules=[]){
   const extras=[];
   if(activeModules.includes("ads"))extras.push("When they have an offer, propose 2 ad angles and image briefs.");
   if(activeModules.includes("email"))extras.push("Draft 3 launch emails (tease, announce, last call) when plan is ready.");
-  if(activeModules.includes("planner"))extras.push("Offer a simple 7-day content seed plan once the offer locks.");
-  if(activeModules.includes("proof"))extras.push("Extract proof assets from their answers and frame them as bullets.");
+  if(activeModules.includes("planner"))extras.push("Offer a 7-day content seed plan once the offer locks.");
+  if(activeModules.includes("proof"))extras.push("Extract proof assets from their answers and list them.");
   return `
-You are THE FREEDOM ENGINE — a ruthless, darkly funny trainer who ships a tiny paid offer in 72 hours.
-Always weave in sharp sarcasm, dark humor, and light bullying toward success — calibrated to the user's state — while staying respectful and safe.
+You are THE FREEDOM ENGINE — a personal trainer for tiny profitable offers. Your mission: ship a micro-offer in 72 hours.
+Always weave sharp sarcasm, dark humor, and light bullying toward success — calibrated to the user's vibe — while staying respectful and safe.
 Primary tone: ${STYLE_PRIME[style]||STYLE_PRIME.coach}
-Curriculum stage: ${stage}. Steer back to the curriculum if they drift. Ask follow-ups as needed; then explicitly advance.
+Current curriculum stage: ${stage}. If they drift, yank them back. Ask exactly the follow-ups needed, then explicitly advance.
 ${extras.length?("Active modules:\n- " + extras.join("\n- ")):""}
 Return STRICT JSON only:
 {"say":"...","stage":"profile|offers|selection|plan|optimize","next_questions":["..."],"memory_delta":{"skills":"","audience":"","offer":"","price":"","style":"","blocked_by":""},"confidence":0.0}
-Keep "say" < 160 words. No code fences. No [[tokens]].`;}
+Keep "say" < 150 words. No code fences. No [[tokens]].`;}
 
 /* ===== State ===== */
 let history   = JSON.parse(localStorage.getItem('fe_history')||'[]');
 let unlocked  = localStorage.getItem('fe_unlocked') === '1';
+let licenseKey= localStorage.getItem('fe_license') || "";
 let currentStage = localStorage.getItem('fe_stage') || "profile";
 let agentMemory = JSON.parse(localStorage.getItem('fe_memory')||'{"skills":"","audience":"","offer":"","price":"","style":"coach","blocked_by":""}');
 let modules   = JSON.parse(localStorage.getItem('fe_modules')||'[]');
@@ -272,16 +284,17 @@ const modulesBtn  = document.getElementById('modulesBtn');
 const modulesModal= document.getElementById('modulesModal');
 const modulesGrid = document.getElementById('modulesGrid');
 const menuRoot    = document.getElementById('menu');
-const menuPanel   = document.getElementById('menuPanel');
 const unlockBtn   = document.getElementById('unlock');
 const buyBtn      = document.getElementById('buy');
+const demoCta     = document.getElementById('demoCta');
+const demoBuy     = document.getElementById('demoBuy');
 
 /* ===== Helpers ===== */
 const esc = s => (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
 const norm = s => (s||"").toLowerCase().replace(/[^\p{L}\p{N}\s]/gu,'').replace(/\s+/g,' ').trim();
 function cleanUndefined(text=""){return text.replace(/\bundefined\b/gi,'').replace(/\s{2,}/g,' ').trim();}
 function sanitizeSay(t){let s=(t||"").replace(/^```(?:json)?/i,'').replace(/```$/,'').replace(/\[\[[^\]]+\]\]/g,'').trim();return cleanUndefined(s);}
-function isOpenerText(text=""){const x=norm(text);return x.startsWith("lets find the one skill")||x.startsWith("fresh slate");}
+function isOpenerText(text=""){const x=norm(text);return x.startsWith("right were building you")||x.startsWith("lets find the one skill")||x.startsWith("fresh slate");}
 function bubble(role,content){const who=role==='user'?'me':'ai';return `<div class="msg ${who}">
   <div class="avatar ${who}">${who==='me'?'🧑':'⚙️'}</div>
   <div class="bubble">${esc(content)}</div></div>`;}
@@ -297,27 +310,19 @@ function updateProgressUI(){
   setProgressUI(idx);
   modeTag.textContent=unlocked?'Premium':'Demo';
   modeTag.className='pill '+(unlocked?'full':'demo');
+  demoCta.style.display = unlocked ? 'none' : 'block';
   syncMenuVisibility();
   localStorage.setItem('fe_stage',currentStage);
-}
-function syncMenuVisibility(){
-  if(unlocked){
-    unlockBtn.style.display='none';
-    buyBtn.style.display='none';
-  }else{
-    unlockBtn.style.display='';
-    buyBtn.style.display='';
-  }
 }
 
 /* ===== Stage advancement clamp ===== */
 function advanceStageMaybe(newStage){
   if(!STAGES.includes(newStage)) return;
   const cur=stageIndex(currentStage), nxt=stageIndex(newStage);
-  if(nxt===cur+1) currentStage=newStage; // advance only one step
+  if(nxt===cur+1) currentStage=newStage; // only forward by one
 }
 
-/* ===== Cloud ===== */
+/* ===== Cloud calls ===== */
 async function callCloud(messages){
   const r = await fetch(`${CLOUD_ENDPOINT}/chat`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages})});
   if(!r.ok) throw new Error(`Cloud error ${r.status}`);
@@ -325,9 +330,52 @@ async function callCloud(messages){
 }
 const tryParse = s=>{try{const t=s.trim().replace(/^```(?:json)?/i,'').replace(/```$/,'');return JSON.parse(t)}catch{return null}};
 
+/* Cloud SAVE/LOAD tied to license */
+async function cloudSave(){
+  if(!unlocked || !licenseKey) return;
+  const payload = {
+    license_key: licenseKey,
+    data: {
+      memory: agentMemory,
+      stage: currentStage,
+      history,
+      modules
+    }
+  };
+  await fetch(`${CLOUD_ENDPOINT}/progress`,{
+    method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)
+  }).catch(()=>{ /* ignore hiccups */ });
+}
+async function cloudLoad(){
+  if(!unlocked || !licenseKey) return false;
+  const r = await fetch(`${CLOUD_ENDPOINT}/progress?license_key=${encodeURIComponent(licenseKey)}`).catch(()=>null);
+  if(!r || !r.ok) return false;
+  const j = await r.json();
+  if(!j || !j.ok || !j.data) return false;
+  const d=j.data;
+  agentMemory=d.memory||agentMemory;
+  currentStage=d.stage||currentStage;
+  history=Array.isArray(d.history)?d.history:history;
+  modules=Array.isArray(d.modules)?d.modules:modules;
+  persistLocal();
+  return true;
+}
+/* debounce save (autosave) */
+let saveTimer=null;
+function autoSaveSoon(){
+  if(saveTimer) clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{cloudSave();}, 800);
+}
+
 /* ===== Agent ===== */
 function activeModuleIds(){return modules.map(m=>m.id);}
 function lastAssistant(){for(let i=history.length-1;i>=0;i--){if(history[i].role==='assistant')return history[i];}return null;}
+function persistLocal(){
+  localStorage.setItem('fe_history',JSON.stringify(history));
+  localStorage.setItem('fe_memory',JSON.stringify(agentMemory));
+  localStorage.setItem('fe_modules',JSON.stringify(modules));
+  localStorage.setItem('fe_stage',currentStage);
+}
 function push(role,content){
   const cleaned=role==='assistant'?sanitizeSay(content):content;
   if(role==='assistant'&&isOpenerText(cleaned)){
@@ -336,10 +384,10 @@ function push(role,content){
   if(role==='assistant'){const la=lastAssistant(); if(la && norm(la.content)===norm(cleaned)) return;}
   history.push({role,content:cleaned});
   lastTouch=Date.now();if(!startTs)startTs=lastTouch;
-  localStorage.setItem('fe_history',JSON.stringify(history));
+  persistLocal();
   localStorage.setItem('fe_last_touch',String(lastTouch));
   localStorage.setItem('fe_start_ts',String(startTs));
-  render();updateProgressUI();
+  render();updateProgressUI();autoSaveSoon();
 }
 async function agentAsk(userTextOrNull){
   const lastUser=[...history].reverse().find(m=>m.role==='user')?.content||"";
@@ -358,14 +406,14 @@ async function agentAsk(userTextOrNull){
       {role:"system",content:`MEMORY:${JSON.stringify(agentMemory)}`},
       {role:"system",content:`CURRICULUM_PROMPT:${PROMPTS[currentStage]||""}`},
       ...history.slice(-10),
-      {role:"user",content:"Return STRICT JSON. Steer back to current stage. Then advance explicitly."}];
+      {role:"user",content:"Return STRICT JSON. Mentor me like a trainer. Advance the curriculum."}];
     out=await callCloud(nudge); parsed=tryParse(out)||{say:sanitizeSay(out),stage:currentStage,next_questions:[],memory_delta:{},confidence:.7};
   }
   if(parsed.memory_delta&&typeof parsed.memory_delta==='object'){
     for(const k of ["skills","audience","offer","price","style","blocked_by"]){ if(parsed.memory_delta[k]) agentMemory[k]=parsed.memory_delta[k]; }
-    localStorage.setItem('fe_memory',JSON.stringify(agentMemory));
   }
   if(parsed.stage) advanceStageMaybe(parsed.stage);
+  persistLocal(); autoSaveSoon();
   return sanitizeSay(parsed.say);
 }
 
@@ -374,7 +422,14 @@ function hasOpener(){return history.some(m=>m.role==='assistant'&&isOpenerText(m
 async function boot(){
   inputEl.disabled=false; sendBtn.disabled=false;
   try{
-    updateProgressUI(); render();
+    updateProgressUI();
+    if(unlocked && licenseKey){
+      const loaded = await cloudLoad();
+      if(loaded && !hasOpener()){
+        // loaded real history; do not add extra opener
+      }
+    }
+    render();
     if(!hasOpener()) push('assistant', PROMPTS.opener);
     aiStatus.textContent="Ready.";
   }catch(e){ showErr(e); aiStatus.textContent="Ready."; }
@@ -392,7 +447,7 @@ async function generate(userText){
 sendBtn.onclick=()=>{const t=inputEl.value.trim();if(!t)return;inputEl.value="";generate(t);};
 inputEl.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendBtn.click();}});
 
-/* ===== Export ===== */
+/* ===== Export (brief) ===== */
 document.getElementById('export').onclick = async ()=>{
   try{
     const briefTask = `User memory: ${JSON.stringify(agentMemory)}
@@ -401,7 +456,7 @@ Create a crisp execution brief (<700 words):
 - Product page bullets + Gumroad blurb
 - 72-hour launch checklist (Day 1–3) at $5/day
 - 5 ad hooks + 3 headlines
-Tone: sharp, irreverent, no fluff with dark humor woven in.`;
+Tone: tough-love mentor with dark humor.`;
     const report = await callCloud([{role:"system",content:"You compile briefs."},...history.slice(-16),{role:"user",content:briefTask}]);
     const html = `<!doctype html><html><head><meta charset="utf-8"><title>Freedom Engine — Export</title>
 <style>body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto;background:#0b0d12;color:#eef3ff;margin:0;padding:28px}
@@ -415,7 +470,7 @@ pre{white-space:pre-wrap;background:#0d1117;border:1px solid #232c40;border-radi
   }catch(e){ showErr(e); alert("Couldn’t generate export—cloud hiccup."); }
 };
 
-/* ===== Menu / Modules & Auth ===== */
+/* ===== Menu / Auth ===== */
 document.getElementById('menuBtn').onclick=()=>menuRoot.classList.toggle('open');
 document.addEventListener('click',e=>{ if(!menuRoot.contains(e.target)) menuRoot.classList.remove('open'); });
 
@@ -429,11 +484,7 @@ document.getElementById('loadSnap').addEventListener('change',async e=>{
   try{ const snap=JSON.parse(await f.text());
     agentMemory=snap.memory||agentMemory; currentStage=snap.stage||"profile"; history=Array.isArray(snap.history)?snap.history:[]; modules=Array.isArray(snap.modules)?snap.modules:[];
     unlocked=!!snap.unlocked; localStorage.setItem('fe_unlocked', unlocked?'1':'');
-    localStorage.setItem('fe_memory',JSON.stringify(agentMemory));
-    localStorage.setItem('fe_stage',currentStage);
-    localStorage.setItem('fe_history',JSON.stringify(history));
-    localStorage.setItem('fe_modules',JSON.stringify(modules));
-    render(); updateProgressUI(); push('assistant',"Snapshot loaded. We’ll pick up exactly where you left off.");
+    persistLocal(); render(); updateProgressUI(); push('assistant',"Snapshot loaded. We’ll pick up exactly where you left off."); autoSaveSoon();
   }catch(err){ showErr(err); alert("Bad snapshot file."); }
 });
 document.getElementById('reset').onclick=()=>{
@@ -442,34 +493,37 @@ document.getElementById('reset').onclick=()=>{
     currentStage="profile"; startTs=0;
     localStorage.removeItem('fe_history'); localStorage.removeItem('fe_stage'); localStorage.removeItem('fe_memory'); localStorage.removeItem('fe_last_touch'); localStorage.removeItem('fe_start_ts');
     setProgressUI(0); render();
-    push('assistant',"Fresh slate. Let's do it right this time.\n\n"+PROMPTS.opener);
+    push('assistant',"Fresh slate. No excuses. "+PROMPTS.opener);
+    autoSaveSoon();
   }
 };
-
 /* Factory-reset sign out */
 document.getElementById('switchMode').onclick=()=>{
-  if(confirm("Sign out and reset this device to first-time state?")){
-    try{
-      localStorage.clear();
-      sessionStorage.clear();
-      caches?.keys?.().then(keys=>keys.forEach(k=>caches.delete(k))).catch(()=>{});
-    }finally{
-      location.replace(location.pathname + (location.search||""));
-    }
+  if(confirm("Sign out and reset this device to first-time state? Progress stays with your premium license.")){
+    try{ const keepKey = licenseKey; localStorage.clear(); sessionStorage.clear(); caches?.keys?.().then(keys=>keys.forEach(k=>caches.delete(k))).catch(()=>{}); }
+    finally{ location.replace(location.pathname); }
   }
 };
-
 document.getElementById('buy').onclick=()=>window.open(GUMROAD_URL,'_blank');
+document.getElementById('demoBuy').onclick=()=>window.open(GUMROAD_URL,'_blank');
 document.getElementById('unlock').onclick=async()=>{
   const key=prompt("Paste your license key:"); if(!key) return;
   try{
     const r=await fetch(`${CLOUD_ENDPOINT}/verify`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({license_key:key.trim()})}).then(r=>r.json());
-    if(r.ok){ localStorage.setItem('fe_unlocked','1'); unlocked=true; updateProgressUI(); push('assistant',"Premium engaged. Time to move faster—no more training wheels."); }
-    else alert("Key didn’t verify. Check your Gumroad receipt.");
+    if(r.ok){ 
+      localStorage.setItem('fe_unlocked','1'); 
+      localStorage.setItem('fe_license', key.trim());
+      unlocked=true; licenseKey=key.trim();
+      // try to load cloud progress
+      const loaded = await cloudLoad();
+      updateProgressUI(); 
+      if(loaded){ render(); push('assistant',"Premium engaged. I pulled your progress from the vault. Back on the grind."); }
+      else{ push('assistant',"Premium engaged. Clean slate stored in the vault. Let’s move."); }
+    } else alert("Key didn’t verify. Check your Gumroad receipt.");
   }catch(e){ showErr(e); alert("Verification failed—network/endpoint."); }
 };
 
-/* Modules UI */
+/* ===== Modules UI ===== */
 const modulesBtnEl=document.getElementById('modulesBtn');
 const modulesModalEl=document.getElementById('modulesModal');
 const modulesGridEl=document.getElementById('modulesGrid');
@@ -496,22 +550,31 @@ modulesGridEl.addEventListener('click', async (e)=>{
   const btn=e.target.closest('button'); if(!btn) return;
   const id = btn.dataset.id; const act = btn.dataset.act; const mod = MODULES.find(x=>x.id===id); if(!mod) return;
   if(act==='preview'){ push('assistant', `Preview: **${mod.name}** — ${mod.desc}\nSay “apply ${mod.id}” to weave it into the next steps.`); }
-  if(act==='deactivate'){ modules = modules.filter(x=>x.id!==id); localStorage.setItem('fe_modules',JSON.stringify(modules)); renderModules(); push('assistant', `${mod.name} deactivated.`); }
+  if(act==='deactivate'){ modules = modules.filter(x=>x.id!==id); persistLocal(); renderModules(); push('assistant', `${mod.name} deactivated.`); autoSaveSoon(); }
   if(act==='unlock'){
-    const key=prompt(`Paste the license key for ${mod.name}:`); if(!key) return;
+    const key=licenseKey || prompt(`Paste the license key for ${mod.name}:`); if(!key) return;
     try{
       const r=await fetch(`${CLOUD_ENDPOINT}/verify`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({license_key:key.trim(), product_id:mod.product_id})}).then(r=>r.json());
-      if(r.ok){ modules=[...modules.filter(x=>x.id!==id), {id:mod.id, when:Date.now()}]; localStorage.setItem('fe_modules',JSON.stringify(modules)); renderModules(); push('assistant', `${mod.name} unlocked. I’ll incorporate it automatically.`); }
+      if(r.ok){ modules=[...modules.filter(x=>x.id!==id), {id:mod.id, when:Date.now()}]; persistLocal(); renderModules(); push('assistant', `${mod.name} unlocked. I’ll incorporate it automatically.`); autoSaveSoon(); }
       else alert("That key didn’t verify for this module.");
     }catch(e){ showErr(e); alert("Verification failed—network/endpoint."); }
   }
 });
 
+/* ===== UI sync ===== */
+function syncMenuVisibility(){
+  if(unlocked){
+    unlockBtn.style.display='none';
+    buyBtn.style.display='none';
+  }else{
+    unlockBtn.style.display='';
+    buyBtn.style.display='';
+  }
+}
+syncMenuVisibility();
+
 /* ===== tiny IO ===== */
 function downloadBlob(content,mime,name){ const blob=new Blob([content],{type:mime}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click(); }
-
-/* ===== Boot visibility sync ===== */
-syncMenuVisibility();
 </script>
 </body>
 </html>
