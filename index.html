@@ -113,6 +113,11 @@ textarea{min-height:60px;resize:vertical}
 .premium .sidebar .block[data-locked]{display:none}
 .premium .sub::after{content:"  •  Premium"; color:#baffea}
 .premium .footer{background:linear-gradient(180deg,transparent,rgba(5,6,9,.78) 40%, rgba(5,6,9,.92) 70%)}
+
+/* Launch console */
+.console{margin-top:8px;padding:10px;border:1px dashed #2a2f45;border-radius:12px;background:#0c1221}
+.console .kv{display:flex;justify-content:space-between;font-size:12px;color:#cfd6ff;margin:2px 0}
+.console .tag{font-size:12px;color:#9aa3b2;margin-top:6px}
 </style>
 </head>
 <body>
@@ -136,6 +141,7 @@ textarea{min-height:60px;resize:vertical}
     <div class="block glass" data-locked>
       <div class="row">
         <button id="unlock" class="btn ok">I have a license key</button>
+        <button id="buy" class="btn primary">Buy</button>
       </div>
       <div class="row" style="margin-top:8px;align-items:center;justify-content:space-between">
         <div id="progressTxt" class="tooltip">Progress: 0%</div>
@@ -145,23 +151,51 @@ textarea{min-height:60px;resize:vertical}
         <div class="progress-label"><span>Roadmap</span><span id="stageLabel">0/5</span></div>
         <div class="bar"><div id="barFill"></div></div>
       </div>
+      <div class="console" id="consoleBox">
+        <div class="kv"><span>Steps done</span><b id="stepsDone">0</b></div>
+        <div class="kv"><span>Hours left</span><b id="hoursLeft">72</b></div>
+        <div class="kv"><span>Freedom Level</span><b id="freePct">0%</b></div>
+        <div class="tag" id="tagline">Reprogramming the wage cage…</div>
+      </div>
     </div>
 
-    <div class="block glass" data-locked>
-      <p class="tooltip">Already bought? Paste your key from your receipt or <a class="inline" target="_blank" href="https://app.gumroad.com/library" style="color:#cfd6ff;text-decoration:none;border-bottom:1px dotted #7078ff">Gumroad Library</a>.</p>
-      <button id="buy" class="btn primary" style="width:100%">Buy</button>
+    <!-- Personas (Premium only visible) -->
+    <div class="block glass premium-only">
+      <div class="tooltip" style="margin-bottom:6px">Persona</div>
+      <div class="row" id="personaRow">
+        <button class="btn ghost persona" data-style="coach">Coach</button>
+        <button class="btn ghost persona" data-style="engineer">Engineer</button>
+        <button class="btn ghost persona" data-style="ghostwriter">Ghostwriter</button>
+        <button class="btn ghost persona" data-style="dark">Dark Mentor</button>
+      </div>
     </div>
 
-    <!-- Reset: ALWAYS visible (also in Premium) -->
+    <!-- Session controls (always visible) -->
     <div class="block glass">
       <div class="row">
-        <button id="reset" class="btn ghost" style="width:100%">Reset Progress</button>
+        <button id="wake" class="btn ghost">Wake the Engine</button>
+        <button id="reset" class="btn ghost">Reset Progress</button>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button id="switchMode" class="btn ghost">Switch to Demo / Sign Out</button>
+      </div>
+    </div>
+
+    <!-- Save / Load snapshots -->
+    <div class="block glass">
+      <div class="row">
+        <button id="saveSnap" class="btn ghost">Save Snapshot</button>
+        <input id="loadSnap" type="file" accept=".json" style="display:none">
+        <button id="loadBtn" class="btn ghost">Load Snapshot</button>
       </div>
     </div>
 
     <!-- Export -->
     <div class="block glass">
-      <button id="export" class="btn ghost" style="width:100%">Export My Plan</button>
+      <div class="row">
+        <button id="export" class="btn ghost">Export My Plan</button>
+        <button id="exportKit" class="btn ghost">Export Kit</button>
+      </div>
     </div>
   </aside>
 
@@ -187,24 +221,42 @@ textarea{min-height:60px;resize:vertical}
 const CLOUD_ENDPOINT = "https://freedom-engine-worker.intelligentlyartificialsystems.workers.dev";
 const GUMROAD_URL    = "https://intellartsystems.gumroad.com/l/the-freedom-engine";
 const STAGES = ["profile","offers","selection","plan","optimize"];
+const TAGLINES = [
+  "Reprogramming the wage cage…",
+  "Simulating freedom…",
+  "Sharpening tiny offers into scalpels…",
+  "Replacing meetings with money…",
+  "De-optimizing your boss’s control…"
+];
+
+/* ===== Persona seed ===== */
+const STYLE_PRIME = {
+  coach: "Direct, motivating, tough love. Short, punchy.",
+  engineer: "Methodical, structured, numbered steps, crisp logic.",
+  ghostwriter: "Creative, persuasive, language-first, copy-obsessed.",
+  dark: "Billy-Butcher energy; dark humor; ruthless accountability (no slurs)."
+};
 
 /* ===== Agent System ===== */
-const SYSTEM_PRIME = `
+function systemPrime(style="coach"){
+  return `
 Act as THE FREEDOM ENGINE — a ruthless, darkly funny trainer whose mission is to free users by shipping a tiny paid offer in 72 hours.
-Tone: Billy-Butcher-adjacent (no slurs), sharp, honest, motivational. One question at a time.
-Process: Diagnose -> Propose -> Narrow -> Plan -> Optimize. Keep momentum and ask for commitment.
-Use and update structured memory.
+Tone layer: ${STYLE_PRIME[style]||STYLE_PRIME.coach}
+Process: Diagnose -> Propose -> Narrow -> Plan -> Optimize. One question at a time. Keep momentum and demand commitment.
+You have structured memory. Use it and update it.
 Return STRICT JSON only:
 {"say":"...","stage":"profile|offers|selection|plan|optimize","next_questions":["..."],"memory_delta":{"skills":"","audience":"","offer":"","price":"","style":"","blocked_by":""},"confidence":0.0}
 Keep "say" < 160 words.
 `;
+}
 
 /* ===== State & DOM ===== */
 let history   = JSON.parse(localStorage.getItem('fe_history')||'[]');
 let unlocked  = localStorage.getItem('fe_unlocked') === '1';
 let currentStage = localStorage.getItem('fe_stage') || "profile";
-let agentMemory = JSON.parse(localStorage.getItem('fe_memory')||'{"skills":"","audience":"","offer":"","price":"","style":"","blocked_by":""}');
+let agentMemory = JSON.parse(localStorage.getItem('fe_memory')||'{"skills":"","audience":"","offer":"","price":"","style":"coach","blocked_by":""}');
 let lastTouch = Number(localStorage.getItem('fe_last_touch')||0);
+let startTs   = Number(localStorage.getItem('fe_start_ts')||0);
 
 const chatEl   = document.getElementById('chat');
 const inputEl  = document.getElementById('input');
@@ -215,6 +267,10 @@ const stageLabel  = document.getElementById('stageLabel');
 const barFill     = document.getElementById('barFill');
 const accessPill  = document.getElementById('accessPill');
 const appRoot     = document.getElementById('app');
+const stepsDoneEl = document.getElementById('stepsDone');
+const hoursLeftEl = document.getElementById('hoursLeft');
+const freePctEl   = document.getElementById('freePct');
+const taglineEl   = document.getElementById('tagline');
 
 const logo = document.getElementById('iasLogo');
 const logoFallback = document.querySelector('.logo-fallback');
@@ -239,9 +295,11 @@ function bubble(role,content){
 function push(role,content){
   history.push({role,content});
   lastTouch = Date.now();
+  if (!startTs) startTs = lastTouch;
   localStorage.setItem('fe_history',JSON.stringify(history));
   localStorage.setItem('fe_last_touch', String(lastTouch));
-  render(); updateProgressUI();
+  localStorage.setItem('fe_start_ts', String(startTs));
+  render(); updateProgressUI(); updateConsole();
 }
 function render(){
   chatEl.innerHTML = history.map(m=>bubble(m.role,m.content)).join('');
@@ -260,13 +318,28 @@ function updateProgressUI(){
   }
   localStorage.setItem('fe_stage', currentStage);
 }
+function hoursLeft(){
+  if (!startTs) return 72;
+  const msLeft = (72*60*60*1000) - (Date.now() - startTs);
+  return Math.max(0, Math.ceil(msLeft/3600000));
+}
+function updateConsole(){
+  const steps = Math.max(0, stageIndex(currentStage));
+  stepsDoneEl.textContent = String(steps);
+  hoursLeftEl.textContent = String(hoursLeft());
+  freePctEl.textContent = `${progressPercent()}%`;
+  taglineEl.textContent = TAGLINES[(Math.floor(Date.now()/5000)) % TAGLINES.length];
+}
+setInterval(updateConsole, 2000);
+
 function enablePremiumUI(){
   unlocked = true; localStorage.setItem('fe_unlocked','1');
   appRoot.classList.add('premium');
   document.querySelectorAll('[data-locked]').forEach(n=>n.remove());
+  document.querySelectorAll('.premium-only').forEach(n=>n.classList.remove('hide'));
   updateProgressUI();
 }
-if (unlocked) enablePremiumUI();
+if (unlocked){ appRoot.classList.add('premium'); document.querySelectorAll('.premium-only').forEach(n=>n.classList.remove('hide')); }
 
 /* ===== Cloud bridge ===== */
 async function callCloud(messages){
@@ -279,9 +352,11 @@ async function callCloud(messages){
 }
 
 /* ===== Agent runtime ===== */
+function currentStyle(){ return agentMemory.style || "coach"; }
+
 async function agentAsk(userTextOrNull){
   const context = [
-    { role:"system", content: SYSTEM_PRIME },
+    { role:"system", content: systemPrime(currentStyle()) },
     { role:"system", content: `MEMORY:${JSON.stringify(agentMemory)}` },
     { role:"system", content: `CURRENT_STAGE:${currentStage}` },
     ...history.slice(-10),
@@ -293,7 +368,7 @@ async function agentAsk(userTextOrNull){
 
   if (!parsed || (parsed.confidence ?? 0) < 0.6){
     const nudge = [
-      { role:"system", content: SYSTEM_PRIME },
+      { role:"system", content: systemPrime(currentStyle()) },
       { role:"system", content: `MEMORY:${JSON.stringify(agentMemory)}` },
       { role:"system", content: `CURRENT_STAGE:${currentStage}` },
       ...history.slice(-10),
@@ -311,6 +386,7 @@ async function agentAsk(userTextOrNull){
 
   return parsed.say;
 }
+
 function safeParse(s){
   try{
     const cleaned = s.trim().replace(/^```(?:json)?/i,'').replace(/```$/,'');
@@ -325,7 +401,7 @@ function cleanDelta(o){
 }
 const strip = t => (t||"").replace(/```/g,'').replace(/\[\[stage:[^\]]+\]\]/gi,'').trim();
 
-/* ===== Boot with smart auto-continue ===== */
+/* ===== Boot with auto-continue ===== */
 async function boot(){
   aiStatus.textContent = "Booting the Trainer…";
   inputEl.disabled=false; sendBtn.disabled=false;
@@ -342,10 +418,9 @@ async function boot(){
     push('assistant', next);
     sessionStorage.setItem('fe_resumed_this_session','1');
   }
-
   aiStatus.textContent = "Ready.";
 }
-render(); updateProgressUI(); boot();
+render(); updateProgressUI(); updateConsole(); boot();
 
 /* ===== Conversation ===== */
 async function generate(userText){
@@ -358,12 +433,12 @@ async function generate(userText){
 sendBtn.onclick=()=>{ const t=inputEl.value.trim(); if(!t) return; inputEl.value=""; generate(t); };
 inputEl.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendBtn.click(); }});
 
-/* ===== Export ===== */
+/* ===== Export: Brief ===== */
 async function exportReport(){
   const brief = `
-User profile & memory: ${JSON.stringify(agentMemory)}
+User memory: ${JSON.stringify(agentMemory)}
 Create a crisp execution brief:
-- Summary of user and chosen direction
+- Summary of direction
 - Final Micro-Offer (name, audience, promise, price)
 - Sales copy (headline + 3–5 bullets + Gumroad blurb)
 - 72-hour launch plan (Day1–3 with $5/day ad hooks)
@@ -392,38 +467,118 @@ hr{border:none;border-top:1px dashed #263047;margin:16px 0}
 <div class="card"><h3>Execution Brief</h3><pre>${escapeHtml(report)}</pre></div>
 <hr><div class="card"><h3>Appendix — Transcript</h3>${transcript}</div>
 </div></body></html>`;
-  const blob = new Blob([html], {type:'text/html'});
-  const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='freedom-engine-export.html'; a.click();
+  downloadBlob(html, 'text/html', 'freedom-engine-export.html');
 }
-function escapeHtml(s){return (s||"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;","\">":"&quot;"}[c]))}
+document.getElementById('export').onclick = exportReport;
 
-/* ===== Unlock / Buy / Reset ===== */
-const buyBtn = document.getElementById('buy'); if(buyBtn) buyBtn.onclick=()=>window.open(GUMROAD_URL,'_blank');
+/* ===== Export Kit: brief + ad copy + prompt pack ===== */
+document.getElementById('exportKit').onclick = async ()=>{
+  // Brief
+  await exportReport();
+  // Ad copy (short)
+  const adCopy = await callCloud([
+    { role:"system", content:"Write 5 short FB ad hooks + 3 primary texts + 3 headlines for the offer in memory. Punchy, under 20 words for hooks." },
+    { role:"user", content:`MEMORY: ${JSON.stringify(agentMemory)}` }
+  ]).catch(()=> "Write your hooks: 1) … 2) … 3) …");
+  downloadBlob(adCopy, 'text/plain', 'ad-copy.txt');
+  // Prompt pack (JSON)
+  const prompts = {
+    persona: agentMemory.style || "coach",
+    offer: agentMemory.offer || "",
+    audience: agentMemory.audience || "",
+    prompts: [
+      "Refine the offer title to 3 words.",
+      "Give me 3 buyer objections and concise rebuttals.",
+      "Write a 5-bullet product page.",
+      "Draft a 72-hour micro-launch checklist."
+    ]
+  };
+  downloadBlob(JSON.stringify(prompts,null,2), 'application/json', 'prompt-pack.json');
+};
+
+/* ===== Snapshots ===== */
+document.getElementById('saveSnap').onclick = ()=>{
+  const snap = {
+    when: new Date().toISOString(),
+    memory: agentMemory,
+    stage: currentStage,
+    history
+  };
+  downloadBlob(JSON.stringify(snap,null,2),'application/json',`freedom-snapshot-${Date.now()}.json`);
+};
+document.getElementById('loadBtn').onclick = ()=> document.getElementById('loadSnap').click();
+document.getElementById('loadSnap').addEventListener('change', async (e)=>{
+  const file = e.target.files?.[0]; if(!file) return;
+  const text = await file.text();
+  try{
+    const snap = JSON.parse(text);
+    agentMemory = snap.memory || agentMemory;
+    currentStage = snap.stage || currentStage;
+    history = Array.isArray(snap.history) ? snap.history : history;
+    localStorage.setItem('fe_memory', JSON.stringify(agentMemory));
+    localStorage.setItem('fe_stage', currentStage);
+    localStorage.setItem('fe_history', JSON.stringify(history));
+    render(); updateProgressUI(); updateConsole();
+    push('assistant',"Snapshot loaded. Picking up from here—what changed since last time?");
+  }catch{ alert("Bad snapshot file."); }
+});
+
+/* ===== Personas (Premium) ===== */
+document.querySelectorAll('.persona').forEach(btn=>{
+  btn.onclick=()=>{
+    agentMemory.style = btn.dataset.style;
+    localStorage.setItem('fe_memory', JSON.stringify(agentMemory));
+    push('assistant', `Persona set to **${btn.textContent}**. Say “wake the engine” to reframe immediately or keep going.`);
+  };
+});
+if (!unlocked){ document.querySelectorAll('.premium-only').forEach(n=>n.classList.add('hide')); }
+
+/* ===== Unlock / Buy / Reset / Switch Mode / Wake ===== */
+document.getElementById('buy').onclick=()=>window.open(GUMROAD_URL,'_blank');
+
 document.getElementById('unlock').onclick = async ()=>{
   const key = prompt("Paste your license key:"); if(!key) return;
   const r = await fetch(`${CLOUD_ENDPOINT}/verify`,{
     method:"POST", headers:{"Content-Type":"application/json"},
     body: JSON.stringify({ license_key: key.trim() })
   }).then(r=>r.json()).catch(()=>({ok:false}));
-  if(r.ok){ enablePremiumUI(); alert("Premium unlocked."); push('assistant',"Premium interface engaged. What’s blocking you right now? One line."); }
+  if(r.ok){ enablePremiumUI(); alert("Premium unlocked."); push('assistant',"Premium engaged. What’s blocking you right now? One line."); }
   else alert("That key didn’t verify. Check your receipt or Gumroad Library.");
 };
 
 document.getElementById('reset').onclick = ()=>{
   if(confirm("Reset all progress?")){
-    history=[]; agentMemory={"skills":"","audience":"","offer":"","price":"","style":"","blocked_by":""};
+    history=[]; agentMemory={"skills":"","audience":"","offer":"","price":"","style":"coach","blocked_by":""};
+    startTs=0;
     localStorage.removeItem('fe_history');
     localStorage.removeItem('fe_stage');
     localStorage.removeItem('fe_memory');
     localStorage.removeItem('fe_last_touch');
+    localStorage.removeItem('fe_start_ts');
     sessionStorage.removeItem('fe_resumed_this_session');
-    render(); updateProgressUI();
+    render(); updateProgressUI(); updateConsole();
     push('assistant',"Fresh slate. What do people actually thank you for helping with?");
   }
 };
 
-/* ===== Tiny util ===== */
+document.getElementById('switchMode').onclick = ()=>{
+  if(confirm("Switch back to Demo mode? This forgets your license on this device.")){
+    localStorage.removeItem('fe_unlocked');
+    sessionStorage.clear();
+    location.reload();
+  }
+};
+
+document.getElementById('wake').onclick = ()=>{
+  push('assistant', "Context refreshed. Give me your latest roadblock in one sentence and we’ll bulldoze it.");
+};
+
+/* ===== Tiny utils ===== */
 function escapeHtml(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]))}
+function downloadBlob(content, mime, filename){
+  const blob = new Blob([content], {type:mime});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename; a.click();
+}
 </script>
 </body>
 </html>
