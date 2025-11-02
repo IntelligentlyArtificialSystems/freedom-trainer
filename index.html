@@ -65,12 +65,16 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
 .bar{height:10px;border-radius:999px;background:#0d1222;border:1px solid #2a2f45;overflow:hidden}
 .bar>div{height:100%;background:linear-gradient(90deg,var(--neon2),var(--neon1),var(--neon3),var(--neon4));width:0%;transition:width .4s}
 
-/* Dropdown menu & modal */
+/* Menu dropdown (fixed) */
 .menu{position:relative}
 .menu button{width:100%}
-.menu .panel{position:absolute;left:0;right:0;top:calc(100% + 6px);background:#0b1224;border:1px solid #2a3553;border-radius:12px;display:none;padding:6px;z-index:5}
+.menu .panel{position:absolute;left:0;top:100%;transform:translateY(8px);width:220px;
+  background:#0b1224;border:1px solid #2a3553;border-radius:12px;display:none;padding:8px;z-index:50;
+  box-shadow:0 18px 50px rgba(0,0,0,.5)}
 .menu.open .panel{display:block}
-.menu .panel .btn{width:100%;text-align:left}
+.menu .panel .btn{display:block;width:100%;text-align:left;margin:4px 0}
+
+/* Modal */
 .modal{position:fixed;inset:0;background:rgba(7,8,11,.72);backdrop-filter:blur(6px);display:none;place-items:center;z-index:30}
 .modal.open{display:grid}
 .modal-card{width:min(980px,92vw);max-height:86vh;overflow:auto}
@@ -255,9 +259,36 @@ if (logo){ const ok=()=>{logo.classList.add('spin');logo.style.display='block';l
 const esc = s => (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
 function sanitizeSay(t){return (t||"").replace(/^```(?:json)?/i,'').replace(/```$/,'').replace(/\[\[[^\]]+\]\]/g,'').trim();}
 function lastAssistant(){ for(let i=history.length-1;i>=0;i--){ if(history[i].role==='assistant') return history[i]; } return null; }
+function isOpenerText(text=""){ const x=text.toLowerCase(); return x.startsWith("let's find the one skill") || x.startsWith("fresh slate."); }
+function enforceSingleOpener(){
+  let found = false;
+  history = history.filter(m=>{
+    if(m.role!=='assistant') return true;
+    if(!isOpenerText(m.content)) return true;
+    if(!found){ found = true; return true; }  // keep the first (latest) we encounter after reverse
+    return false;
+  });
+}
 function noRepeatAssistant(text){ const last=lastAssistant(); return !last || sanitizeSay(last.content)!==sanitizeSay(text); }
-function dedupeHistory(){ const out=[]; let prevA=null; for(const m of history){ if(m.role==='assistant'){ const s=sanitizeSay(m.content); if(prevA===s) continue; prevA=s; out.push({role:'assistant',content:s}); } else { prevA=null; out.push(m);} } history=out; }
-
+function dedupeHistory(){
+  // remove older openers so only the latest opener remains
+  for(let i=history.length-1, kept=false; i>=0; i--){
+    const m=history[i];
+    if(m.role==='assistant' && isOpenerText(m.content)){
+      if(kept){ history.splice(i,1); } else { kept=true; }
+    }
+  }
+  // remove consecutive identical assistant bubbles
+  const out=[]; let prevA=null;
+  for(const m of history){
+    if(m.role==='assistant'){
+      const s=sanitizeSay(m.content);
+      if(prevA===s) continue;
+      prevA=s; out.push({role:'assistant',content:s});
+    } else { prevA=null; out.push(m); }
+  }
+  history=out;
+}
 function bubble(role,content){
   const who = role==='user' ? 'me' : 'ai';
   return `<div class="msg ${who}">
@@ -267,6 +298,10 @@ function bubble(role,content){
 }
 function push(role,content){
   const cleaned = role==='assistant'?sanitizeSay(content):content;
+  if(role==='assistant' && isOpenerText(cleaned)){
+    // keep only this opener
+    history = history.filter(m=>!(m.role==='assistant' && isOpenerText(m.content)));
+  }
   if(role==='assistant' && !noRepeatAssistant(cleaned)) return;
   history.push({role,content:cleaned});
   lastTouch = Date.now(); if(!startTs) startTs=lastTouch;
@@ -299,7 +334,7 @@ async function agentAsk(userTextOrNull){
   localStorage.setItem('fe_memory', JSON.stringify(agentMemory));
 
   const context = [
-    { role:"system", content: systemPrime(currentStyle(), currentStage, activeModuleIds()) },
+    { role:"system", content: systemPrime(agentMemory.style, currentStage, activeModuleIds()) },
     { role:"system", content: `MEMORY:${JSON.stringify(agentMemory)}` },
     { role:"system", content: `CURRICULUM_PROMPT:${PROMPTS[currentStage]||""}` },
     ...history.slice(-10),
@@ -311,7 +346,7 @@ async function agentAsk(userTextOrNull){
 
   if (!parsed || (parsed.confidence ?? 0) < 0.6){
     const nudge = [
-      { role:"system", content: systemPrime(currentStyle(), currentStage, activeModuleIds()) },
+      { role:"system", content: systemPrime(agentMemory.style, currentStage, activeModuleIds()) },
       { role:"system", content: `MEMORY:${JSON.stringify(agentMemory)}` },
       { role:"system", content: `CURRICULUM_PROMPT:${PROMPTS[currentStage]||""}` },
       ...history.slice(-10),
@@ -330,17 +365,19 @@ async function agentAsk(userTextOrNull){
   return sanitizeSay(parsed.say);
 }
 
-/* =================== BOOT (safe) =================== */
+/* =================== BOOT (with opener guard) =================== */
 function sessionResumed(){ return sessionStorage.getItem('fe_resumed')==='1'; }
 function markResumed(){ sessionStorage.setItem('fe_resumed','1'); }
 async function boot(){
   try{
     inputEl.disabled=false; sendBtn.disabled=false;
-    dedupeHistory(); render(); updateProgressUI();
+    dedupeHistory(); enforceSingleOpener(); render(); updateProgressUI();
+
     const last = history[history.length-1];
     const stale = Date.now() - (lastTouch||0) > 90*1000;
+    const alreadyHasOpener = history.some(m=>m.role==='assistant' && isOpenerText(m.content));
 
-    if (history.length===0){
+    if (history.length===0 || !alreadyHasOpener){
       push('assistant', PROMPTS.opener);
       markResumed();
     } else if (!sessionResumed() && (stale || (last && last.role==='user'))){
@@ -406,7 +443,7 @@ document.getElementById('loadSnap').addEventListener('change',async e=>{
     localStorage.setItem('fe_stage',currentStage);
     localStorage.setItem('fe_history',JSON.stringify(history));
     localStorage.setItem('fe_modules',JSON.stringify(modules));
-    dedupeHistory(); render(); updateProgressUI();
+    dedupeHistory(); enforceSingleOpener(); render(); updateProgressUI();
     push('assistant',"Snapshot loaded. We’ll pick up exactly where you left off.");
   }catch{ alert("Bad snapshot file."); }
 });
