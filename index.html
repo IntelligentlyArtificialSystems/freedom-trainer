@@ -31,7 +31,6 @@ body{
   letter-spacing:.2px; overflow-y:overlay;
 }
 
-/* flip to display font after load */
 .has-techfont .headline,
 .has-techfont .btn,
 .has-techfont .pill,
@@ -47,14 +46,16 @@ body{
  animation:drift 18s linear infinite alternate}
 @keyframes drift{0%{transform:translate3d(0,0,0) scale(1)}100%{transform:translate3d(4rem,-3rem,0) scale(1.1)}}
 
-/* premium sacred geometry */
-body.is-premium .sacred{position:fixed;inset:0;pointer-events:none;z-index:-2;opacity:.28;mix-blend-mode:screen;
+/* premium sacred fractal overlay */
+body.is-premium .fractal{position:fixed;inset:0;pointer-events:none;z-index:-2;opacity:.28;mix-blend-mode:screen}
+body.is-premium .fractal::before{content:"";position:absolute;inset:0;
  background:
-  radial-gradient(closest-side at 18% 22%, rgba(124,134,255,.45), transparent 60%),
-  radial-gradient(closest-side at 82% 18%, rgba(61,220,151,.35), transparent 62%),
-  radial-gradient(closest-side at 78% 78%, rgba(255,124,186,.35), transparent 58%),
-  radial-gradient(closest-side at 24% 76%, rgba(255,169,61,.30), transparent 60%)}
-body.is-premium .sacred::after{content:"";position:absolute;inset:0;
+  radial-gradient(1000px 800px at 18% 22%, rgba(124,134,255,.45), transparent 60%),
+  radial-gradient(900px 700px at 82% 18%, rgba(61,220,151,.35), transparent 62%),
+  radial-gradient(900px 700px at 78% 78%, rgba(255,124,186,.35), transparent 58%),
+  radial-gradient(900px 700px at 24% 76%, rgba(255,169,61,.30), transparent 60%);
+}
+body.is-premium .fractal::after{content:"";position:absolute;inset:0;
  background:repeating-conic-gradient(from 0deg, rgba(255,255,255,.06) 0 6deg, transparent 6deg 12deg);
  mask:radial-gradient(ellipse at center, rgba(255,255,255,.6), transparent 68%);
  animation:spin 80s linear infinite}
@@ -112,14 +113,14 @@ body.is-premium .sacred::after{content:"";position:absolute;inset:0;
 .bar{height:12px;border-radius:999px;background:#0d1222;border:1px solid #2a2f45;overflow:hidden}
 .bar>div{height:100%;background:linear-gradient(90deg,var(--n2),var(--n1),var(--n3),var(--n4));width:0%;transition:width .35s ease}
 
-/* Demo CTA (now ALWAYS visible in Demo via CSS) */
+/* Demo CTA */
 .cta{margin-top:12px;display:block}
 .is-premium .cta{display:none}
 .cta .cta-btn{display:block;width:100%;text-align:center;padding:16px 18px;border-radius:14px;border:1px solid #2a3553;background:linear-gradient(135deg,var(--n1),var(--n3));font-weight:800}
 .cta .cta-sub{margin-top:6px;font-size:12px;color:#cbd2e6;text-align:center}
 @media(max-width:720px){.cta .cta-btn{padding:18px 16px;font-size:16px}}
 
-/* kebab menu (smart position) */
+/* kebab menu */
 .menu{position:relative;z-index:3500}
 .menu .panel{
   position:fixed;width:280px;max-height:60vh;overflow:auto;
@@ -127,6 +128,8 @@ body.is-premium .sacred::after{content:"";position:absolute;inset:0;
 }
 .menu.open .panel{display:block}
 .menu .panel .btn{display:block;width:100%;text-align:left;margin:4px 0}
+/* hide license actions when premium */
+.is-premium #unlock,.is-premium #buy{display:none!important}
 
 /* main chat */
 .panel{padding:12px}
@@ -141,6 +144,12 @@ body.is-premium .sacred::after{content:"";position:absolute;inset:0;
 .composer{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:10px}
 textarea.readable{min-height:98px;resize:vertical;border-radius:12px;border:1px solid #263048;background:#0f1424;color:var(--ink);padding:10px}
 
+/* modals (modules) */
+.modal{position:fixed;inset:0;background:rgba(4,6,12,.6);display:none;align-items:center;justify-content:center;z-index:4200}
+.sheet{width:min(800px,94vw);max-height:80vh;overflow:auto;border:1px solid #2a3553;background:#0b1224;border-radius:16px;padding:14px}
+.modules-grid{display:grid;grid-template-columns:1fr;gap:10px}
+.module{border:1px solid #27314f;border-radius:12px;padding:10px;background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.015))}
+
 /* error/toast */
 #error{position:fixed;top:0;left:0;right:0;background:#3b0f14;border-bottom:1px solid #74222c;color:#ffd7dc;padding:10px 14px;font-size:13px;z-index:4000;display:none}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom)+110px);background:#0e1630;border:1px solid #2a3553;color:#d9e0ff;padding:10px 12px;border-radius:10px;z-index:3800;display:none}
@@ -148,7 +157,7 @@ textarea.readable{min-height:98px;resize:vertical;border-radius:12px;border:1px 
 </head>
 <body class="is-demo">
 <div class="canvas"></div>
-<div class="sacred"></div>
+<div class="fractal"></div>
 <div id="error"></div>
 <div id="toast" class="toast readable"></div>
 
@@ -194,7 +203,7 @@ textarea.readable{min-height:98px;resize:vertical;border-radius:12px;border:1px 
       </div>
     </div>
 
-    <!-- Demo CTA is CSS-driven: visible in Demo, hidden in Premium -->
+    <!-- Demo CTA lives here; hidden in Premium by CSS -->
     <div id="demoCta" class="cta">
       <button class="cta-btn headline" id="demoBuy">Unlock Full Engine — $29</button>
       <div class="cta-sub readable">Keep your progress across devices. Premium modules included.</div>
@@ -228,7 +237,7 @@ textarea.readable{min-height:98px;resize:vertical;border-radius:12px;border:1px 
 </div>
 
 <script type="module">
-/* ------------- helpers ------------- */
+/* ---------- helpers ---------- */
 const $=id=>document.getElementById(id);
 const on=(el,ev,fn)=>el&&el.addEventListener(ev,fn);
 const show=(el,v=true)=>{ if(el) el.style.display=v?'':'none'; };
@@ -238,10 +247,12 @@ const esc=s=>(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c
 /* font flip */
 (async()=>{ try{ if(document.fonts?.load){ await document.fonts.load('16px "Techfont Italica"'); document.body.classList.add('has-techfont'); } else { document.body.classList.add('has-techfont'); } }catch{} })();
 
-/* endpoints & prompts */
+/* endpoints */
 const CLOUD_ENDPOINT="https://freedom-engine-worker.intelligentlyartificialsystems.workers.dev";
 const GUMROAD_URL="https://intellartsystems.gumroad.com/l/the-freedom-engine";
 const STAGES=["profile","offers","selection","plan","optimize"];
+
+/* prompts */
 const PROMPTS={
   profile:`Welcome to the Freedom Engine. I’m your personal trainer for tiny paid offers.
 
@@ -275,7 +286,7 @@ let modules=JSON.parse(localStorage.getItem('fe_modules')||'[]');
 function showErr(msg){ console.error(msg); if(errorEl){ errorEl.textContent=(msg?.message||String(msg)); errorEl.style.display='block'; setTimeout(()=>errorEl.style.display='none',3500);} }
 function toast(s){ toastEl.textContent=s; toastEl.style.display='block'; setTimeout(()=>toastEl.style.display='none',2600); }
 
-/* logo */
+/* logo load/spin */
 (function(){
   const logo=$('iasLogo'); const fallback=document.querySelector('.logo-fallback'); if(!logo)return;
   const primary=new URL('assets/ias-logo.png',location.href).href;
@@ -285,7 +296,7 @@ function toast(s){ toastEl.textContent=s; toastEl.style.display='block'; setTime
   logo.src=primary;
 })();
 
-/* tone */
+/* tone + prime */
 function detectStyleFrom(t=""){t=t.toLowerCase();
   if(/stuck|overwhelmed|help|lost/.test(t))return"coach";
   if(/how|steps|plan|framework/.test(t))return"engineer";
@@ -302,8 +313,8 @@ const STYLE_PRIME={
 function systemPrime(style="coach",stage="profile"){
   return `You are THE FREEDOM ENGINE — mentor for tiny profitable offers. Mission: ship in ~72 hours.
 Explain first, guide second, ask ONE small thing. Conversational with dark witty asides.
-Tone: ${STYLE_PRIME[style]}. Stage: ${stage}. Advance from ${stage} only when user confirms.
-Avoid interrogation lists. Prefer: suggest → confirm. Handle “idk/blank” by offering 3 options.
+Tone: ${STYLE_PRIME[style]}. Stage: ${stage}. Advance only when user confirms.
+Handle trolling/NSFW bait by deflecting with humor and steering back to the offer (never engage sexually).
 STRICT JSON ONLY:
 {"say":"...","stage":"profile|offers|selection|plan|optimize","next_questions":["..."],"memory_delta":{"skills":"","audience":"","offer":"","price":"","style":"","blocked_by":""},"confidence":0.0}
 "say" <= 140 words.`;
@@ -328,7 +339,7 @@ function sizeChat(){
 ['resize','orientationchange','load'].forEach(ev=>window.addEventListener(ev,()=>setTimeout(sizeChat,50)));
 new ResizeObserver(()=>setTimeout(sizeChat,10)).observe(footerEl);
 
-/* UI state (CSS-driven CTA) */
+/* UI state */
 function bodyClassSync(){ document.body.classList.toggle('is-premium', !!unlocked); document.body.classList.toggle('is-demo', !unlocked); }
 function enforceUIState(){
   bodyClassSync();
@@ -347,7 +358,7 @@ function persistLocal(){
   enforceUIState();
 }
 
-/* cloud save/load */
+/* cloud save/load (D1-backed) */
 let saveTimer=null; function autoSaveSoon(){ if(saveTimer)clearTimeout(saveTimer); saveTimer=setTimeout(()=>cloudSaveWithBackoff(),600); }
 async function cloudSave(){ if(!unlocked||!licenseKey) return {ok:false}; const payload={license_key:licenseKey,data:{memory:agentMemory,stage:currentStage,history,modules}};
   const r=await fetch(`${CLOUD_ENDPOINT}/progress`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}); if(!r.ok) throw new Error("save "+r.status); return await r.json();}
@@ -357,11 +368,19 @@ async function cloudLoad(){ if(!unlocked||!licenseKey) return false; try{ const 
 
 /* API + parsing */
 async function callCloud(messages){ const r=await fetch(`${CLOUD_ENDPOINT}/chat`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages})}); if(!r.ok) throw new Error(`Cloud ${r.status}`); const j=await r.json(); return j.output||""; }
-function scrubUndefined(s){ return (s||"").replace(/undefined[:\w-]*/gi,"").replace(/\bconfidence\s*[:=]\s*[\d.]+\b/gi,"").replace(/\s{3,}/g," ").trim(); }
+function scrubUndefined(s){
+  return (s||"")
+    .replace(/\bundefined\b/gi,"")
+    .replace(/\bundefined[:=][^\s,)}]+/gi,"")
+    .replace(/\bconfidence\s*[:=]\s*[\d.]+\b/gi,"")
+    .replace(/\s{3,}/g," ").trim();
+}
 function extractJSONBlock(s){ let d=null, i=s.indexOf('{'); while(i!==-1){ try{ d=JSON.parse(s.slice(i)); break; }catch{ i=s.indexOf('{',i+1);} } return d; }
 function parseAgent(out){ out=(out||"").trim(); let p=null; try{ p=JSON.parse(out); }catch{} if(!p) p=extractJSONBlock(out);
   if(p && typeof p.say==="string"){ return { say:scrubUndefined(p.say), stage:(STAGES.includes(p.stage)?p.stage:currentStage), memory_delta:p.memory_delta||{}, confidence:p.confidence??.7 }; }
-  const cleaned=scrubUndefined(out); return { say: cleaned || "Say “help me choose” and I’ll pitch three lanes to get moving.", stage: currentStage, memory_delta:{}, confidence:.6 }; }
+  const cleaned=scrubUndefined(out);
+  return { say: cleaned || "Say “help me choose” and I’ll pitch three lanes to get moving.", stage: currentStage, memory_delta:{}, confidence:.6 };
+}
 
 /* chat engine */
 const push=(role,content)=>{ history.push({role,content}); persistLocal(); render(); updateProgressUI(); autoSaveSoon(); requestAnimationFrame(sizeChat); };
@@ -434,7 +453,7 @@ pre{white-space:pre-wrap;background:#0d1117;border:1px solid #232c40;border-radi
   }catch(e){ showErr(e); alert("Couldn’t generate export—cloud hiccup."); }
 });
 
-/* menu: smart position */
+/* menu position */
 function placeMenu(){
   const btnRect=menuBtn.getBoundingClientRect();
   const panel=menuPanel; const pad=8;
@@ -451,7 +470,7 @@ on(menuBtn,'click',()=>{
 });
 document.addEventListener('click',e=>{ if(!menuRoot.contains(e.target)) menuRoot.classList.remove('open'); });
 
-/* load/save files */
+/* snapshot */
 on($('saveSnap'),'click',()=>{
   const snap={when:new Date().toISOString(),memory:agentMemory,stage:currentStage,history,modules,unlocked};
   downloadBlob(JSON.stringify(snap,null,2),'application/json',`freedom-snapshot-${Date.now()}.json`);
@@ -485,7 +504,7 @@ on($('switchMode'),'click',()=>{
   }
 });
 
-/* buy/unlock (CTA is CSS-driven; this just opens links) */
+/* buy/unlock */
 on(buyBtn,'click',()=>window.open(GUMROAD_URL,'_blank'));
 on(demoBuy,'click',()=>window.open(GUMROAD_URL,'_blank'));
 on(unlockBtn,'click',async()=>{
@@ -503,7 +522,7 @@ on(unlockBtn,'click',async()=>{
   }catch(e){ showErr(e); alert("Verification failed—network/endpoint."); }
 });
 
-/* modules (unchanged behaviour) */
+/* modules */
 const MODULES=[{id:"ads",name:"Ad Creative Booster",product_id:"MOD_ADS_ID",price:"$12",desc:"Generate ad images + angles."},
   {id:"email",name:"Email Launch Booster",product_id:"MOD_EMAIL_ID",price:"$9",desc:"Auto-draft 3-day launch emails."},
   {id:"planner",name:"Content Planner",product_id:"MOD_PLAN_ID",price:"$12",desc:"7-day content seed plan."},
@@ -550,16 +569,8 @@ function refreshEverything(){ updateProgressUI(); enforceUIState(); render(); si
 document.addEventListener('DOMContentLoaded',refreshEverything);
 setInterval(enforceUIState, 3000); // safety net
 
-/* initial logo & status */
-(function loadLogo(){
-  const logo=$('iasLogo'); const fallback=document.querySelector('.logo-fallback');
-  if(!logo) return;
-  const primary=new URL('assets/ias-logo.png', location.href).href;
-  const alt=new URL('ias-logo.png', location.href).href;
-  let tried=false; const ok=()=>{logo.classList.add('spin');logo.style.display='block'; if(fallback) fallback.style.display='none';};
-  on(logo,'load',ok); logo.onerror=()=>{ if(!tried){ tried=true; logo.src=alt; } };
-  logo.src=primary;
-})();
+/* initial status */
+(function init(){ aiStatus.textContent="Booting the Trainer…"; setTimeout(()=>aiStatus.textContent="Ready.",600); })();
 </script>
 </body>
 </html>
