@@ -19,26 +19,38 @@
     url("Techfont-Italica.ttf") format("truetype");
   font-weight:800; font-style:normal; font-display:swap;
 }
+
 :root{
   --bg:#07080b; --ink:#eaf0ff; --muted:#98a2b3; --line:#1b2235;
   --glass1:rgba(255,255,255,.06); --glass2:rgba(255,255,255,.02);
   --neon1:#7c86ff; --neon2:#3ddc97; --neon3:#ff7cba; --neon4:#ffa93d;
   --rad:18px; --shadow:0 18px 60px rgba(0,0,0,.55);
 }
-*{box-sizing:border-box} html,body{height:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto;overflow-y:overlay}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto;
+  overflow-y:overlay
+}
 
 /* Ambient neon */
-.canvas{position:fixed;inset:-20vmax;z-index:-1;filter:blur(80px) saturate(140%);opacity:.35;pointer-events:none;
+.canvas{
+  position:fixed;inset:-20vmax;z-index:-1;filter:blur(80px) saturate(140%);opacity:.35;pointer-events:none;
   background:
    conic-gradient(from 0deg at 30% 30%, var(--neon1), transparent 40%),
    conic-gradient(from 180deg at 70% 20%, var(--neon3), transparent 45%),
    conic-gradient(from 90deg at 40% 80%, var(--neon2), transparent 50%);
-  animation:drift 18s linear infinite alternate}
+  animation:drift 18s linear infinite alternate
+}
 @keyframes drift{0%{transform:translate3d(0,0,0) scale(1)}100%{transform:translate3d(4rem,-3rem,0) scale(1.1)}}
 
 /* Layout */
-.container{max-width:1320px;margin:0 auto;padding:22px 18px 140px;display:grid;gap:18px;grid-template-columns:460px 1fr}
+.container{
+  max-width:1320px;margin:0 auto;padding:22px 18px 140px;
+  display:grid;gap:18px;grid-template-columns:480px 1fr
+}
 @media(max-width:1100px){.container{grid-template-columns:1fr}}
 @media(max-width:720px){
   .container{padding:14px 12px calc(env(safe-area-inset-bottom) + 120px);grid-template-columns:1fr;gap:12px}
@@ -56,22 +68,44 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
 /* Sidebar */
 .sidebar{position:sticky;top:16px;height:fit-content;padding:14px;z-index:1001}
 @media(max-width:1100px){.sidebar{position:relative;top:auto}}
-.brand{display:grid;grid-template-columns:216px 1fr;gap:16px;margin-bottom:10px;align-items:center}
-@media(max-width:720px){.brand{grid-template-columns:104px 1fr;gap:12px}}
-.logo-wrap{width:216px;height:216px;border-radius:22px;display:grid;place-items:center;position:relative;background:rgba(0,0,0,.25);border:1px solid #2a2f45;overflow:hidden}
-@media(max-width:720px){.logo-wrap{width:104px;height:104px;border-radius:16px}}
-.logo{width:196px;height:196px;object-fit:contain;display:none}
-@media(max-width:720px){.logo{width:92px;height:92px}}
-.logo.spin{display:block;animation:logo-spin 48s linear infinite;
-  filter:drop-shadow(0 0 14px rgba(124,134,255,.65)) drop-shadow(0 0 24px rgba(61,220,151,.45)) drop-shadow(0 0 28px rgba(255,124,186,.35))}
+
+.brand{
+  display:grid;grid-template-columns:236px 1fr;gap:16px;margin-bottom:10px;align-items:center
+}
+@media(max-width:720px){.brand{grid-template-columns:120px 1fr;gap:12px}}
+
+.logo-wrap{
+  width:236px;height:236px;border-radius:22px;display:grid;place-items:center;position:relative;
+  background:rgba(0,0,0,.25);border:1px solid #2a2f45;overflow:hidden
+}
+@media(max-width:720px){.logo-wrap{width:120px;height:120px;border-radius:16px}}
+
+.logo{width:214px;height:214px;object-fit:contain;display:none}
+@media(max-width:720px){.logo{width:106px;height:106px}}
+.logo.spin{
+  display:block;animation:logo-spin 48s linear infinite;
+  filter:drop-shadow(0 0 14px rgba(124,134,255,.65)) drop-shadow(0 0 24px rgba(61,220,151,.45)) drop-shadow(0 0 28px rgba(255,124,186,.35))
+}
 @keyframes logo-spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-.logo-fallback{position:absolute;inset:0;display:grid;place-items:center;font-family:"JetBrains Mono",monospace;font-size:38px;font-weight:700;letter-spacing:.8px;background:linear-gradient(135deg,var(--neon2),var(--neon1),var(--neon3));-webkit-background-clip:text;background-clip:text;color:transparent}
-@media(max-width:720px){.logo-fallback{font-size:22px}}
+.logo-fallback{
+  position:absolute;inset:0;display:grid;place-items:center;
+  font-family:"JetBrains Mono",monospace;font-size:44px;font-weight:700;letter-spacing:1.2px;
+  background:linear-gradient(135deg,var(--neon2),var(--neon1),var(--neon3));-webkit-background-clip:text;background-clip:text;color:transparent
+}
+@media(max-width:720px){.logo-fallback{font-size:26px}}
 
 .brand-title{min-width:0}
-.title{font-family:"Techfont Italica", Inter, system-ui; font-weight:800; font-size:32px; line-height:1.05; white-space:normal}
-@media(max-width:720px){.title{font-size:22px; line-height:1.1}}
-.meta-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px}
+.title{
+  font-family:"Techfont Italica", Inter, system-ui;
+  font-weight:800; 
+  font-size:clamp(24px, 3.1vw, 36px);
+  line-height:1.06;
+  letter-spacing:1.2px;      /* wider spacing */
+  word-spacing:2px;          /* a touch more air */
+  white-space:normal;
+  text-wrap:balance;         /* graceful wrap when supported */
+}
+.meta-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px}
 .pill{padding:6px 10px;border-radius:999px;background:#0d1222;border:1px solid #293357;font-size:12px;display:inline-block}
 .pill.demo{color:#ffd7f1;border-color:#4a2a47;background:rgba(255,124,186,.12)}
 .pill.full{color:#baffea;border-color:#1f4b3c;background:rgba(61,220,151,.12)}
@@ -87,7 +121,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
 .btn.ghost{background:#0d1222;border:1px solid #2a3553}
 .progress-wrap{margin-top:8px}
 .progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px}
-.bar{height:10px;border-radius:999px;background:#0d1222;border:1px solid #2a2f45;overflow:hidden}
+.bar{height:12px;border-radius:999px;background:#0d1222;border:1px solid #2a2f45;overflow:hidden}
 .bar>div{height:100%;background:linear-gradient(90deg,var(--neon2),var(--neon1),var(--neon3),var(--neon4));width:0%;transition:width .35s ease}
 
 /* DEMO CTA */
@@ -103,8 +137,15 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
 
 /* Main / Chat */
 .panel{padding:12px}
-.chat{height:min(74vh, calc(100svh - 320px));overflow:auto;padding:8px 6px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01));position:relative;z-index:1}
+.chat{
+  /* deeper chat well */
+  height:calc(100vh - 260px);
+  overflow:auto;padding:8px 6px;border:1px solid var(--line);border-radius:14px;
+  background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01));position:relative;z-index:1
+}
+@media(max-width:1100px){.chat{height:calc(100svh - 340px)}}
 @media(max-width:720px){.chat{height:calc(100svh - 420px)}}
+
 .msg{display:grid;grid-template-columns:34px 1fr;gap:10px;margin:10px 0;align-items:start}
 .avatar{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:14px;border:1px solid #2c3553;background:linear-gradient(135deg,#1b2135,#121628)}
 .avatar.me{border-color:#36407a}
@@ -112,9 +153,9 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
 .bubble{white-space:pre-wrap;line-height:1.55;padding:12px 14px;border-radius:14px;border:1px solid #28314e;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.015))}
 
 /* Footer Composer */
-.footer{position:fixed;left:0;right:0;bottom:0;padding:12px 14px;background:linear-gradient(180deg,transparent,rgba(5,6,9,.9) 50%, rgba(5,6,9,1) 80%);border-top:1px solid var(--line)}
+.footer{position:fixed;left:0;right:0;bottom:0;padding:10px 14px;background:linear-gradient(180deg,transparent,rgba(5,6,9,.9) 50%, rgba(5,6,9,1) 80%);border-top:1px solid var(--line)}
 .composer{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:10px}
-textarea{min-height:56px;resize:vertical;border-radius:12px;border:1px solid #263048;background:#0f1424;color:var(--ink);padding:10px}
+textarea{min-height:58px;resize:vertical;border-radius:12px;border:1px solid #263048;background:#0f1424;color:var(--ink);padding:10px}
 
 /* Error banner */
 #error{position:fixed;top:0;left:0;right:0;background:#3b0f14;border-bottom:1px solid #74222c;color:#ffd7dc;padding:10px 14px;font-size:13px;z-index:2000;display:none}
@@ -196,7 +237,7 @@ textarea{min-height:56px;resize:vertical;border-radius:12px;border:1px solid #26
   </div>
 </div>
 
-<!-- Modules Modal (missing before; now included) -->
+<!-- Modules Modal -->
 <div class="modal" id="modulesModal" aria-hidden="true">
   <div class="sheet">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
@@ -240,21 +281,20 @@ const MODULES=[
   {id:"proof",name:"Proof Builder",product_id:"MOD_PROOF_ID",price:"$7",desc:"Extract and frame social proof from past wins."}
 ];
 
-/* PROMPTS */
+/* PROMPTS — softer onboarding, still Butcher-ish */
 const PROMPTS={
-  opener:`Right. We're building you a tiny paid offer in 72 hours. No monk retreats. No "someday".
-Give quick answers so I can mine them and move you forward:
-• Real results people have thanked/paid you for (1–3)
-• A tiny win you can deliver in <48h
-• Proof you have (screens/DMs/before–after)
-• One real person who needs this
-• Constraints you refuse (keeps us honest)
-I’ll do the heavy lifting and push you to one shippable offer.`,
-  offers:`I'll draft 3 micro-offers (promise • price • delivery). We'll pick one and sharpen.`,
-  selection:`Choose one. I'll pressure-test price/promise/scope, kill scope creep, and lock the deliverable.`,
-  plan:`3-Day Launch Plan (incl. $5/day ads). Only tasks you will finish. I’ll check your work like a mean gym coach.`,
+  opener:`Fresh slate. No excuses.
+Here’s the deal: we’re building you a tiny paid offer in 72 hours. No monk retreats. No “someday”.
+I’ll steer. You answer fast. We’ll win small, then stack.
+First, the easy dopamine hit:
+→ Tell me ONE thing people already thank you for helping with. Real world, not theory.
+If your brain’s mush, say “no clue” and I’ll rattle a few to pick from.`,
+  offers:`Nice. I’ll pitch 3 tiny offers (promise • price • delivery). We’ll pick one and sharpen until it’s un-ignorable.`,
+  selection:`Choose one. I’ll pressure-test price/promise/scope, kill scope creep, and lock the deliverable.`,
+  plan:`3-Day Launch Plan (incl. $5/day ads). Only tasks you will actually finish. I’ll check your work like a mean gym coach.`,
   optimize:`Add a tiny upsell, patch objections, craft ad hooks. Then we ship.`
 };
+
 function detectStyleFrom(t=""){t=t.toLowerCase();if(/stuck|overwhelmed|help|lost/.test(t))return"coach";if(/how|steps|plan|process|framework/.test(t))return"engineer";if(/write|headline|copy|hook|story/.test(t))return"ghostwriter";if(/procrastinat|excuse|no time|scared/.test(t))return"dark";return"coach";}
 const STYLE_PRIME={
   coach:"Direct, motivating, punchy. You push; you care.",
@@ -285,8 +325,6 @@ let licenseKey= localStorage.getItem('fe_license') || "";
 let currentStage = localStorage.getItem('fe_stage') || "profile";
 let agentMemory = JSON.parse(localStorage.getItem('fe_memory')||'{"skills":"","audience":"","offer":"","price":"","style":"coach","blocked_by":""}');
 let modules   = JSON.parse(localStorage.getItem('fe_modules')||'[]');
-let lastTouch = Number(localStorage.getItem('fe_last_touch')||0);
-let startTs   = Number(localStorage.getItem('fe_start_ts')||0);
 
 /* DOM */
 const chatEl   = document.getElementById('chat');
@@ -312,13 +350,12 @@ const esc=s=>(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c
 const norm=s=>(s||"").toLowerCase().replace(/[^\p{L}\p{N}\s]/gu,'').replace(/\s+/g,' ').trim();
 function cleanUndefined(text=""){return text.replace(/\bundefined\b/gi,'').replace(/\s{2,}/g,' ').trim();}
 function sanitizeSay(t){let s=(t||"").replace(/^```(?:json)?/i,'').replace(/```$/,'').replace(/\[\[[^\]]+\]\]/g,'').trim();return cleanUndefined(s);}
-function isOpenerText(text=""){const x=norm(text);return x.startsWith("right were building you")||x.startsWith("lets find the one skill")||x.startsWith("fresh slate");}
+function isOpenerText(text=""){const x=norm(text);return x.startsWith("fresh slate")||x.startsWith("right were building you")||x.startsWith("lets find the one skill");}
 function bubble(role,content){const who=role==='user'?'me':'ai';return `<div class="msg ${who}"><div class="avatar ${who}">${who==='me'?'🧑':'⚙️'}</div><div class="bubble">${esc(content)}</div></div>`;}
 function render(){chatEl.innerHTML=history.map(m=>bubble(m.role,m.content)).join('');requestAnimationFrame(()=>{chatEl.scrollTop=chatEl.scrollHeight;});}
 function stageIndex(n){return Math.max(0,STAGES.indexOf(n));}
 function setProgressUI(idx){stageLabel.textContent=`${idx+1}/${STAGES.length}`;stageText.innerHTML=`Roadmap: <strong>${idx+1}/${STAGES.length}</strong>`;barFill.style.width=`${Math.round(((idx+1)/STAGES.length)*100)}%`;}
 function updateProgressUI(){const idx=stageIndex(currentStage);setProgressUI(idx);modeTag.textContent=unlocked?'Premium':'Demo';modeTag.className='pill '+(unlocked?'full':'demo');demoCta.style.display=unlocked?'none':'block';syncMenuVisibility();localStorage.setItem('fe_stage',currentStage);}
-function advanceStageMaybe(next){ if(!STAGES.includes(next))return; const cur=stageIndex(currentStage), nx=stageIndex(next); if(nx===cur+1) currentStage=next; }
 
 /* CLOUD */
 async function callCloud(messages){const r=await fetch(`${CLOUD_ENDPOINT}/chat`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages})});if(!r.ok)throw new Error(`Cloud ${r.status}`);const j=await r.json();return j.output||"No response."}
@@ -332,8 +369,24 @@ window.addEventListener('beforeunload',()=>{ try{ navigator.sendBeacon?.(`${CLOU
 function activeModuleIds(){return modules.map(m=>m.id);}
 function lastAssistant(){for(let i=history.length-1;i>=0;i--){if(history[i].role==='assistant')return history[i];}return null;}
 function persistLocal(){localStorage.setItem('fe_history',JSON.stringify(history));localStorage.setItem('fe_memory',JSON.stringify(agentMemory));localStorage.setItem('fe_modules',JSON.stringify(modules));localStorage.setItem('fe_stage',currentStage);}
-function push(role,content){const cleaned=role==='assistant'?sanitizeSay(content):content; if(role==='assistant'&&isOpenerText(cleaned)){history=history.filter(m=>!(m.role==='assistant'&&isOpenerText(m.content)));} if(role==='assistant'){const la=lastAssistant(); if(la&&norm(la.content)===norm(cleaned))return;} history.push({role,content:cleaned}); persistLocal(); render(); updateProgressUI(); autoSaveSoon();}
-function activeStyle(){const lastUser=[...history].reverse().find(m=>m.role==='user')?.content||"";const s=detectStyleFrom(lastUser)||agentMemory.style||"coach";agentMemory.style=s;localStorage.setItem('fe_memory',JSON.stringify(agentMemory));return s;}
+function push(role,content){
+  const cleaned=role==='assistant'?sanitizeSay(content):content;
+  if(role==='assistant'&&isOpenerText(cleaned)){
+    history=history.filter(m=>!(m.role==='assistant'&&isOpenerText(m.content)));
+  }
+  if(role==='assistant'){
+    const la=lastAssistant();
+    if(la&&norm(la.content)===norm(cleaned))return;
+  }
+  history.push({role,content:cleaned}); persistLocal(); render(); updateProgressUI(); autoSaveSoon();
+}
+function activeStyle(){
+  const lastUser=[...history].reverse().find(m=>m.role==='user')?.content||"";
+  const s=detectStyleFrom(lastUser)||agentMemory.style||"coach"; agentMemory.style=s;
+  localStorage.setItem('fe_memory',JSON.stringify(agentMemory)); return s;
+}
+function advanceStageMaybe(next){ if(!STAGES.includes(next))return; const cur=stageIndex(currentStage), nx=stageIndex(next); if(nx===cur+1) currentStage=next; }
+
 async function agentAsk(userTextOrNull){
   const style=activeStyle();
   const ctx=[{role:"system",content:systemPrime(style,currentStage,activeModuleIds())},{role:"system",content:`MEMORY:${JSON.stringify(agentMemory)}`},{role:"system",content:`CURRICULUM_PROMPT:${PROMPTS[currentStage]||""}`},...history.slice(-10)];
@@ -343,8 +396,10 @@ async function agentAsk(userTextOrNull){
     const nudge=[{role:"system",content:systemPrime(style,currentStage,activeModuleIds())},{role:"system",content:`MEMORY:${JSON.stringify(agentMemory)}`},{role:"system",content:`CURRICULUM_PROMPT:${PROMPTS[currentStage]||""}`},...history.slice(-10),{role:"user",content:"Return STRICT JSON. Mentor me like a trainer. Advance the curriculum."}];
     out=await callCloud(nudge); parsed=tryParse(out)||{say:sanitizeSay(out),stage:currentStage,next_questions:[],memory_delta:{},confidence:.7};
   }
-  if(parsed.memory_delta&&typeof parsed.memory_delta==='object'){for(const k of ["skills","audience","offer","price","style","blocked_by"]){if(parsed.memory_delta[k]) agentMemory[k]=parsed.memory_delta[k];}}
-  if(parsed.stage) { const before=currentStage; advanceStageMaybe(parsed.stage); if(before!==currentStage) autoSaveSoon(); }
+  if(parsed.memory_delta&&typeof parsed.memory_delta==='object'){
+    for(const k of ["skills","audience","offer","price","style","blocked_by"]){ if(parsed.memory_delta[k]) agentMemory[k]=parsed.memory_delta[k]; }
+  }
+  if(parsed.stage){ const before=currentStage; advanceStageMaybe(parsed.stage); if(before!==currentStage) autoSaveSoon(); }
   persistLocal(); autoSaveSoon();
   return sanitizeSay(parsed.say);
 }
@@ -367,7 +422,7 @@ async function generate(userText){push('user',userText); aiStatus.textContent="T
 sendBtn.onclick=()=>{const t=inputEl.value.trim(); if(!t)return; inputEl.value=""; generate(t);};
 inputEl.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendBtn.click();}});
 
-/* EXPORT */
+/* EXPORT (HTML brief, not raw txt) */
 document.getElementById('export').onclick = async ()=>{
   try{
     const briefTask = `User memory: ${JSON.stringify(agentMemory)}
@@ -380,7 +435,8 @@ Tone: tough-love mentor with dark humor.`;
     const report = await callCloud([{role:"system",content:"You compile briefs."},...history.slice(-16),{role:"user",content:briefTask}]);
     const html = `<!doctype html><html><head><meta charset="utf-8"><title>Freedom Engine — Export</title>
 <style>body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto;background:#0b0d12;color:#eef3ff;margin:0;padding:28px}
-.wrap{max-width:900px;margin:0 auto}.h{font-size:28px;font-weight:800;margin:0 0 4px}.sub{color:#9aa3b2;margin:0 0 18px}
+.wrap{max-width:900px;margin:0 auto}.h{font-size:28px;font-weight:800;margin:0 0 4px;letter-spacing:.8px}
+.sub{color:#9aa3b2;margin:0 0 18px}
 .card{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid #1b2235;border-radius:16px;padding:16px;margin:14px 0}
 pre{white-space:pre-wrap;background:#0d1117;border:1px solid #232c40;border-radius:10px;padding:12px;line-height:1.5}</style></head>
 <body><div class="wrap"><div class="h">The Freedom Engine — Export</div>
@@ -412,8 +468,8 @@ document.getElementById('loadSnap').addEventListener('change',async e=>{
 document.getElementById('reset').addEventListener('click',()=>{
   if(confirm("Reset all progress?")){
     history=[]; agentMemory={"skills":"","audience":"","offer":"","price":"","style":"coach","blocked_by":""};
-    currentStage="profile"; startTs=0;
-    localStorage.removeItem('fe_history'); localStorage.removeItem('fe_stage'); localStorage.removeItem('fe_memory'); localStorage.removeItem('fe_last_touch'); localStorage.removeItem('fe_start_ts');
+    currentStage="profile";
+    localStorage.removeItem('fe_history'); localStorage.removeItem('fe_stage'); localStorage.removeItem('fe_memory'); 
     setProgressUI(0); render();
     push('assistant',"Fresh slate. No excuses. "+PROMPTS.opener);
     autoSaveSoon();
@@ -426,8 +482,8 @@ document.getElementById('switchMode').addEventListener('click',()=>{
   }
 });
 
-if(buyBtn) buyBtn.addEventListener('click',()=>window.open(GUMROAD_URL,'_blank'));
-if(demoBuy) demoBuy.addEventListener('click',()=>window.open(GUMROAD_URL,'_blank'));
+const buyBtnEl=document.getElementById('buy'); if(buyBtnEl) buyBtnEl.addEventListener('click',()=>window.open(GUMROAD_URL,'_blank'));
+const demoBuy=document.getElementById('demoBuy'); if(demoBuy) demoBuy.addEventListener('click',()=>window.open(GUMROAD_URL,'_blank'));
 
 const unlockBtnEl=document.getElementById('unlock');
 if(unlockBtnEl) unlockBtnEl.addEventListener('click',async()=>{
@@ -445,11 +501,15 @@ if(unlockBtnEl) unlockBtnEl.addEventListener('click',async()=>{
   }catch(e){ showErr(e); alert("Verification failed—network/endpoint."); }
 });
 
-/* MODULES UI — null-safe */
-if(modulesBtn && modulesModal && modulesGrid){
-  modulesBtn.addEventListener('click',()=>{ renderModules(); modulesModal.classList.add('open'); });
-  if(closeModules) closeModules.addEventListener('click',()=>modulesModal.classList.remove('open'));
-  modulesGrid.addEventListener('click', async (e)=>{
+/* MODULES UI */
+const modulesBtnEl  = document.getElementById('modulesBtn');
+const modulesModalEl= document.getElementById('modulesModal');
+const modulesGridEl = document.getElementById('modulesGrid');
+const closeModulesEl= document.getElementById('closeModules');
+if(modulesBtnEl && modulesModalEl && modulesGridEl){
+  modulesBtnEl.addEventListener('click',()=>{ renderModules(); modulesModalEl.classList.add('open'); });
+  if(closeModulesEl) closeModulesEl.addEventListener('click',()=>modulesModalEl.classList.remove('open'));
+  modulesGridEl.addEventListener('click', async (e)=>{
     const btn=e.target.closest('button'); if(!btn) return;
     const id=btn.dataset.id; const act=btn.dataset.act; const mod=MODULES.find(x=>x.id===id); if(!mod) return;
     if(act==='preview'){ push('assistant', `Preview: **${mod.name}** — ${mod.desc}\nSay “apply ${mod.id}” to weave it into the next steps.`); }
@@ -465,7 +525,6 @@ if(modulesBtn && modulesModal && modulesGrid){
   });
 }
 function renderModules(){
-  if(!modulesGrid) return;
   modulesGrid.innerHTML = MODULES.map(m=>{
     const active = modules.some(x=>x.id===m.id);
     return `<div class="module">
