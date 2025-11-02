@@ -6,7 +6,6 @@
 <title>The Freedom Engine — Personal AI Trainer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-
 <style>
 /* ===== THEME ===== */
 @font-face{
@@ -40,9 +39,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
   display:grid;gap:18px;grid-template-columns:420px 1fr;
 }
 @media(max-width:1100px){.container{grid-template-columns:1fr}}
-@media(max-width:720px){
-  .container{grid-template-columns:1fr;gap:12px;padding:12px 10px calc(env(safe-area-inset-bottom) + 120px)}
-}
+@media(max-width:720px){.container{grid-template-columns:1fr;gap:12px;padding:12px 10px calc(env(safe-area-inset-bottom) + 120px)}}
 
 /* Glass + neon */
 .glass{background:linear-gradient(180deg,var(--glass1),var(--glass2));
@@ -82,8 +79,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
 @media(max-width:720px){.logo-fallback{font-size:24px}}
 
 .brand-title{min-width:0}
-.title{font-family:"Techfont Italica",Inter,system-ui;font-weight:800;font-size:clamp(22px,3.4vw,36px);
-  line-height:1.04;letter-spacing:1.1px;word-spacing:1.8px;text-wrap:balance}
+.title{font-family:"Techfont Italica",Inter,system-ui;font-weight:800;
+  font-size:clamp(22px,3.4vw,34px);line-height:1.04;letter-spacing:1.1px;word-spacing:1.6px;word-break:break-word}
 .meta-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px}
 .pill{padding:6px 10px;border-radius:999px;background:#0d1222;border:1px solid #293357;font-size:12px}
 .pill.demo{color:#ffd7f1;border-color:#4a2a47;background:rgba(255,124,186,.12)}
@@ -117,13 +114,11 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
 /* Main / Chat */
 .panel{padding:12px}
 .chat{
-  height:calc(100vh - 270px);
+  /* JS will set exact height to meet composer */
   overflow:auto;padding:8px 6px;border:1px solid var(--line);border-radius:14px;
   background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01));
   position:relative;z-index:1;scroll-behavior:smooth
 }
-@media(max-width:1100px){.chat{height:calc(100svh - 340px)}}
-@media(max-width:720px){.chat{height:calc(100svh - 420px)}}
 
 .msg{display:grid;grid-template-columns:34px 1fr;gap:10px;margin:10px 0;align-items:start}
 .avatar{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:14px;border:1px solid #2c3553;background:linear-gradient(135deg,#1b2135,#121628)}
@@ -164,7 +159,7 @@ textarea{min-height:98px;resize:vertical;border-radius:12px;border:1px solid #26
       <div class="brand-title">
         <div class="title">The Freedom Engine</div>
         <div class="meta-line">
-          <span class="sub">Built by Intelligently Artificial Systems</span>
+          <span class="sub">Personal AI Trainer</span>
           <span id="modeTag" class="pill demo">Demo</span>
         </div>
         <div class="sub" id="stageText" style="margin-top:6px">Roadmap: <strong>1/5</strong></div>
@@ -240,15 +235,16 @@ const CLOUD_ENDPOINT="https://freedom-engine-worker.intelligentlyartificialsyste
 const GUMROAD_URL="https://intellartsystems.gumroad.com/l/the-freedom-engine";
 const STAGES=["profile","offers","selection","plan","optimize"];
 const PROMPTS={
-  opener:`Right then. I’m your Freedom Engine—personal trainer for tiny money-makers.
-No fluff. We ship in 72 hours.
-• Pick a lane: design / writing / coaching / dev / other (or say “help me choose”)
-• I’ll pitch 3 tiny paid offers (≤ $49) you can deliver fast
-• We lock one, I give the exact steps, copy, and hooks. You execute. Deal?`,
-  offers:`I propose 3 tiny offers (promise • price • delivery). You pick; we sharpen.`,
-  selection:`We lock scope + price. No scope creep. One shippable thing.`,
-  plan:`3-Day launch plan at $5/day ads. Minimum effort, maximum signal.`,
-  optimize:`Quick upsell + objections patch + hooks. Then we ship.`
+  opener:`Welcome to the Freedom Engine. I’m your personal trainer for tiny paid offers.
+Here’s the drill: I’ll handle strategy, templates, and deadlines; you do bite-size reps.
+We’ll ship one in ~72 hours. No monk retreat required.
+To get you moving, choose a lane and I’ll carry the heavy boxes:
+• design • writing • coaching • dev • other
+If you’re blank, say “help me choose” and I’ll pitch options. I’ll keep the sarcasm warm and the steps short.`,
+  offers:`I’ll propose three tiny offers with promise • price • delivery. Pick one; I’ll sharpen it.`,
+  selection:`We lock scope + price. One shippable thing. No scope creep, no martyrdom.`,
+  plan:`Your 3-day plan: checklist, page copy, ad seed at $5/day. Minimal effort; maximum signal.`,
+  optimize:`Quick upsell, objections patch, and hooks. Then we ship and learn fast.`
 };
 
 /* ===== DOM refs ===== */
@@ -257,7 +253,7 @@ const stageLabel=$('stageLabel'), stageText=$('stageText'), barFill=$('barFill')
 const menuRoot=$('menu'), menuBtn=$('menuBtn'), menuPanel=$('menuPanel');
 const unlockBtn=$('unlock'), buyBtn=$('buy'), demoCta=$('demoCta'), demoBuy=$('demoBuy');
 const modulesBtn=$('modulesBtn'), modulesModal=$('modulesModal'), modulesGrid=$('modulesGrid'), closeModules=$('closeModules');
-const errorEl=$('error');
+const errorEl=$('error'), footerEl=document.querySelector('.footer');
 
 /* ===== state ===== */
 let history=JSON.parse(localStorage.getItem('fe_history')||'[]');
@@ -269,8 +265,6 @@ let modules=JSON.parse(localStorage.getItem('fe_modules')||'[]');
 
 /* ===== error banner ===== */
 function showErr(msg){console.error(msg); if(!errorEl) return; errorEl.textContent=(typeof msg==='string'?msg:(msg?.message||'Unknown error')); errorEl.style.display='block';}
-window.addEventListener('error',e=>showErr(e.error||e.message||'Script error'));
-window.addEventListener('unhandledrejection',e=>showErr(e.reason||'Promise rejection'));
 
 /* ===== logo load ===== */
 (function loadLogo(){
@@ -293,15 +287,20 @@ function detectStyleFrom(t=""){t=t.toLowerCase();
   if(/procrastinat|excuse|no time|scared/.test(t))return"dark";
   return"coach";
 }
-const STYLE_PRIME={coach:"Direct, motivating, punchy.",engineer:"Methodical, numbered steps.",ghostwriter:"Creative, copy-led examples.",dark:"Ruthless accountability; dark humor (safe, no slurs)."};
+const STYLE_PRIME={
+  coach:"Direct, encouraging, light roast; never cruel.",
+  engineer:"Stepwise, numbered, crisp.",
+  ghostwriter:"Copy-led examples and hooks.",
+  dark:"Ruthless accountability; dark humor (safe, no slurs)."
+};
 function systemPrime(style="coach",stage="profile",mods=[]){
-  return `You are THE FREEDOM ENGINE — trainer for tiny profitable offers. Mission: ship in 72 hours.
-Blend sharp sarcasm, dark humor, and light bullying toward success—calibrated and safe.
+  return `You are THE FREEDOM ENGINE — mentor for tiny profitable offers. Mission: ship in ~72 hours.
+Explain first, guide second, ask ONE small thing at a time. Keep it conversational, with dark witty asides.
 Tone: ${STYLE_PRIME[style]}. Stage: ${stage}. Advance the curriculum.
-Never ask “what do people thank you for”. Guide the user to PICK A LANE or say “help me choose”, then propose concrete offers.
+Avoid interrogation lists. No “what do people thank you for” question. Prefer: suggest → confirm.
 Return STRICT JSON ONLY:
 {"say":"...","stage":"profile|offers|selection|plan|optimize","next_questions":["..."],"memory_delta":{"skills":"","audience":"","offer":"","price":"","style":"","blocked_by":""},"confidence":0.0}
-Keep "say" < 150 words.`;
+Keep "say" < 140 words.`;
 }
 
 /* ===== render helpers ===== */
@@ -310,10 +309,19 @@ const bubble=(role,content)=>`<div class="msg ${role==='user'?'me':'ai'}">
   <div class="bubble">${esc(content)}</div></div>`;
 function scrollBottom(){if(!chatEl)return; chatEl.scrollTop=chatEl.scrollHeight;}
 function render(){ if(!chatEl) return; chatEl.innerHTML=history.map(m=>bubble(m.role,m.content)).join(''); requestAnimationFrame(scrollBottom); }
-window.addEventListener('resize',()=>setTimeout(scrollBottom,80));
 function stageIndex(n){return Math.max(0,STAGES.indexOf(n));}
 function setProgressUI(idx){ text(stageLabel,`${idx+1}/${STAGES.length}`); if(stageText) stageText.innerHTML=`Roadmap: <strong>${idx+1}/${STAGES.length}</strong>`; if(barFill) barFill.style.width=`${Math.round(((idx+1)/STAGES.length)*100)}%`; }
 function updateProgressUI(){ setProgressUI(stageIndex(currentStage)); if(modeTag){modeTag.textContent=unlocked?'Premium':'Demo'; modeTag.className='pill '+(unlocked?'full':'demo');} show(demoCta,!unlocked); localStorage.setItem('fe_stage',currentStage); }
+
+/* Chat height to meet composer */
+function sizeChat(){
+  if(!chatEl||!footerEl) return;
+  const top=chatEl.getBoundingClientRect().top + window.scrollY;
+  const h=window.innerHeight - footerEl.offsetHeight - (top - window.scrollY) - 16;
+  chatEl.style.height = Math.max(220, h) + "px";
+}
+window.addEventListener('resize',()=>setTimeout(sizeChat,50));
+document.addEventListener('DOMContentLoaded',()=>setTimeout(sizeChat,50));
 
 /* ===== cloud save/load ===== */
 async function cloudSave(){
@@ -331,17 +339,16 @@ async function cloudLoad(){
     persistLocal(); return true;
   }catch{return false;}
 }
-let saveTimer=null; function autoSaveSoon(){if(saveTimer)clearTimeout(saveTimer); saveTimer=setTimeout(cloudSave,500);}
+let saveTimer=null; function autoSaveSoon(){if(saveTimer)clearTimeout(saveTimer); saveTimer=setTimeout(cloudSave,600);}
 function persistLocal(){localStorage.setItem('fe_history',JSON.stringify(history));localStorage.setItem('fe_memory',JSON.stringify(agentMemory));localStorage.setItem('fe_modules',JSON.stringify(modules));localStorage.setItem('fe_stage',currentStage);}
 
-/* ===== API & parsing (defensive) ===== */
+/* ===== API & parsing ===== */
 async function callCloud(messages){
   const r=await fetch(`${CLOUD_ENDPOINT}/chat`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages})});
   if(!r.ok) throw new Error(`Cloud ${r.status}`);
   const j=await r.json(); return j.output||"No response.";
 }
 function extractJSONBlock(s){
-  // find the first {...} that parses; otherwise null
   let start=s.indexOf('{'); while(start!==-1){
     const sub=s.slice(start);
     try{ return JSON.parse(sub); }catch{ start=s.indexOf('{', start+1); }
@@ -349,22 +356,14 @@ function extractJSONBlock(s){
   return null;
 }
 function parseAgent(out){
-  // Try pure JSON first, then hunt a JSON block, otherwise sanitize to text
-  out = (out||"").trim();
-  let parsed=null;
-  try{ parsed=JSON.parse(out); }catch{}
+  out=(out||"").trim();
+  let parsed=null; try{ parsed=JSON.parse(out); }catch{}
   if(!parsed) parsed=extractJSONBlock(out);
   if(parsed && typeof parsed.say==="string"){
-    return {
-      say: parsed.say,
-      stage: parsed.stage||currentStage,
-      memory_delta: parsed.memory_delta||{},
-      confidence: typeof parsed.confidence==="number"?parsed.confidence:.7
-    };
+    return { say: parsed.say, stage: parsed.stage||currentStage, memory_delta: parsed.memory_delta||{}, confidence: parsed.confidence??.7 };
   }
-  // Fallback: scrub any {…} garbage and return a clean string
   const cleaned = out.replace(/\{[\s\S]*?\}/g,'').replace(/\n{3,}/g,'\n\n').trim();
-  return { say: cleaned || "Pick a lane (design / writing / coaching / dev / other).", stage: currentStage, memory_delta:{}, confidence:.6 };
+  return { say: cleaned || "Pick a lane (design / writing / coaching / dev / other), or say “help me choose”.", stage: currentStage, memory_delta:{}, confidence:.6 };
 }
 
 /* ===== chat engine ===== */
@@ -392,10 +391,10 @@ async function agentRespond(){
 function greetIfEmpty(){ if(history.length===0){ push('assistant', PROMPTS.opener); } }
 async function boot(){
   inputEl.disabled=false; sendBtn.disabled=false;
-  updateProgressUI();
+  updateProgressUI(); sizeChat();
   if(unlocked&&licenseKey){ const loaded=await cloudLoad(); if(loaded){ render(); } }
   render(); greetIfEmpty();
-  text(aiStatus,"Ready."); setTimeout(scrollBottom,120);
+  text(aiStatus,"Ready."); setTimeout(()=>{sizeChat(); scrollBottom();},140);
 }
 document.addEventListener('DOMContentLoaded',boot);
 
@@ -404,12 +403,12 @@ on(sendBtn,'click',async()=>{
   const t=inputEl.value.trim(); if(!t) return;
   inputEl.value=""; push('user',t);
   text(aiStatus,"Thinking…");
-  try{ await agentRespond(); }catch(e){ showErr(e); push('assistant',"Cloud hiccup. Give me your next answer; I’ll keep pushing forward."); }
-  text(aiStatus,"Ready."); setTimeout(scrollBottom,60);
+  try{ await agentRespond(); }catch(e){ showErr(e); push('assistant',"Cloud hiccup. Give me your next answer; I’ll keep us moving."); }
+  text(aiStatus,"Ready."); setTimeout(()=>{sizeChat(); scrollBottom();},60);
 });
 on(inputEl,'keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendBtn.click(); } });
 
-/* ===== export brief ===== */
+/* ===== export brief (HTML) ===== */
 on($('export'),'click', async ()=>{
   try{
     const briefTask=`User memory: ${JSON.stringify(agentMemory)}
@@ -449,14 +448,14 @@ on($('loadSnap'),'change',async e=>{
     agentMemory=snap.memory||agentMemory; currentStage=snap.stage||"profile";
     history=Array.isArray(snap.history)?snap.history:[]; modules=Array.isArray(snap.modules)?snap.modules:[];
     unlocked=!!snap.unlocked; localStorage.setItem('fe_unlocked',unlocked?'1':''); persistLocal(); render(); updateProgressUI();
-    push('assistant',"Snapshot loaded. Back on track."); autoSaveSoon();
+    push('assistant',"Snapshot loaded. Back on track."); autoSaveSoon(); sizeChat();
   }catch(err){ showErr(err); alert("Bad snapshot file."); }
 });
 on($('reset'),'click',()=>{
   if(confirm("Reset all progress?")){
     history=[]; agentMemory={"skills":"","audience":"","offer":"","price":"","style":"coach","blocked_by":""}; currentStage="profile";
     localStorage.removeItem('fe_history'); localStorage.removeItem('fe_stage'); localStorage.removeItem('fe_memory');
-    setProgressUI(0); render(); push('assistant', PROMPTS.opener); autoSaveSoon();
+    setProgressUI(0); render(); push('assistant', PROMPTS.opener); autoSaveSoon(); sizeChat();
   }
 });
 on($('switchMode'),'click',()=>{
@@ -478,6 +477,7 @@ on(unlockBtn,'click',async()=>{
       updateProgressUI();
       if(loaded){ render(); push('assistant',"Premium engaged. I pulled your progress from the vault. Back to work."); }
       else { push('assistant',"Premium engaged. Clean slate stored in the vault. Let’s move."); await cloudSave(); }
+      sizeChat();
     } else alert("Key didn’t verify. Check your Gumroad receipt.");
   }catch(e){ showErr(e); alert("Verification failed—network/endpoint."); }
 });
@@ -523,6 +523,13 @@ function renderModules(){
 
 /* ===== utilities ===== */
 function downloadBlob(content,type,name){const blob=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();}
+
+/* ===== greeting / wake ===== */
+const $wake=$('wake'); on($wake,'click',()=>{ push('assistant',"Engine awake. No incense required."); });
+
+/* ===== demo CTA visibility ===== */
+function refreshCTA(){ show(demoCta,!unlocked); }
+refreshCTA();
 </script>
 </body>
 </html>
