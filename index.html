@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>The Freedom Engine — Trainer</title>
 
-<!-- Web fonts (secondary) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 
@@ -15,10 +14,10 @@
    ========================= */
 @font-face{
   font-family:"Techfont Italica";
-  src:url("assets/Techfont-Italica.ttf") format("truetype");
-  font-weight:800;
-  font-style:normal;
-  font-display:swap;
+  src:
+    url("assets/Techfont-Italica.ttf") format("truetype"),
+    url("Techfont-Italica.ttf") format("truetype");
+  font-weight:800; font-style:normal; font-display:swap;
 }
 :root{
   --bg:#07080b; --ink:#eaf0ff; --muted:#98a2b3; --line:#1b2235;
@@ -119,6 +118,16 @@ textarea{min-height:56px;resize:vertical;border-radius:12px;border:1px solid #26
 
 /* Error banner */
 #error{position:fixed;top:0;left:0;right:0;background:#3b0f14;border-bottom:1px solid #74222c;color:#ffd7dc;padding:10px 14px;font-size:13px;z-index:2000;display:none}
+
+/* Modules Modal */
+.modal{position:fixed;inset:0;background:rgba(3,5,10,.6);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:2005}
+.modal.open{display:flex}
+.modal .sheet{width:min(880px,90vw);max-height:80vh;overflow:auto;border:1px solid #2a3553;border-radius:16px;background:#0b1224;padding:16px;box-shadow:0 22px 60px rgba(0,0,0,.6)}
+.sheet h3{margin:0 0 10px}
+.modules-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:720px){.modules-grid{grid-template-columns:1fr}}
+.module{border:1px solid #293357;border-radius:12px;padding:12px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02))}
+.badge{border:1px solid #2a3553;border-radius:999px;padding:4px 8px;font-size:12px}
 </style>
 </head>
 <body>
@@ -187,9 +196,17 @@ textarea{min-height:56px;resize:vertical;border-radius:12px;border:1px solid #26
   </div>
 </div>
 
-<!-- =========================
-     APP SCRIPT
-     ========================= -->
+<!-- Modules Modal (missing before; now included) -->
+<div class="modal" id="modulesModal" aria-hidden="true">
+  <div class="sheet">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <h3>Modules</h3>
+      <button id="closeModules" class="btn ghost small">Close</button>
+    </div>
+    <div class="modules-grid" id="modulesGrid"></div>
+  </div>
+</div>
+
 <script type="module">
 /* CONFIG */
 const CLOUD_ENDPOINT = "https://freedom-engine-worker.intelligentlyartificialsystems.workers.dev";
@@ -215,7 +232,7 @@ const logoFallback = document.querySelector('.logo-fallback');
   logo.src=primary;
 })();
 
-/* MODULES PLACEHOLDER */
+/* MODULES CATALOG */
 const MODULES=[
   {id:"ads",name:"Ad Creative Booster",product_id:"MOD_ADS_ID",price:"$12",desc:"Generate scroll-stopping ad images + angles in seconds."},
   {id:"email",name:"Email Launch Booster",product_id:"MOD_EMAIL_ID",price:"$9",desc:"Auto-draft 3-day launch emails matched to your offer."},
@@ -223,7 +240,7 @@ const MODULES=[
   {id:"proof",name:"Proof Builder",product_id:"MOD_PROOF_ID",price:"$7",desc:"Extract and frame social proof from past wins."}
 ];
 
-/* PROMPTS (mentor voice) */
+/* PROMPTS */
 const PROMPTS={
   opener:`Right. We're building you a tiny paid offer in 72 hours. No monk retreats. No "someday".
 Give quick answers so I can mine them and move you forward:
@@ -283,6 +300,7 @@ const modeTag     = document.getElementById('modeTag');
 const modulesBtn  = document.getElementById('modulesBtn');
 const modulesModal= document.getElementById('modulesModal');
 const modulesGrid = document.getElementById('modulesGrid');
+const closeModules= document.getElementById('closeModules');
 const menuRoot    = document.getElementById('menu');
 const unlockBtn   = document.getElementById('unlock');
 const buyBtn      = document.getElementById('buy');
@@ -307,26 +325,26 @@ async function callCloud(messages){const r=await fetch(`${CLOUD_ENDPOINT}/chat`,
 const tryParse=s=>{try{const t=s.trim().replace(/^```(?:json)?/i,'').replace(/```$/,'');return JSON.parse(t)}catch{return null}};
 async function cloudSave(){if(!unlocked||!licenseKey)return;const payload={license_key:licenseKey,data:{memory:agentMemory,stage:currentStage,history,modules}};await fetch(`${CLOUD_ENDPOINT}/progress`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}).catch(()=>{});}
 async function cloudLoad(){if(!unlocked||!licenseKey)return false;const r=await fetch(`${CLOUD_ENDPOINT}/progress?license_key=${encodeURIComponent(licenseKey)}`).catch(()=>null);if(!r||!r.ok)return false;const j=await r.json();if(!j||!j.ok||!j.data)return false;const d=j.data;agentMemory=d.memory||agentMemory;currentStage=d.stage||currentStage;history=Array.isArray(d.history)?d.history:history;modules=Array.isArray(d.modules)?d.modules:modules;persistLocal();return true;}
-let saveTimer=null; function autoSaveSoon(){ if(saveTimer)clearTimeout(saveTimer); saveTimer=setTimeout(()=>{cloudSave();},800); }
+let saveTimer=null; function autoSaveSoon(){ if(saveTimer)clearTimeout(saveTimer); saveTimer=setTimeout(()=>{cloudSave();},600); }
+window.addEventListener('beforeunload',()=>{ try{ navigator.sendBeacon?.(`${CLOUD_ENDPOINT}/progress`, new Blob([JSON.stringify({license_key:licenseKey,data:{memory:agentMemory,stage:currentStage,history,modules}})],{type:'application/json'})); }catch{} });
 
 /* AGENT */
 function activeModuleIds(){return modules.map(m=>m.id);}
 function lastAssistant(){for(let i=history.length-1;i>=0;i--){if(history[i].role==='assistant')return history[i];}return null;}
 function persistLocal(){localStorage.setItem('fe_history',JSON.stringify(history));localStorage.setItem('fe_memory',JSON.stringify(agentMemory));localStorage.setItem('fe_modules',JSON.stringify(modules));localStorage.setItem('fe_stage',currentStage);}
-function push(role,content){const cleaned=role==='assistant'?sanitizeSay(content):content; if(role==='assistant'&&isOpenerText(cleaned)){history=history.filter(m=>!(m.role==='assistant'&&isOpenerText(m.content)));} if(role==='assistant'){const la=lastAssistant(); if(la&&norm(la.content)===norm(cleaned))return;} history.push({role,content:cleaned}); lastTouch=Date.now(); if(!startTs)startTs=lastTouch; persistLocal(); localStorage.setItem('fe_last_touch',String(lastTouch)); localStorage.setItem('fe_start_ts',String(startTs)); render(); updateProgressUI(); autoSaveSoon();}
-function activeStyle(){const lastUser=[...history].reverse().find(m=>m.role==='user')?.content||"";return detectStyleFrom(lastUser)||agentMemory.style||"coach";}
+function push(role,content){const cleaned=role==='assistant'?sanitizeSay(content):content; if(role==='assistant'&&isOpenerText(cleaned)){history=history.filter(m=>!(m.role==='assistant'&&isOpenerText(m.content)));} if(role==='assistant'){const la=lastAssistant(); if(la&&norm(la.content)===norm(cleaned))return;} history.push({role,content:cleaned}); persistLocal(); render(); updateProgressUI(); autoSaveSoon();}
+function activeStyle(){const lastUser=[...history].reverse().find(m=>m.role==='user')?.content||"";const s=detectStyleFrom(lastUser)||agentMemory.style||"coach";agentMemory.style=s;localStorage.setItem('fe_memory',JSON.stringify(agentMemory));return s;}
 async function agentAsk(userTextOrNull){
-  agentMemory.style=activeStyle();
-  localStorage.setItem('fe_memory',JSON.stringify(agentMemory));
-  const ctx=[{role:"system",content:systemPrime(agentMemory.style,currentStage,activeModuleIds())},{role:"system",content:`MEMORY:${JSON.stringify(agentMemory)}`},{role:"system",content:`CURRICULUM_PROMPT:${PROMPTS[currentStage]||""}`},...history.slice(-10)];
+  const style=activeStyle();
+  const ctx=[{role:"system",content:systemPrime(style,currentStage,activeModuleIds())},{role:"system",content:`MEMORY:${JSON.stringify(agentMemory)}`},{role:"system",content:`CURRICULUM_PROMPT:${PROMPTS[currentStage]||""}`},...history.slice(-10)];
   if(userTextOrNull!==null) ctx.push({role:"user",content:userTextOrNull});
   let out=await callCloud(ctx); let parsed=tryParse(out);
   if(!parsed||(parsed.confidence??0)<0.6){
-    const nudge=[{role:"system",content:systemPrime(agentMemory.style,currentStage,activeModuleIds())},{role:"system",content:`MEMORY:${JSON.stringify(agentMemory)}`},{role:"system",content:`CURRICULUM_PROMPT:${PROMPTS[currentStage]||""}`},...history.slice(-10),{role:"user",content:"Return STRICT JSON. Mentor me like a trainer. Advance the curriculum."}];
+    const nudge=[{role:"system",content:systemPrime(style,currentStage,activeModuleIds())},{role:"system",content:`MEMORY:${JSON.stringify(agentMemory)}`},{role:"system",content:`CURRICULUM_PROMPT:${PROMPTS[currentStage]||""}`},...history.slice(-10),{role:"user",content:"Return STRICT JSON. Mentor me like a trainer. Advance the curriculum."}];
     out=await callCloud(nudge); parsed=tryParse(out)||{say:sanitizeSay(out),stage:currentStage,next_questions:[],memory_delta:{},confidence:.7};
   }
   if(parsed.memory_delta&&typeof parsed.memory_delta==='object'){for(const k of ["skills","audience","offer","price","style","blocked_by"]){if(parsed.memory_delta[k]) agentMemory[k]=parsed.memory_delta[k];}}
-  if(parsed.stage) advanceStageMaybe(parsed.stage);
+  if(parsed.stage) { const before=currentStage; advanceStageMaybe(parsed.stage); if(before!==currentStage) autoSaveSoon(); }
   persistLocal(); autoSaveSoon();
   return sanitizeSay(parsed.say);
 }
@@ -334,11 +352,10 @@ async function agentAsk(userTextOrNull){
 /* BOOT */
 function hasOpener(){return history.some(m=>m.role==='assistant'&&isOpenerText(m.content));}
 async function boot(){
-  inputEl.disabled=false; sendBtn.disabled=false;
   try{
+    inputEl.disabled=false; sendBtn.disabled=false;
     updateProgressUI();
-    if(unlocked&&licenseKey){const loaded=await cloudLoad(); if(loaded && !hasOpener()){}}
-    render();
+    if(unlocked&&licenseKey){const loaded=await cloudLoad(); if(loaded) render();}
     if(!hasOpener()) push('assistant', PROMPTS.opener);
     aiStatus.textContent="Ready.";
   }catch(e){showErr(e); aiStatus.textContent="Ready."}
@@ -374,13 +391,16 @@ pre{white-space:pre-wrap;background:#0d1117;border:1px solid #232c40;border-radi
 };
 
 /* MENU / AUTH */
-document.getElementById('menuBtn').onclick=()=>menuRoot.classList.toggle('open');
+const menuBtn=document.getElementById('menuBtn');
+const menuPanel=document.getElementById('menuPanel');
+menuBtn.addEventListener('click',()=>menuRoot.classList.toggle('open'));
 document.addEventListener('click',e=>{ if(!menuRoot.contains(e.target)) menuRoot.classList.remove('open'); });
-document.getElementById('saveSnap').onclick=()=>{
+
+document.getElementById('saveSnap').addEventListener('click',()=>{
   const snap={when:new Date().toISOString(),memory:agentMemory,stage:currentStage,history,modules,unlocked};
   downloadBlob(JSON.stringify(snap,null,2),'application/json',`freedom-snapshot-${Date.now()}.json`);
-};
-document.getElementById('loadBtn').onclick=()=>document.getElementById('loadSnap').click();
+});
+document.getElementById('loadBtn').addEventListener('click',()=>document.getElementById('loadSnap').click());
 document.getElementById('loadSnap').addEventListener('change',async e=>{
   const f=e.target.files?.[0]; if(!f) return;
   try{ const snap=JSON.parse(await f.text());
@@ -389,7 +409,7 @@ document.getElementById('loadSnap').addEventListener('change',async e=>{
     persistLocal(); render(); updateProgressUI(); push('assistant',"Snapshot loaded. We’ll pick up exactly where you left off."); autoSaveSoon();
   }catch(err){ showErr(err); alert("Bad snapshot file."); }
 });
-document.getElementById('reset').onclick=()=>{
+document.getElementById('reset').addEventListener('click',()=>{
   if(confirm("Reset all progress?")){
     history=[]; agentMemory={"skills":"","audience":"","offer":"","price":"","style":"coach","blocked_by":""};
     currentStage="profile"; startTs=0;
@@ -398,16 +418,19 @@ document.getElementById('reset').onclick=()=>{
     push('assistant',"Fresh slate. No excuses. "+PROMPTS.opener);
     autoSaveSoon();
   }
-};
-document.getElementById('switchMode').onclick=()=>{
+});
+document.getElementById('switchMode').addEventListener('click',()=>{
   if(confirm("Sign out and reset this device to first-time state? Progress stays with your premium license.")){
     try{ localStorage.clear(); sessionStorage.clear(); caches?.keys?.().then(keys=>keys.forEach(k=>caches.delete(k))).catch(()=>{}); }
     finally{ location.replace(location.pathname); }
   }
-};
-document.getElementById('buy').onclick=()=>window.open(GUMROAD_URL,'_blank');
-document.getElementById('demoBuy').onclick=()=>window.open(GUMROAD_URL,'_blank');
-document.getElementById('unlock').onclick=async()=>{
+});
+
+if(buyBtn) buyBtn.addEventListener('click',()=>window.open(GUMROAD_URL,'_blank'));
+if(demoBuy) demoBuy.addEventListener('click',()=>window.open(GUMROAD_URL,'_blank'));
+
+const unlockBtnEl=document.getElementById('unlock');
+if(unlockBtnEl) unlockBtnEl.addEventListener('click',async()=>{
   const key=prompt("Paste your license key:"); if(!key) return;
   try{
     const r=await fetch(`${CLOUD_ENDPOINT}/verify`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({license_key:key.trim()})}).then(r=>r.json());
@@ -420,16 +443,30 @@ document.getElementById('unlock').onclick=async()=>{
       else{ push('assistant',"Premium engaged. Clean slate stored in the vault. Let’s move."); }
     } else alert("Key didn’t verify. Check your Gumroad receipt.");
   }catch(e){ showErr(e); alert("Verification failed—network/endpoint."); }
-};
+});
 
-/* MODULES UI */
-const modulesBtnEl=document.getElementById('modulesBtn');
-const modulesModalEl=document.getElementById('modulesModal');
-const modulesGridEl=document.getElementById('modulesGrid');
-document.getElementById('closeModules')?.addEventListener('click',()=>modulesModalEl.classList.remove('open'));
-modulesBtnEl.onclick=()=>{ renderModules(); modulesModalEl.classList.add('open'); };
+/* MODULES UI — null-safe */
+if(modulesBtn && modulesModal && modulesGrid){
+  modulesBtn.addEventListener('click',()=>{ renderModules(); modulesModal.classList.add('open'); });
+  if(closeModules) closeModules.addEventListener('click',()=>modulesModal.classList.remove('open'));
+  modulesGrid.addEventListener('click', async (e)=>{
+    const btn=e.target.closest('button'); if(!btn) return;
+    const id=btn.dataset.id; const act=btn.dataset.act; const mod=MODULES.find(x=>x.id===id); if(!mod) return;
+    if(act==='preview'){ push('assistant', `Preview: **${mod.name}** — ${mod.desc}\nSay “apply ${mod.id}” to weave it into the next steps.`); }
+    if(act==='deactivate'){ modules = modules.filter(x=>x.id!==id); persistLocal(); renderModules(); push('assistant', `${mod.name} deactivated.`); autoSaveSoon(); }
+    if(act==='unlock'){
+      const key=licenseKey || prompt(`Paste the license key for ${mod.name}:`); if(!key) return;
+      try{
+        const r=await fetch(`${CLOUD_ENDPOINT}/verify`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({license_key:key.trim(),product_id:mod.product_id})}).then(r=>r.json());
+        if(r.ok){ modules=[...modules.filter(x=>x.id!==id), {id:mod.id, when:Date.now()}]; persistLocal(); renderModules(); push('assistant', `${mod.name} unlocked. I’ll incorporate it automatically.`); autoSaveSoon(); }
+        else alert("That key didn’t verify for this module.");
+      }catch(err){ showErr(err); alert("Verification failed—network/endpoint."); }
+    }
+  });
+}
 function renderModules(){
-  modulesGridEl.innerHTML = MODULES.map(m=>{
+  if(!modulesGrid) return;
+  modulesGrid.innerHTML = MODULES.map(m=>{
     const active = modules.some(x=>x.id===m.id);
     return `<div class="module">
       <div style="display:flex;justify-content:space-between;align-items:center">
@@ -445,22 +482,7 @@ function renderModules(){
     </div>`;
   }).join('');
 }
-modulesGridEl.addEventListener('click', async (e)=>{
-  const btn=e.target.closest('button'); if(!btn) return;
-  const id=btn.dataset.id; const act=btn.dataset.act; const mod=MODULES.find(x=>x.id===id); if(!mod) return;
-  if(act==='preview'){ push('assistant', `Preview: **${mod.name}** — ${mod.desc}\nSay “apply ${mod.id}” to weave it into the next steps.`); }
-  if(act==='deactivate'){ modules = modules.filter(x=>x.id!==id); persistLocal(); renderModules(); push('assistant', `${mod.name} deactivated.`); autoSaveSoon(); }
-  if(act==='unlock'){
-    const key=licenseKey || prompt(`Paste the license key for ${mod.name}:`); if(!key) return;
-    try{
-      const r=await fetch(`${CLOUD_ENDPOINT}/verify`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({license_key:key.trim(),product_id:mod.product_id})}).then(r=>r.json());
-      if(r.ok){ modules=[...modules.filter(x=>x.id!==id), {id:mod.id, when:Date.now()}]; persistLocal(); renderModules(); push('assistant', `${mod.name} unlocked. I’ll incorporate it automatically.`); autoSaveSoon(); }
-      else alert("That key didn’t verify for this module.");
-    }catch(err){ showErr(err); alert("Verification failed—network/endpoint."); }
-  }
-});
 function syncMenuVisibility(){ if(unlocked){unlockBtn.style.display='none'; buyBtn.style.display='none';} else {unlockBtn.style.display=''; buyBtn.style.display='';} }
-syncMenuVisibility();
 
 /* UTIL */
 function downloadBlob(content,type,name){const blob=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();}
