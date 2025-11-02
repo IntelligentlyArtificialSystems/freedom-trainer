@@ -4,21 +4,23 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>The Freedom Engine — Personal AI Trainer</title>
+
+<!-- Brand font -->
 <link rel="preload" href="Techfont-Italica.ttf" as="font" type="font/ttf" crossorigin>
 <style>
   :root{
     --bg:#0a0d17;
-    --glass:rgba(255,255,255,.08);
-    --glass-2:rgba(255,255,255,.16);
-    --ink:#e7efff;
-    --muted:#a7b3cf;
+    --glass1:rgba(255,255,255,.08);
+    --glass2:rgba(255,255,255,.14);
+    --ink:#e9f1ff;
+    --muted:#a9b4cd;
     --accent:#7bffde;
-    --pink:#ff4fd8;
+    --pink:#ff6ad5;
     --gold:#ffc34d;
-    --good:#65ffa3;
+    --good:#6fffaf;
     --danger:#ff6b6b;
-    --shadow:0 30px 80px rgba(0,0,0,.45);
     --radius:22px;
+    --shadow:0 24px 70px rgba(0,0,0,.45);
   }
 
   @font-face{
@@ -27,155 +29,152 @@
     font-display:swap;
   }
 
-  html,body{height:100%;background:var(--bg);color:var(--ink);margin:0}
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--ink)}
   body{
-    font-family:Techfont, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
-    letter-spacing:.2px;
-    line-height:1.25;
-    background-image: radial-gradient(1000px 600px at 20% -10%, rgba(255,0,255,.12), transparent),
-                     radial-gradient(800px 500px at 100% 30%, rgba(0,255,255,.10), transparent),
-                     url("bg-warp.png");
-    background-size: cover, cover, cover;
-    background-attachment: fixed;
+    font-family:Techfont, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    letter-spacing:.25px; line-height:1.25;
+    /* REVERTED background (calm neon glass look) */
+    background:
+      radial-gradient(900px 600px at 10% -10%, rgba(255,0,255,.12), transparent),
+      radial-gradient(800px 600px at 90% 30%, rgba(0,255,255,.10), transparent),
+      url("bg-warp.png");
+    background-size:cover, cover, cover;
+    background-attachment:fixed;
   }
 
   .wrap{max-width:1200px;margin:22px auto;padding:0 14px}
   .grid{display:grid;grid-template-columns:380px 1fr;gap:20px}
-  @media (max-width: 960px){ .grid{grid-template-columns:1fr} }
+  @media (max-width:960px){ .grid{grid-template-columns:1fr; gap:16px} }
 
-  /* Card shells */
   .card{
-    position:relative;background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-    border:1px solid rgba(255,255,255,.14);
-    border-radius:var(--radius);
-    box-shadow:var(--shadow); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    position:relative; border-radius:var(--radius);
+    background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+    border:1px solid var(--glass2); box-shadow:var(--shadow);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
   }
   .pad{padding:18px}
-  .headline{font-weight:700; letter-spacing:.4px}
+  .row{display:flex;align-items:center;gap:10px}
   .muted{color:var(--muted)}
-  .row{display:flex; align-items:center; gap:10px}
-  .pill{padding:4px 10px; border-radius:999px; font-size:12px; font-weight:700; letter-spacing:.3px}
-  .pill.demo{background:rgba(255,80,170,.18); color:#ffd8f1; border:1px solid rgba(255,80,170,.35)}
-  .pill.full{background:rgba(100,255,160,.18); color:#caffea; border:1px solid rgba(100,255,160,.35)}
-  .readable{font-size:14px}
+  .headline{font-weight:800; letter-spacing:.35px}
 
-  /* Header panel */
+  /* Header/Brand (reverted proportions) */
   .brand{display:grid; grid-template-columns:120px 1fr; gap:14px}
   .logoBox{
     height:120px; width:120px; border-radius:20px; overflow:hidden; position:relative;
     background: radial-gradient(60% 60% at 20% 20%, rgba(255,255,255,.15), rgba(255,255,255,.03));
     border:1px solid rgba(255,255,255,.18)
   }
-  /* 3x bigger logo, masked inside the box */
+  /* 3x bigger logo, masked inside the box; slow spin */
   .logoSpin{
-    position:absolute; inset:-100%; /* makes the SVG 3x the box size while centered */
-    margin:auto; width:300%; height:300%; transform-origin:50% 50%;
-    background: url("ias-logo.png") center/contain no-repeat;
+    position:absolute; inset:-100%;
+    width:300%; height:300%; margin:auto; transform-origin:50% 50%;
+    background:url("ias-logo.png") center/contain no-repeat;
     animation:spin 36s linear infinite;
     filter:drop-shadow(0 0 12px rgba(255,255,255,.25));
   }
-  @keyframes spin{ to { transform: rotate(360deg);} }
+  @keyframes spin{ to { transform: rotate(360deg); } }
 
   .titleBlock h1{margin:0; font-size:44px; line-height:1; text-shadow:0 8px 40px rgba(0,0,0,.5)}
   .sub{margin-top:6px}
-  .barWrap{margin-top:14px}
-  .bar{
-    position:relative;height:14px;border-radius:14px;background:rgba(255,255,255,.08);
-    border:1px solid rgba(255,255,255,.14); overflow:hidden
-  }
-  .bar > i{
-    position:absolute; inset:0; width:0%;
-    background:linear-gradient(90deg,#7afcff,#ffb86b,#ff6ad5,#e4ff6a);
-    box-shadow:0 0 18px rgba(255,255,255,.25) inset;
-    transition: width .45s ease;
-  }
-  .barEnd{position:absolute; right:8px; top:-22px; font-size:12px; color:var(--muted)}
+  .pill{padding:4px 10px;border-radius:999px;font-size:12px;font-weight:800;letter-spacing:.3px}
+  .pill.demo{background:rgba(255,90,190,.18); color:#ffd8f1; border:1px solid rgba(255,90,190,.35)}
+  .pill.full{background:rgba(120,255,170,.18); color:#d9ffef; border:1px solid rgba(120,255,170,.35)}
 
-  .rowBtns{display:flex; gap:10px; margin-top:14px}
+  /* Roadmap bar */
+  .barWrap{margin-top:14px}
+  .bar{position:relative;height:14px;border-radius:14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);overflow:hidden}
+  .bar>i{position:absolute;inset:0;width:0%;transition:width .45s ease;
+    background:linear-gradient(90deg,#7afcff,#ffb86b,#ff6ad5,#e4ff6a)}
+  .barEnd{position:absolute;right:8px;top:-22px;font-size:12px;color:var(--muted)}
+  .barMeta{color:var(--muted);margin-top:4px}
+
+  .rowBtns{display:flex;gap:10px;margin-top:14px}
   .btn{
-    user-select:none; cursor:pointer; border:none; outline:none;
-    padding:10px 14px; border-radius:14px;
+    user-select:none;cursor:pointer;border:none;outline:none;
+    padding:10px 14px;border-radius:14px;
     background:linear-gradient(180deg, rgba(255,255,255,.15), rgba(255,255,255,.06));
-    border:1px solid rgba(255,255,255,.18); color:var(--ink); font-weight:800;
-    box-shadow:var(--shadow);
+    border:1px solid rgba(255,255,255,.18); color:var(--ink); font-weight:800; box-shadow:var(--shadow)
   }
   .btn:active{transform:translateY(1px)}
   .btn.ghost{background:rgba(255,255,255,.06)}
-  .btn.cta{
-    background:linear-gradient(180deg, rgba(255,120,200,.45), rgba(255,120,200,.18));
-    border-color:rgba(255,120,200,.5);
-  }
+  .btn.cta{background:linear-gradient(180deg, rgba(255,120,200,.45), rgba(255,120,200,.18));
+    border-color:rgba(255,120,200,.5)}
 
-  /* Kebab menu that opens upward */
-  .kebabWrap{position:relative}
+  /* Kebab & menu (open upward; above composer) */
+  .kebabWrap{position:relative; z-index:40}
   .menu{
     position:absolute; bottom:48px; left:0; width:240px; padding:10px;
     background:rgba(9,14,28,.96); border:1px solid rgba(255,255,255,.18); border-radius:14px;
-    display:none; z-index:5;
+    display:none; z-index:1000;
   }
   .menu.open{display:block}
-  .menu .btn{ width:100%; text-align:left; padding:10px 12px }
+  .menu .btn{width:100%; text-align:left; padding:10px 12px}
 
-  /* CTA block */
+  /* Demo CTA (unchanged) */
   .cta{display:block; margin-top:12px}
   body.is-premium .cta{display:none!important}
   body.is-demo .cta{display:block!important}
 
-  /* Chat area */
+  /* Chat (reverted dimensions + no clipping) */
   .chat{min-height:420px; display:flex; flex-direction:column}
-  @media (max-width:960px){ .chat{min-height:540px} }
+  @media (max-width:960px){ .chat{min-height:560px} }
   .msgs{flex:1; overflow:auto; padding:16px}
   .bubble{
     background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
     border:1px solid rgba(255,255,255,.18); border-radius:18px;
-    padding:14px 16px; margin:8px 8px;
-    box-shadow:var(--shadow)
+    padding:14px 16px; margin:8px 8px; box-shadow:var(--shadow)
   }
   .sys{background:linear-gradient(180deg, rgba(120,255,200,.14), rgba(255,255,255,.06))}
   .me{background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04))}
   .msgRow{display:grid; grid-template-columns:32px 1fr; gap:10px}
-  .avatar{
-    height:32px; width:32px; border-radius:10px; display:grid; place-items:center;
-    background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16); font-size:16px;
-  }
-  .composer{
-    display:grid; grid-template-columns:1fr 86px; gap:10px; padding:14px; border-top:1px solid rgba(255,255,255,.14)
-  }
-  .input{
-    height:54px; border-radius:14px; border:1px solid rgba(255,255,255,.2);
-    background:rgba(7,11,22,.75); color:var(--ink); padding:14px 16px; font:inherit;
-  }
+  .avatar{height:32px;width:32px;border-radius:10px;display:grid;place-items:center;
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);font-size:16px}
+  .composer{display:grid; grid-template-columns:1fr 86px; gap:10px; padding:14px;
+    border-top:1px solid rgba(255,255,255,.14); z-index:30}
+  .input{height:54px;border-radius:14px;border:1px solid rgba(255,255,255,.2);
+    background:rgba(7,11,22,.75);color:var(--ink);padding:14px 16px;font:inherit}
+  .foot{font-size:12px;color:var(--muted);padding:8px 14px}
 
-  .foot{font-size:12px; color:var(--muted); padding:8px 14px}
+  /* Sacred-geometry overlays for PREMIUM ONLY (subtle, neon, animated) */
+  .premium-geo{display:none}
+  body.is-premium .premium-geo{
+    display:block; pointer-events:none; position:absolute; inset:-8px; border-radius:inherit; z-index:0;
+    background:
+      radial-gradient(closest-side, rgba(123,255,222,.28), transparent 70%),
+      conic-gradient(from 0deg, rgba(255,105,210,.16), rgba(130,255,210,.16), rgba(255,255,160,.16), rgba(255,105,210,.16));
+    mix-blend-mode:screen;
+    animation:geoSpin 42s linear infinite;
+    mask-image:
+      radial-gradient(circle at 50% 50%, black 62%, transparent 64%),
+      radial-gradient(circle at 50% 50%, transparent 0 44%, black 46% 52%, transparent 54%),
+      radial-gradient(circle at 50% 50%, transparent 0 26%, black 28% 34%, transparent 36%),
+      radial-gradient(circle at 50% 50%, black 0 18%, transparent 20%);
+    mask-composite: intersect;
+  }
+  @keyframes geoSpin{ to { transform: rotate(360deg); } }
 
-  /* Demo/Premium flip */
+  /* Mode switches */
   body.is-premium #licenseItems{display:none!important}
   body.is-premium #modeTag.demo{display:none!important}
   body.is-demo #modeTag.full{display:none!important}
-
-  /* Sacred geometry accent for premium */
-  body.is-premium .card::before{
-    content:""; position:absolute; inset:-2px; pointer-events:none; border-radius:calc(var(--radius) + 2px);
-    background: conic-gradient(from 0deg, rgba(255,155,255,.12), rgba(120,255,200,.12), rgba(255,255,120,.12), rgba(255,155,255,.12));
-    filter: blur(14px); opacity:.45; z-index:-1;
-  }
 </style>
 </head>
 <body class="is-demo">
   <div class="wrap">
     <div class="grid">
 
-      <!-- Left: Brand / Roadmap -->
-      <div class="card pad">
+      <!-- LEFT: Brand/Roadmap (reverted layout) -->
+      <div class="card pad" id="leftCard">
+        <div class="premium-geo"></div>
         <div class="brand">
           <div class="logoBox"><div class="logoSpin" aria-hidden="true"></div></div>
           <div class="titleBlock">
             <h1 class="headline" id="appTitle">The Freedom Engine</h1>
             <div class="row sub">
               <span class="muted">Personal AI Trainer</span>
-              <span id="modeTag" class="pill demo readable">Demo</span>
+              <span id="modeTag" class="pill demo">Demo</span>
             </div>
-            <div class="muted" style="margin-top:2px">Roadmap: <span id="barLabel">1/5</span></div>
+            <div class="barMeta">Roadmap: <span id="barLabel">1/5</span></div>
           </div>
         </div>
 
@@ -206,22 +205,22 @@
           </div>
         </div>
 
-        <!-- Big CTA for Demo -->
+        <!-- Big CTA (Demo only) -->
         <div class="cta" id="demoCta">
           <div class="card pad" style="margin-top:12px; background:linear-gradient(180deg, rgba(255,120,200,.15), rgba(255,120,200,.08))">
             <div class="row" style="justify-content:space-between; gap:12px; flex-wrap:wrap">
-              <div class="readable">Unlock Full Engine — <strong>$29</strong><br>
+              <div>Unlock Full Engine — <strong>$29</strong><br>
                 <span class="muted">Cloud-saved progress across devices. Premium modules included.</span>
               </div>
               <button class="btn cta" id="buyBig">Unlock $29</button>
             </div>
           </div>
         </div>
-
       </div>
 
-      <!-- Right: Conversation -->
+      <!-- RIGHT: Conversation (reverted layout) -->
       <div class="card chat" id="chatCard">
+        <div class="premium-geo"></div>
         <div class="msgs" id="msgs"></div>
         <div class="composer">
           <input id="composer" class="input" placeholder="Answer here. Press Enter to send." />
@@ -233,48 +232,29 @@
     </div>
   </div>
 
-  <!-- Debug Drawer -->
-  <div id="dbg" style="display:none; position:fixed; right:10px; bottom:140px; width:300px; max-height:60vh; overflow:auto; background:#0b1224; border:1px solid #2a3553; border-radius:12px; box-shadow:0 18px 50px rgba(0,0,0,.6); padding:10px; z-index:5000">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-      <strong>Debug</strong>
-      <button id="dbgClose" class="btn ghost small headline">×</button>
-    </div>
-    <div id="dbgBody" class="readable" style="font-size:12px; white-space:pre-wrap"></div>
-    <div style="margin-top:8px; display:grid; gap:6px">
-      <button id="dbgForceDemo" class="btn ghost small headline">Force Demo</button>
-      <button id="dbgForcePremium" class="btn ghost small headline">Force Premium (fake)</button>
-      <button id="dbgClear" class="btn ghost small headline">Clear Local State</button>
-      <button id="dbgTestVerify" class="btn ghost small headline">Test /verify</button>
-      <button id="dbgTestProgress" class="btn ghost small headline">Test /progress</button>
-    </div>
-  </div>
-
 <script>
-/*** CONFIG ***/
-const BUILD_ID = "fe-2025-11-02b";
+/* ----------------- CONFIG ----------------- */
+const BUILD_ID = "fe-rollback-prem-geo-01";
 const CLOUD_ENDPOINT = "https://freedom-engine-worker.intelligentlyartificialsystems.workers.dev";
 const FE_SCHEMA = "2";
 
-/*** STATE ***/
+/* ----------------- STATE ------------------ */
 let verified = localStorage.getItem('fe_verified') === '1';
 let licenseKey = localStorage.getItem('fe_license') || "";
-let unlocked = verified && !!licenseKey; // single source of truth
+let unlocked = verified && !!licenseKey;
 let currentStage = +(localStorage.getItem('fe_stage') || 1);
-let booted = false;
 let history = JSON.parse(localStorage.getItem('fe_history') || "[]");
+
 if (localStorage.getItem('fe_schema') !== FE_SCHEMA){
-  localStorage.clear();
-  localStorage.setItem('fe_schema', FE_SCHEMA);
+  localStorage.clear(); localStorage.setItem('fe_schema', FE_SCHEMA);
   verified=false; licenseKey=""; unlocked=false; currentStage=1; history=[];
 }
 
-console.log("FE build:", BUILD_ID);
-
-/*** MODE + UI ENFORCEMENT ***/
+/* ----------------- MODE ------------------- */
 function computeMode(){
   const q = new URLSearchParams(location.search);
-  if(q.get('mode')==='demo') return { premium:false, reason:'query' };
-  return { premium:(verified && !!licenseKey), reason: verified?'verified':'no-verify' };
+  if(q.get('mode')==='demo') return { premium:false };
+  return { premium:(verified && !!licenseKey) };
 }
 function enforceUIState(){
   const { premium } = computeMode();
@@ -283,10 +263,10 @@ function enforceUIState(){
   const cta = document.getElementById('demoCta');
   if (cta) cta.style.display = premium ? 'none' : 'block';
   const tag = document.getElementById('modeTag');
-  if (tag){ tag.textContent = premium ? 'Premium' : 'Demo'; tag.className='pill ' + (premium?'full':'demo') + ' readable';}
+  if (tag){ tag.textContent = premium ? 'Premium' : 'Demo'; tag.className='pill ' + (premium?'full':'demo');}
 }
 
-/*** DOM HOOKS ***/
+/* -------------- DOM HOOKS ----------------- */
 const msgs = document.getElementById('msgs');
 const composer = document.getElementById('composer');
 const sendBtn = document.getElementById('send');
@@ -305,9 +285,8 @@ const pokeBtn = document.getElementById('poke');
 const barFill = document.getElementById('barFill');
 const barEnd = document.getElementById('barEnd');
 const barLabel = document.getElementById('barLabel');
-const foot = document.getElementById('foot');
 
-/*** HELPERS ***/
+/* -------------- HELPERS ------------------- */
 function stagePct(){ return Math.max(0, Math.min(100, (currentStage-1) * 25)); }
 function updateBar(){
   const pct = stagePct();
@@ -316,8 +295,6 @@ function updateBar(){
   barLabel.textContent = currentStage + "/5";
 }
 function scrollEnd(){ msgs.scrollTop = msgs.scrollHeight; }
-
-/*** CHAT ***/
 function sanitizeText(t){ return (t || "").toString().replaceAll("undefined","").replace(/\s{3,}/g," ").trim(); }
 function push(role, content){
   const row = document.createElement('div'); row.className='msgRow';
@@ -330,28 +307,8 @@ function push(role, content){
   localStorage.setItem('fe_history', JSON.stringify(history));
   scrollEnd();
 }
-function replaceLastOpener(text){
-  // remove prior assistant openers (only opener-tagged by boot)
-  const nodes = [...msgs.querySelectorAll('.sys')];
-  if(nodes.length>0){
-    const last = nodes[nodes.length-1];
-    last.textContent = text;
-  } else {
-    push('assistant', text);
-  }
-}
 
-function mentorIntro(){
-  // friendly, less interrogative
-  return "Welcome to the Freedom Engine. I’ll carry strategy, templates, and deadlines; you do bite-size reps. We’ll ship one in ~72 hours. No monk retreat required.\n\n" +
-         "To get moving, pick a lane and I’ll carry the heavy boxes:\n• design • writing • coaching • dev • other\n\n" +
-         "If you’re blank, say “help me choose” and I’ll pitch options. I’ll keep the sarcasm warm and the steps short.";
-}
-function mentorNudgeBlank(){
-  return "Looks like we’re circling. Want me to pitch 3 simple micro-offers based on common strengths, or do you want to pick a lane first? Say “pitch 3” or name a lane (design/writing/coaching/dev/other).";
-}
-
-/*** CLOUD PERSIST ***/
+/* -------------- CLOUD SAVE ---------------- */
 async function cloudLoad(){
   try{
     if(!verified || !licenseKey) return false;
@@ -364,67 +321,49 @@ async function cloudLoad(){
       localStorage.setItem('fe_history', JSON.stringify(history));
       return true;
     }
-  }catch(e){ console.warn("cloudLoad fail", e); }
+  }catch(e){}
   return false;
 }
-async function cloudSave(payload){
+async function cloudSave(data){
   if(!verified || !licenseKey) return false;
   try{
     const r = await fetch(`${CLOUD_ENDPOINT}/progress`, {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ license_key: licenseKey, data: payload })
+      body: JSON.stringify({ license_key: licenseKey, data })
     });
-    const j = await r.json();
-    return !!j?.ok;
-  }catch(e){ console.warn("cloudSave fail", e); return false; }
+    const j = await r.json(); return !!j?.ok;
+  }catch(e){ return false; }
 }
 async function cloudSaveWithBackoff(){
-  const payload = { stage: currentStage, history };
-  if(await cloudSave(payload)) return true;
-  await new Promise(r=>setTimeout(r,400));
-  return cloudSave(payload);
+  if(await cloudSave({stage:currentStage,history})) return;
+  await new Promise(r=>setTimeout(r,350));
+  await cloudSave({stage:currentStage,history});
 }
 
-/*** EXPORT (Markdown + JSON + Transcript in one .zip-like html) ***/
+/* --------------- EXPORT ------------------- */
 function exportPlan(){
-  const summary = `# The Freedom Engine — Plan (Stage ${currentStage}/5)
+  const md = `# The Freedom Engine — Plan (Stage ${currentStage}/5)
+Generated: ${new Date().toISOString()}
 
-**Generated:** ${new Date().toISOString()}
-**Mode:** ${computeMode().premium?'Premium':'Demo'}
-
-## Recent Steps
+## Recent
 ${history.slice(-8).map(h=>`- **${h.role}**: ${sanitizeText(h.content)}`).join('\n')}
 
-## What’s next
-- Keep replies short.
-- Ask for help by saying “help me choose”.
-- When ready, say “launch checklist”.
+## Next
+- Say "help me choose" for quick options.
+- Name a lane: design / writing / coaching / dev / other.
 `;
-  const pack = {
-    build: BUILD_ID,
-    stage: currentStage,
-    history
-  };
-  const blob = new Blob(
-    [ `---\n${summary}\n\n---\n\n<pre>${JSON.stringify(pack,null,2)}</pre>\n` ],
-    {type:"text/markdown;charset=utf-8"}
-  );
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `freedom-engine-plan-${Date.now()}.md`;
-  a.click();
-  URL.revokeObjectURL(a.href);
+  const blob = new Blob([md],{type:"text/markdown;charset=utf-8"});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download = `freedom-engine-plan-${Date.now()}.md`; a.click(); URL.revokeObjectURL(a.href);
 }
 
-/*** MENU + CTA ***/
-kebab.addEventListener('click', ()=>{
-  menu.classList.toggle('open');
-});
-document.addEventListener('click', (e)=>{
-  if(!menu.contains(e.target) && e.target!==kebab) menu.classList.remove('open');
-});
-buy?.addEventListener('click', ()=>{ window.open('https://intellartsystems.gumroad.com/l/the-freedom-engine','_blank'); });
-buyBig?.addEventListener('click', ()=>{ window.open('https://intellartsystems.gumroad.com/l/the-freedom-engine','_blank'); });
+/* --------------- MENU --------------------- */
+kebab.addEventListener('click', ()=> menu.classList.toggle('open'));
+document.addEventListener('click', (e)=>{ if(!menu.contains(e.target) && e.target!==kebab) menu.classList.remove('open'); });
+
+/* --------------- LICENSE ------------------ */
+buy?.addEventListener('click', ()=>window.open('https://intellartsystems.gumroad.com/l/the-freedom-engine','_blank'));
+buyBig?.addEventListener('click', ()=>window.open('https://intellartsystems.gumroad.com/l/the-freedom-engine','_blank'));
 haveKey?.addEventListener('click', async ()=>{
   const key = prompt("Enter your license key:");
   if(!key) return;
@@ -434,27 +373,25 @@ haveKey?.addEventListener('click', async ()=>{
       body: JSON.stringify({ license_key: key })
     }).then(x=>x.json());
     if(r.ok){
-      licenseKey = key.trim();
-      verified = true; unlocked = true;
+      licenseKey = key.trim(); verified=true; unlocked=true;
       localStorage.setItem('fe_license', licenseKey);
       localStorage.setItem('fe_verified', '1');
       enforceUIState();
       await cloudSaveWithBackoff();
       const pulled = await cloudLoad();
       render(true);
-      push('assistant', pulled ? "Premium engaged. Pulled your progress from the vault. Back to work." : "Premium engaged. Clean slate saved. Let’s move.");
+      push('assistant', pulled ? "Premium engaged. Clean slate synced. Let’s move." : "Premium engaged. Clean slate saved. Let’s move.");
     }else{
       alert("Couldn’t verify that key. Double-check your Gumroad receipt.");
     }
   }catch(e){ alert("Network error. Try again."); }
 });
 
-/*** SNAPSHOTS / RESET / SIGNOUT / POKE ***/
+/* -------------- SNAP/RESET/SIGNOUT -------- */
 saveSnap.onclick = ()=>{
   const blob = new Blob([JSON.stringify({stage:currentStage,history},null,2)],{type:'application/json'});
   const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download = `freedom-engine-snapshot-${Date.now()}.json`; a.click();
-  URL.revokeObjectURL(a.href);
+  a.download = `freedom-engine-snapshot-${Date.now()}.json`; a.click(); URL.revokeObjectURL(a.href);
 };
 loadSnap.onclick = ()=>{
   const i = document.createElement('input'); i.type='file'; i.accept='.json,application/json';
@@ -467,185 +404,87 @@ loadSnap.onclick = ()=>{
         currentStage = j.stage || 1; history = j.history || [];
         localStorage.setItem('fe_stage', currentStage);
         localStorage.setItem('fe_history', JSON.stringify(history));
-        cloudSaveWithBackoff();
-        render(true);
-        push('assistant',"Snapshot loaded.");
+        cloudSaveWithBackoff(); render(true); push('assistant',"Snapshot loaded.");
       }catch(e){ alert("Bad file."); }
-    };
-    r.readAsText(f);
-  };
-  i.click();
+    }; r.readAsText(f);
+  }; i.click();
 };
 resetBtn.onclick = ()=>{
-  if(!confirm("Reset your local progress to Stage 1? (Cloud progress remains)")) return;
+  if(!confirm("Reset your local progress to Stage 1?")) return;
   currentStage=1; history=[]; localStorage.setItem('fe_stage',1); localStorage.setItem('fe_history',"[]");
-  updateBar(); render(true); push('assistant',"Fresh slate. Let’s start right.");
-  cloudSaveWithBackoff();
+  updateBar(); render(true); push('assistant',"Fresh slate. Let’s start right."); cloudSaveWithBackoff();
 };
 signoutBtn.onclick = ()=>{
   if(!confirm("Sign out and switch to Demo? Local data will clear.")) return;
-  localStorage.clear();
-  verified=false; licenseKey=""; unlocked=false; currentStage=1; history=[];
+  localStorage.clear(); verified=false; licenseKey=""; unlocked=false; currentStage=1; history=[];
   enforceUIState(); updateBar(); render(true);
   push('assistant',"Back to Demo. Use the $29 button when you’re ready to unlock.");
 };
-pokeBtn.onclick = ()=>{
-  push('assistant',"I’m here. Say “help me choose” for quick options, or name a lane: design / writing / coaching / dev / other.");
-};
+pokeBtn.onclick = ()=> push('assistant',"I’m here. Say “help me choose” or name a lane (design / writing / coaching / dev / other).");
 
-/*** RENDER ***/
-function clearMsgs(){ msgs.innerHTML=""; }
+/* --------------- CHAT --------------------- */
+function mentorIntro(){
+  return "Welcome to the Freedom Engine. I’ll carry strategy, templates, and deadlines; you’ll do bite-size reps. We’ll ship one in ~72 hours. No monk retreat required.\n\nPick a lane and I’ll carry the heavy boxes:\n• design • writing • coaching • dev • other\n\nIf you’re blank, say “help me choose” and I’ll pitch options.";
+}
+function systemPrompt(){
+  return `You are The Freedom Engine, a personal AI trainer.
+Style: mentor energy, warm + darkly funny, light bullying toward success.
+Rules:
+- Explain, then ask for one small action.
+- Curriculum stages (1..5): profile → offer → copy → launch → iterate.
+- Avoid “what do people thank you for”. Use: “pick a lane” or “help me choose”.
+- Always end with the next micro-action.`;
+}
 function render(skipIntro=false){
-  clearMsgs(); updateBar();
-  const mode = computeMode();
-  enforceUIState();
+  msgs.innerHTML=""; updateBar(); enforceUIState();
   if(!skipIntro){
-    if(history.length){
-      // Resume prompt
-      push('assistant', "You’re back. Want me to pick up where we left off, or jump ahead? Say “resume” or name the step (offer / copy / launch).");
-    }else{
-      push('assistant', mentorIntro());
-      booted = true;
-    }
+    if(history.length){ push('assistant',"You’re back. Want me to resume or jump ahead? Say “resume” or name the step (offer / copy / launch)."); }
+    else { push('assistant', mentorIntro()); }
   }else{
-    for(const m of history.slice(-12)){ push(m.role,m.content); }
+    for(const m of history.slice(-20)){ push(m.role,m.content); }
   }
-  scrollEnd();
+  setTimeout(scrollEnd, 50);
 }
 
-/*** INPUT HANDLING (local LLM proxy = Worker /chat) ***/
 async function sendMessage(){
-  const text = sanitizeText(composer.value);
-  if(!text) return;
-  menu.classList.remove('open');
-  composer.value="";
-  push('user', text);
+  const text = sanitizeText(composer.value); if(!text) return;
+  menu.classList.remove('open'); composer.value=""; push('user', text);
 
-  // Simple intent handling to reduce API hits and undefined cases
   const t = text.toLowerCase().trim();
   if(["help","help me choose","choose","idk","i dont know","no clue","?"].includes(t)){
-    push('assistant',"Cool. Pick a lane and I’ll pitch 3 tiny paid-offer ideas:\n• design • writing • coaching • dev • other\nSay one of those, or “surprise me”.");
+    push('assistant',"Cool. Pick a lane and I’ll pitch 3 tiny offers:\n• design • writing • coaching • dev • other\nSay one of those, or “surprise me”.");
     return;
   }
-  if(t==="resume"){ push('assistant',"Picking up from last checkpoint…"); }
-  // Advance stage heuristics (demo)
   if(t.includes("design")||t.includes("writing")||t.includes("coaching")||t.includes("dev")){
-    currentStage=Math.min(5,currentStage+1);
-    localStorage.setItem('fe_stage', currentStage);
+    currentStage=Math.min(5,currentStage+1); localStorage.setItem('fe_stage', currentStage);
     updateBar(); cloudSaveWithBackoff();
   }
 
-  // Call your Worker /chat for model response (with server-side system prompt)
   try{
     const r = await fetch(`${CLOUD_ENDPOINT}/chat`, {
       method:'POST', headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        messages: [
-          {role:"system", content: systemPrompt()},
-          ...history.slice(-16),
-          {role:"user", content: text}
-        ]
-      })
-    });
-    if(!r.ok){ push('assistant', "Cloud hiccup — trying again…"); await new Promise(res=>setTimeout(res,350)); return sendMessageFallback(text); }
-    const j = await r.json();
-    const out = sanitizeText(j?.output || j?.message || j?.choices?.[0]?.message?.content || "Alright. Next: name a lane or say “help me choose”.");
-    push('assistant', out);
-  }catch(e){
-    push('assistant',"Network took a smoke break. I improvised — name a lane (design/writing/coaching/dev) or say “help me choose”.");
-  }
-}
-async function sendMessageFallback(text){
-  try{
-    const r = await fetch(`${CLOUD_ENDPOINT}/chat`, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        messages: [
-          {role:"system", content: systemPrompt()},
-          ...history.slice(-8),
-          {role:"user", content: text}
-        ]
+        messages:[{role:"system",content:systemPrompt()}, ...history.slice(-16), {role:"user",content:text}]
       })
     });
     const j = await r.json();
-    const out = sanitizeText(j?.output || "Back on track. What lane do you want?");
+    const out = sanitizeText(j?.output || j?.message || "Alright. Next: name a lane or say “help me choose”.");
     push('assistant', out);
   }catch(e){
-    push('assistant',"Still flaky. We’ll keep rolling locally. Say a lane (design/writing/coaching/dev) or “help me choose”.");
+    push('assistant',"Network nap. Keep going: name a lane (design/writing/coaching/dev) or say “help me choose”.");
   }
 }
 
-function systemPrompt(){
-  return `You are The Freedom Engine, a personal AI trainer built by Intelligently Artificial Systems.
-Style: mentor energy, warm + darkly funny (Butcher-adjacent), light bullying toward success.
-Rules:
-- Never interrogate; explain, then ask 1 small action.
-- Keep momentum: short paragraphs, clear options. If user is blank, offer 3 lightweight choices.
-- Curriculum stages (1..5): profile → offer → copy → launch → iterate. If the user names a lane, progress to the next meaningful micro-step.
-- Avoid asking “what do people thank you for?”. Use: “pick a lane (design/writing/coaching/dev/other)” or “say help me choose”.
-- Always end with an explicit next micro-action.
-- No cutesy emoji. You can be sharp, but helpful.`;
-}
-
-/*** EVENTS ***/
 sendBtn.onclick = sendMessage;
 composer.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); sendMessage(); }});
 exportBtn.onclick = exportPlan;
-modulesBtn.onclick = ()=>{ alert("Module upgrades coming soon. Premium users will see new tiles automatically."); };
+modulesBtn.onclick = ()=> alert("Module upgrades hub coming soon (Premium shows new tiles automatically).");
 
-/*** DEBUG DRAWER ***/
-(function debugDrawer(){
-  const qs = new URLSearchParams(location.search);
-  if(qs.get('debug')!=='1') return;
-  const box = document.getElementById('dbg'), body = document.getElementById('dbgBody');
-  const refresh = ()=>{
-    const {premium,reason}=computeMode();
-    body.textContent = JSON.stringify({
-      BUILD_ID, premium, reason,
-      verified, licenseKey: licenseKey?licenseKey.slice(0,6)+"…":"",
-      stage: currentStage, len: history.length
-    }, null, 2);
-  };
-  document.getElementById('dbgClose').onclick=()=>box.style.display='none';
-  document.getElementById('dbgForceDemo').onclick=()=>{ localStorage.removeItem('fe_verified'); verified=false; unlocked=false; enforceUIState(); refresh(); };
-  document.getElementById('dbgForcePremium').onclick=()=>{ localStorage.setItem('fe_verified','1'); verified=true; unlocked=true; enforceUIState(); refresh(); };
-  document.getElementById('dbgClear').onclick=()=>{ localStorage.clear(); location.reload(); };
-  document.getElementById('dbgTestVerify').onclick=async()=>{ try{ const j=await fetch(CLOUD_ENDPOINT+"/verify",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({license_key:licenseKey||"TEST"})}).then(r=>r.json()); alert(JSON.stringify(j,null,2)); }catch(e){ alert(e);} };
-  document.getElementById('dbgTestProgress').onclick=async()=>{ try{ const j=await fetch(CLOUD_ENDPOINT+"/progress?license_key="+encodeURIComponent(licenseKey||"TEST")).then(r=>r.json()); alert(JSON.stringify(j,null,2)); }catch(e){ alert(e);} };
-  box.style.display='block'; refresh();
-})();
-
-/*** BOOT ***/
-function sizeChat(){
-  // ensure chat meets composer; (layout already does, this forces after images/fonts load)
-  setTimeout(scrollEnd, 60);
-}
+/* --------------- BOOT --------------------- */
 (async function boot(){
-  enforceUIState();
-  updateBar();
-
-  // Try cloud resume if premium
-  if(unlocked){
-    const ok = await cloudLoad();
-    if(ok){ replaceLastOpener("Premium engaged. Resuming where we left off."); }
-  }
-
-  // First-time or returning
-  if(history.length===0){
-    push('assistant', mentorIntro());
-  }else{
-    // keep only last 20 to avoid giant DOM on boot
-    msgs.innerHTML="";
-    for(const m of history.slice(-20)){ push(m.role,m.content); }
-    // ensure only one opener
-    const sys = msgs.querySelectorAll('.sys');
-    if(sys.length>1){ sys.forEach((n,i)=>{ if(i<sys.length-1) n.remove(); }); }
-  }
-
-  // safety net: enforce UI state shortly after paint
-  let t=0; const id = setInterval(()=>{ enforceUIState(); if(++t>6) clearInterval(id); }, 300);
-
-  sizeChat();
+  enforceUIState(); updateBar();
+  if(unlocked){ await cloudLoad(); }
+  render(history.length>0);
 })();
 </script>
 </body>
