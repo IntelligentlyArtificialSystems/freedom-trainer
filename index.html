@@ -15,8 +15,6 @@
 }
 *{box-sizing:border-box} html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto;overflow-y:overlay}
-
-/* Ambient neon */
 .canvas{position:fixed;inset:-20vmax;z-index:-1;filter:blur(80px) saturate(140%);opacity:.35;pointer-events:none;
   background:
    conic-gradient(from 0deg at 30% 30%, var(--neon1), transparent 40%),
@@ -25,7 +23,6 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
   animation:drift 18s linear infinite alternate}
 @keyframes drift{0%{transform:translate3d(0,0,0) scale(1)}100%{transform:translate3d(4rem,-3rem,0) scale(1.1)}}
 
-/* Layout */
 .container{max-width:1220px;margin:0 auto;padding:22px 18px 120px;display:grid;gap:18px;grid-template-columns:260px 1fr;overflow:visible}
 @media(max-width:1024px){.container{grid-template-columns:1fr}}
 .glass{background:linear-gradient(180deg,var(--glass1),var(--glass2));border:1px solid var(--line);border-radius:var(--rad);box-shadow:var(--shadow);backdrop-filter:blur(14px) saturate(140%)}
@@ -37,19 +34,18 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
   filter:blur(12px) saturate(140%);opacity:.35}
 
 /* Sidebar */
-.sidebar{position:sticky;top:16px;height:fit-content;padding:14px;z-index:1001} /* above chat */
-.brand{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.sidebar{position:sticky;top:16px;height:fit-content;padding:14px;z-index:1001}
+.brand{display:grid;grid-template-columns:54px 1fr;gap:12px;margin-bottom:8px;align-items:center}
 .logo-wrap{width:54px;height:54px;border-radius:14px;display:grid;place-items:center;position:relative;background:rgba(0,0,0,.25);border:1px solid #2a2f45;overflow:hidden}
 .logo{width:42px;height:42px;object-fit:contain;display:none}
 .logo.spin{display:block;animation:logo-spin 48s linear infinite;
   filter:drop-shadow(0 0 14px rgba(124,134,255,.65)) drop-shadow(0 0 24px rgba(61,220,151,.45)) drop-shadow(0 0 28px rgba(255,124,186,.35))}
 @keyframes logo-spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 .logo-fallback{position:absolute;inset:0;display:grid;place-items:center;font-family:"JetBrains Mono",monospace;font-weight:700;letter-spacing:.8px;background:linear-gradient(135deg,var(--neon2),var(--neon1),var(--neon3));-webkit-background-clip:text;background-clip:text;color:transparent}
-.brand-title{line-height:1.05}
-.title{font-weight:800;font-size:16px}
-.sub{color:var(--muted);font-size:12px}
+.brand-title{min-width:0}
+.title{font-weight:800;font-size:16px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sub{color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-/* Console + progress */
 .block{padding:12px;border-radius:14px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015))}
 .row{display:flex;gap:8px;flex-wrap:wrap}
 .btn{border-radius:12px;border:1px solid #263048;background:#0f1424;color:var(--ink);padding:9px 12px;font-weight:600;cursor:pointer}
@@ -65,12 +61,9 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
 .bar{height:10px;border-radius:999px;background:#0d1222;border:1px solid #2a2f45;overflow:hidden}
 .bar>div{height:100%;background:linear-gradient(90deg,var(--neon2),var(--neon1),var(--neon3),var(--neon4));width:0%;transition:width .4s}
 
-/* Menu dropdown (fixed & on top) */
+/* Menu */
 .menu{position:relative;z-index:1002}
-.menu button{width:100%}
-.menu .panel{position:absolute;left:0;top:100%;transform:translateY(8px);width:220px;
-  background:#0b1224;border:1px solid #2a3553;border-radius:12px;display:none;padding:8px;z-index:1003;
-  box-shadow:0 18px 50px rgba(0,0,0,.5)}
+.menu .panel{position:absolute;left:0;top:100%;transform:translateY(8px);width:220px;background:#0b1224;border:1px solid #2a3553;border-radius:12px;display:none;padding:8px;z-index:1003;box-shadow:0 18px 50px rgba(0,0,0,.5)}
 .menu.open .panel{display:block}
 .menu .panel .btn{display:block;width:100%;text-align:left;margin:4px 0}
 
@@ -94,16 +87,20 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
 .footer{position:fixed;left:0;right:0;bottom:0;padding:12px 14px;background:linear-gradient(180deg,transparent,rgba(5,6,9,.9) 50%, rgba(5,6,9,1) 80%);border-top:1px solid var(--line)}
 .composer{max-width:1220px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:10px}
 textarea{min-height:60px;resize:vertical;border-radius:12px;border:1px solid #263048;background:#0f1424;color:var(--ink);padding:10px}
+
+/* Error banner */
+#error{position:fixed;top:0;left:0;right:0;background:#3b0f14;border-bottom:1px solid #74222c;color:#ffd7dc;padding:10px 14px;font-size:13px;z-index:2000;display:none}
 </style>
 </head>
 <body>
 <div class="canvas"></div>
+<div id="error"></div>
 
 <div class="container" id="app">
   <aside class="glass neon sidebar">
     <div class="brand">
       <div class="logo-wrap">
-        <img id="iasLogo" class="logo" src="assets/ias-logo.png" alt="IAS">
+        <img id="iasLogo" class="logo" alt="IAS">
         <div class="logo-fallback">IAS</div>
       </div>
       <div class="brand-title">
@@ -118,8 +115,8 @@ textarea{min-height:60px;resize:vertical;border-radius:12px;border:1px solid #26
         <div class="bar"><div id="barFill"></div></div>
       </div>
       <div style="display:flex;gap:8px;margin-top:10px">
-        <button id="export" class="btn ghost small" title="Export execution brief">Export</button>
-        <button id="modulesBtn" class="btn ghost small" title="Open Modules">Modules</button>
+        <button id="export" class="btn ghost small">Export</button>
+        <button id="modulesBtn" class="btn ghost small">Modules</button>
         <div class="menu" id="menu">
           <button id="menuBtn" class="btn ghost small">⋯</button>
           <div class="panel" id="menuPanel">
@@ -166,12 +163,41 @@ textarea{min-height:60px;resize:vertical;border-radius:12px;border:1px solid #26
 </div>
 
 <script type="module">
-/* =================== CONFIG =================== */
+/* ===== CONFIG ===== */
 const CLOUD_ENDPOINT = "https://freedom-engine-worker.intelligentlyartificialsystems.workers.dev";
 const GUMROAD_URL    = "https://intellartsystems.gumroad.com/l/the-freedom-engine";
 const STAGES = ["profile","offers","selection","plan","optimize"];
 
-/* Modules (placeholder product_ids for later) */
+/* ===== Error HUD ===== */
+const errorEl = document.getElementById('error');
+function showErr(msg){
+  console.error(msg);
+  errorEl.textContent = (typeof msg==='string'? msg : (msg?.message||'Unknown error'));
+  errorEl.style.display='block';
+}
+window.addEventListener('error', e=>showErr(e.error||e.message||'Script error'));
+window.addEventListener('unhandledrejection', e=>showErr(e.reason||'Promise rejection'));
+
+/* ===== Logo robust load (absolute + fallback path) ===== */
+const logo = document.getElementById('iasLogo');
+const logoFallback = document.querySelector('.logo-fallback');
+(function loadLogo(){
+  // Try repo-relative (works on GitHub Pages under /freedom-trainer/)
+  const primary = new URL('assets/ias-logo.png', location.href).href;
+  // Fallback to root-level if user placed it there
+  const alt = new URL('ias-logo.png', location.href).href;
+
+  let triedAlt = false;
+  const ok=()=>{logo.classList.add('spin');logo.style.display='block';logoFallback&&(logoFallback.style.display='none');};
+  logo.addEventListener('load', ok, {once:true});
+  logo.onerror = () => {
+    if(!triedAlt){ triedAlt = true; logo.src = alt; }
+    else { showErr('Logo image not found. Place file at /assets/ias-logo.png (lowercase) or alongside index.html as /ias-logo.png'); }
+  };
+  logo.src = primary;
+})();
+
+/* ===== Modules list (placeholders) ===== */
 const MODULES = [
   {id:"ads",    name:"Ad Creative Booster", product_id:"MOD_ADS_ID", price:"$12", desc:"Generate scroll-stopping ad images + angles in seconds."},
   {id:"email",  name:"Email Launch Booster", product_id:"MOD_EMAIL_ID", price:"$9",  desc:"Auto-draft 3-day launch emails matched to your offer."},
@@ -179,43 +205,39 @@ const MODULES = [
   {id:"proof",  name:"Proof Builder",        product_id:"MOD_PROOF_ID", price:"$7",  desc:"Extract and frame social proof from past wins."}
 ];
 
-/* Curriculum prompts */
+/* ===== Prompts & persona ===== */
 const PROMPTS = {
   opener: `Let's find the ONE skill people have already paid you for—or *wanted* to.
 Answer these, fast:
 1) Real moments strangers paid you or thanked you with results (1–3).
 2) A tiny win you can deliver in <48h.
-3) Existing proof (screens, DMs, before/after).
+3) Proof you have (screens/DMs/before-after).
 4) One real person this helps most (describe).
 5) Constraints: things you refuse or can't do.
 Rough is fine. I'll mine it and steer.`,
-  offers: `I'll propose 3 micro-offers with price, promise, delivery. Then we pick one and sharpen.`,
+  offers: `I'll propose 3 micro-offers (price, promise, delivery). Then we pick one and sharpen.`,
   selection: `We lock one offer. I pressure-test price, promise, scope. You commit.`,
-  plan: `3-Day Launch Plan (optional $5/day ads). Broken into tasks you'll actually finish.`,
+  plan: `3-Day Launch Plan (optionally $5/day ads). Tasks you'll actually finish.`,
   optimize: `Add a tiny upsell, clear objections, + two ad hooks. Then we ship.`
 };
-
-/* Persona */
-function detectStyleFrom(text=""){
-  const t = text.toLowerCase();
-  if (/stuck|overwhelmed|help|lost/.test(t)) return "coach";
-  if (/how|steps|plan|process|framework/.test(t)) return "engineer";
-  if (/write|headline|copy|hook|story/.test(t)) return "ghostwriter";
-  if (/procrastinat|excuse|no time|scared/.test(t)) return "dark";
-  return "coach";
-}
-const STYLE_PRIME = {
+function detectStyleFrom(t=""){t=t.toLowerCase();
+  if(/stuck|overwhelmed|help|lost/.test(t))return"coach";
+  if(/how|steps|plan|process|framework/.test(t))return"engineer";
+  if(/write|headline|copy|hook|story/.test(t))return"ghostwriter";
+  if(/procrastinat|excuse|no time|scared/.test(t))return"dark";
+  return"coach";}
+const STYLE_PRIME={
   coach:"Direct, motivating, tough love. Short, punchy.",
   engineer:"Methodical, structured, numbered steps, crisp logic.",
   ghostwriter:"Creative, persuasive, language-first, copy-obsessed.",
   dark:"Billy-Butcher energy; dark humor; ruthless accountability (no slurs)."
 };
 function systemPrime(style="coach", stage="profile", activeModules=[]){
-  const extras = [];
-  if (activeModules.includes("ads")) extras.push("When they have an offer, propose 2 ad angles and image briefs.");
-  if (activeModules.includes("email")) extras.push("Draft 3 launch emails (tease, announce, last call) when plan is ready.");
-  if (activeModules.includes("planner")) extras.push("Offer a simple 7-day content seed plan once the offer locks.");
-  if (activeModules.includes("proof")) extras.push("Extract proof assets from their answers and frame them as bullets.");
+  const extras=[];
+  if(activeModules.includes("ads"))extras.push("When they have an offer, propose 2 ad angles and image briefs.");
+  if(activeModules.includes("email"))extras.push("Draft 3 launch emails (tease, announce, last call) when plan is ready.");
+  if(activeModules.includes("planner"))extras.push("Offer a simple 7-day content seed plan once the offer locks.");
+  if(activeModules.includes("proof"))extras.push("Extract proof assets from their answers and frame them as bullets.");
   return `
 You are THE FREEDOM ENGINE — a ruthless, darkly funny trainer who ships a tiny paid offer in 72 hours.
 Tone: ${STYLE_PRIME[style]||STYLE_PRIME.coach}
@@ -223,19 +245,18 @@ Curriculum stage: ${stage}. Steer back to the curriculum if they drift. Ask foll
 ${extras.length?("Active modules:\n- " + extras.join("\n- ")):""}
 Return STRICT JSON only:
 {"say":"...","stage":"profile|offers|selection|plan|optimize","next_questions":["..."],"memory_delta":{"skills":"","audience":"","offer":"","price":"","style":"","blocked_by":""},"confidence":0.0}
-Keep "say" < 160 words. No code fences. No [[tokens]].`;
-}
+Keep "say" < 160 words. No code fences. No [[tokens]].`;}
 
-/* =================== STATE =================== */
+/* ===== State ===== */
 let history   = JSON.parse(localStorage.getItem('fe_history')||'[]');
 let unlocked  = localStorage.getItem('fe_unlocked') === '1';
 let currentStage = localStorage.getItem('fe_stage') || "profile";
 let agentMemory = JSON.parse(localStorage.getItem('fe_memory')||'{"skills":"","audience":"","offer":"","price":"","style":"coach","blocked_by":""}');
+let modules   = JSON.parse(localStorage.getItem('fe_modules')||'[]');
 let lastTouch = Number(localStorage.getItem('fe_last_touch')||0);
 let startTs   = Number(localStorage.getItem('fe_start_ts')||0);
-let modules   = JSON.parse(localStorage.getItem('fe_modules')||'[]'); // [{id, when}]
 
-/* =================== DOM =================== */
+/* ===== DOM ===== */
 const chatEl   = document.getElementById('chat');
 const inputEl  = document.getElementById('input');
 const sendBtn  = document.getElementById('send');
@@ -249,170 +270,114 @@ const modulesGrid = document.getElementById('modulesGrid');
 const menuRoot    = document.getElementById('menu');
 const menuBtn     = document.getElementById('menuBtn');
 
-/* Logo spin */
-const logo = document.getElementById('iasLogo');
-const logoFallback = document.querySelector('.logo-fallback');
-if (logo){ const ok=()=>{logo.classList.add('spin');logo.style.display='block';logoFallback&&(logoFallback.style.display='none');};
-  logo.addEventListener('load',ok,{once:true}); if (logo.complete && logo.naturalWidth>0) ok(); }
-
-/* =================== HELPERS =================== */
+/* ===== Helpers ===== */
 const esc = s => (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
-const norm = s => (s||"").toLowerCase().replace(/[`~^*_[\]{}()<>:"'.,!?/\\|-]/g,'').replace(/\s+/g,' ').trim();
+const norm = s => (s||"").toLowerCase().replace(/[^\p{L}\p{N}\s]/gu,'').replace(/\s+/g,' ').trim();
 function sanitizeSay(t){return (t||"").replace(/^```(?:json)?/i,'').replace(/```$/,'').replace(/\[\[[^\]]+\]\]/g,'').trim();}
-function lastAssistant(){ for(let i=history.length-1;i>=0;i--){ if(history[i].role==='assistant') return history[i]; } return null; }
-function isOpenerText(text=""){ const x=norm(text); return x.startsWith("lets find the one skill") || x.startsWith("fresh slate"); }
+function isOpenerText(text=""){const x=norm(text);return x.startsWith("lets find the one skill")||x.startsWith("fresh slate");}
+function bubble(role,content){const who=role==='user'?'me':'ai';return `<div class="msg ${who}">
+  <div class="avatar ${who}">${who==='me'?'🧑':'⚙️'}</div>
+  <div class="bubble">${esc(content)}</div></div>`;}
+function render(){chatEl.innerHTML=history.map(m=>bubble(m.role,m.content)).join('');requestAnimationFrame(()=>{chatEl.scrollTop=chatEl.scrollHeight;});}
+function stageIndex(n){return Math.max(0,STAGES.indexOf(n));}
+function progressPercent(){const idx=stageIndex(currentStage);return Math.round(((idx+1)/STAGES.length)*100);}
+function updateProgressUI(){stageLabel.textContent=`${Math.min(stageIndex(currentStage)+1,STAGES.length)}/${STAGES.length}`;barFill.style.width=`${progressPercent()}%`;modeTag.textContent=unlocked?'Premium':'Demo';modeTag.className='pill '+(unlocked?'full':'demo');localStorage.setItem('fe_stage',currentStage);}
 
-/* De-dupe & opener enforcement */
-function dedupeHistory(){
-  // keep only the latest opener
-  for(let i=history.length-1, kept=false; i>=0; i--){
-    const m=history[i];
-    if(m.role==='assistant' && isOpenerText(m.content)){
-      if(kept){ history.splice(i,1); } else { kept=true; }
-    }
-  }
-  // remove near-identical consecutive assistant lines
-  const out=[]; let prevA=null;
-  for(const m of history){
-    if(m.role==='assistant'){
-      const s=sanitizeSay(m.content); const n=norm(s);
-      if(prevA===n) continue;
-      prevA=n; out.push({role:'assistant',content:s});
-    } else { prevA=null; out.push(m); }
-  }
-  history=out;
-}
-function bubble(role,content){
-  const who = role==='user' ? 'me' : 'ai';
-  return `<div class="msg ${who}">
-    <div class="avatar ${who}">${who==='me'?'🧑':'⚙️'}</div>
-    <div class="bubble">${esc(content)}</div>
-  </div>`;
-}
-function push(role,content){
-  const cleaned = role==='assistant'?sanitizeSay(content):content;
-
-  // opener policy: replace older openers
-  if(role==='assistant' && isOpenerText(cleaned)){
-    history = history.filter(m=>!(m.role==='assistant' && isOpenerText(m.content)));
-  }
-
-  // near-duplicate guard for assistants
-  if(role==='assistant'){
-    const last = lastAssistant();
-    if(last && norm(last.content) === norm(cleaned)) return;
-  }
-
-  history.push({role,content:cleaned});
-  lastTouch = Date.now(); if(!startTs) startTs=lastTouch;
-  localStorage.setItem('fe_history',JSON.stringify(history));
-  localStorage.setItem('fe_last_touch', String(lastTouch));
-  localStorage.setItem('fe_start_ts', String(startTs));
-  render(); updateProgressUI();
-}
-function render(){ chatEl.innerHTML = history.map(m=>bubble(m.role,m.content)).join(''); requestAnimationFrame(()=>{ chatEl.scrollTop = chatEl.scrollHeight; }); }
-function stageIndex(n){ return Math.max(0, STAGES.indexOf(n)); }
-function progressPercent(){ const idx=stageIndex(currentStage); return Math.round(((idx+1)/STAGES.length)*100); }
-function updateProgressUI(){ stageLabel.textContent=`${Math.min(stageIndex(currentStage)+1,STAGES.length)}/${STAGES.length}`; barFill.style.width=`${progressPercent()}%`; modeTag.textContent = unlocked?'Premium':'Demo'; modeTag.className='pill '+(unlocked?'full':'demo'); localStorage.setItem('fe_stage', currentStage); }
-
-/* =================== CLOUD =================== */
+/* ===== Cloud ===== */
 async function callCloud(messages){
-  try{
-    const r = await fetch(`${CLOUD_ENDPOINT}/chat`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages})});
-    const j = await r.json(); return j.output || "No response.";
-  }catch{ return "No response."; }
+  const r = await fetch(`${CLOUD_ENDPOINT}/chat`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages})});
+  if(!r.ok) throw new Error(`Cloud error ${r.status}`);
+  const j = await r.json(); return j.output || "No response.";
 }
 const tryParse = s=>{try{const t=s.trim().replace(/^```(?:json)?/i,'').replace(/```$/,'');return JSON.parse(t)}catch{return null}};
 
-/* =================== AGENT =================== */
-function currentStyle(){ return agentMemory.style || "coach"; }
-function activeModuleIds(){ return modules.map(m=>m.id); }
-
+/* ===== Agent ===== */
+function activeModuleIds(){return modules.map(m=>m.id);}
 async function agentAsk(userTextOrNull){
-  const lastUser = [...history].reverse().find(m=>m.role==='user')?.content || "";
-  agentMemory.style = detectStyleFrom(lastUser) || agentMemory.style || "coach";
-  localStorage.setItem('fe_memory', JSON.stringify(agentMemory));
-
-  const context = [
-    { role:"system", content: systemPrime(agentMemory.style, currentStage, activeModuleIds()) },
-    { role:"system", content: `MEMORY:${JSON.stringify(agentMemory)}` },
-    { role:"system", content: `CURRICULUM_PROMPT:${PROMPTS[currentStage]||""}` },
+  const lastUser=[...history].reverse().find(m=>m.role==='user')?.content||"";
+  agentMemory.style=detectStyleFrom(lastUser)||agentMemory.style||"coach";
+  localStorage.setItem('fe_memory',JSON.stringify(agentMemory));
+  const ctx=[
+    {role:"system",content:systemPrime(agentMemory.style,currentStage,activeModuleIds())},
+    {role:"system",content:`MEMORY:${JSON.stringify(agentMemory)}`},
+    {role:"system",content:`CURRICULUM_PROMPT:${PROMPTS[currentStage]||""}`},
     ...history.slice(-10),
   ];
-  if (userTextOrNull !== null) context.push({ role:"user", content: userTextOrNull });
-
-  let out = await callCloud(context);
-  let parsed = tryParse(out);
-
-  if (!parsed || (parsed.confidence ?? 0) < 0.6){
-    const nudge = [
-      { role:"system", content: systemPrime(agentMemory.style, currentStage, activeModuleIds()) },
-      { role:"system", content: `MEMORY:${JSON.stringify(agentMemory)}` },
-      { role:"system", content: `CURRICULUM_PROMPT:${PROMPTS[currentStage]||""}` },
+  if(userTextOrNull!==null) ctx.push({role:"user",content:userTextOrNull});
+  let out=await callCloud(ctx); let parsed=tryParse(out);
+  if(!parsed || (parsed.confidence??0)<0.6){
+    const nudge=[{role:"system",content:systemPrime(agentMemory.style,currentStage,activeModuleIds())},
+      {role:"system",content:`MEMORY:${JSON.stringify(agentMemory)}`},
+      {role:"system",content:`CURRICULUM_PROMPT:${PROMPTS[currentStage]||""}`},
       ...history.slice(-10),
-      { role:"user", content: "Return STRICT JSON. If user drifts, steer back to the current stage. Expand follow-ups as needed; then advance explicitly." }
-    ];
-    out = await callCloud(nudge);
-    parsed = tryParse(out) || { say: sanitizeSay(out), stage: currentStage, next_questions: [], memory_delta:{}, confidence:.7 };
+      {role:"user",content:"Return STRICT JSON. Steer back to current stage. Then advance explicitly."}];
+    out=await callCloud(nudge); parsed=tryParse(out)||{say:sanitizeSay(out),stage:currentStage,next_questions:[],memory_delta:{},confidence:.7};
   }
-
-  if (parsed.memory_delta && typeof parsed.memory_delta==='object'){
-    const allow=["skills","audience","offer","price","style","blocked_by"]; for(const k of allow){ if(typeof parsed.memory_delta[k]==='string' && parsed.memory_delta[k]) agentMemory[k]=parsed.memory_delta[k]; }
-    localStorage.setItem('fe_memory', JSON.stringify(agentMemory));
+  if(parsed.memory_delta&&typeof parsed.memory_delta==='object'){
+    for(const k of ["skills","audience","offer","price","style","blocked_by"]){ if(parsed.memory_delta[k]) agentMemory[k]=parsed.memory_delta[k]; }
+    localStorage.setItem('fe_memory',JSON.stringify(agentMemory));
   }
-  if (parsed.stage && STAGES.includes(parsed.stage)) currentStage = parsed.stage;
-
+  if(parsed.stage&&STAGES.includes(parsed.stage)) currentStage=parsed.stage;
   return sanitizeSay(parsed.say);
 }
 
-/* =================== BOOT (no extra messages if opener exists) =================== */
-function sessionResumed(){ return sessionStorage.getItem('fe_resumed')==='1'; }
-function markResumed(){ sessionStorage.setItem('fe_resumed','1'); }
-async function boot(){
-  try{
-    inputEl.disabled=false; sendBtn.disabled=false;
-    dedupeHistory(); render(); updateProgressUI();
+/* ===== History helpers ===== */
+function lastAssistant(){for(let i=history.length-1;i>=0;i--){if(history[i].role==='assistant')return history[i];}return null;}
+function push(role,content){
+  const cleaned=role==='assistant'?sanitizeSay(content):content;
+  if(role==='assistant'&&isOpenerText(cleaned)){
+    history=history.filter(m=>!(m.role==='assistant'&&isOpenerText(m.content)));
+  }
+  if(role==='assistant'){const la=lastAssistant(); if(la && norm(la.content)===norm(cleaned)) return;}
+  history.push({role,content:cleaned});
+  lastTouch=Date.now();if(!startTs)startTs=lastTouch;
+  localStorage.setItem('fe_history',JSON.stringify(history));
+  localStorage.setItem('fe_last_touch',String(lastTouch));
+  localStorage.setItem('fe_start_ts',String(startTs));
+  render();updateProgressUI();
+}
 
-    const alreadyHasOpener = history.some(m=>m.role==='assistant' && isOpenerText(m.content));
-    if (!alreadyHasOpener){
-      push('assistant', PROMPTS.opener);
-      markResumed();
-    } else {
-      // opener present—do NOT auto-continue; wait for user
-      if (!sessionResumed()) markResumed();
-    }
+/* ===== Boot (never blocks) ===== */
+function hasOpener(){return history.some(m=>m.role==='assistant'&&isOpenerText(m.content));}
+async function boot(){
+  // Enable UI up-front so a failure never bricks the page
+  inputEl.disabled=false; sendBtn.disabled=false;
+  try{
+    updateProgressUI(); render();
+    if(!hasOpener()) push('assistant', PROMPTS.opener);
     aiStatus.textContent="Ready.";
-  }catch(err){
-    aiStatus.textContent="Ready.";
-    inputEl.disabled=false; sendBtn.disabled=false;
-    console.error(err);
+  }catch(e){
+    showErr(e);
+    aiStatus.textContent="Ready."; // still let them talk
   }
 }
 boot();
 
-/* =================== CHAT =================== */
+/* ===== Chat ===== */
 async function generate(userText){
-  push('user', userText);
+  push('user',userText);
   aiStatus.textContent="Thinking…";
-  const reply = await agentAsk(null);
-  push('assistant', reply);
+  try{
+    const reply=await agentAsk(null);
+    push('assistant',reply);
+  }catch(e){ showErr(e); push('assistant',"Cloud is grumpy. We’ll keep going locally—answer my last question and we’ll proceed."); }
   aiStatus.textContent="Ready.";
 }
-sendBtn.onclick=()=>{ const t=inputEl.value.trim(); if(!t) return; inputEl.value=""; generate(t); };
-inputEl.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendBtn.click(); }});
+sendBtn.onclick=()=>{const t=inputEl.value.trim();if(!t)return;inputEl.value="";generate(t);};
+inputEl.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendBtn.click();}});
 
-/* =================== EXPORT =================== */
+/* ===== Export (unchanged) ===== */
 document.getElementById('export').onclick = async ()=>{
-  const briefTask = `
-User memory: ${JSON.stringify(agentMemory)}
+  try{
+    const briefTask = `User memory: ${JSON.stringify(agentMemory)}
 Create a crisp execution brief (<700 words):
 - Offer: name, audience, promise, price
 - Product page bullets + Gumroad blurb
 - 72-hour launch checklist (Day 1–3) at $5/day
 - 5 ad hooks + 3 headlines
 Tone: sharp, irreverent, no fluff.`;
-  const report = await callCloud([{role:"system",content:"You compile briefs."},...history.slice(-16),{role:"user",content:briefTask}]);
-  const html = `<!doctype html><html><head><meta charset="utf-8"><title>Freedom Engine — Export</title>
+    const report = await callCloud([{role:"system",content:"You compile briefs."},...history.slice(-16),{role:"user",content:briefTask}]);
+    const html = `<!doctype html><html><head><meta charset="utf-8"><title>Freedom Engine — Export</title>
 <style>body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto;background:#0b0d12;color:#eef3ff;margin:0;padding:28px}
 .wrap{max-width:900px;margin:0 auto}.h{font-size:28px;font-weight:800;margin:0 0 4px}.sub{color:#9aa3b2;margin:0 0 18px}
 .card{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid #1b2235;border-radius:16px;padding:16px;margin:14px 0}
@@ -420,14 +385,13 @@ pre{white-space:pre-wrap;background:#0d1117;border:1px solid #232c40;border-radi
 <body><div class="wrap"><div class="h">The Freedom Engine — Export</div>
 <div class="sub">Generated ${new Date().toLocaleString()}</div>
 <div class="card"><h3>Execution Brief</h3><pre>${esc(report)}</pre></div></div></body></html>`;
-  downloadBlob(html,'text/html','freedom-engine-export.html');
+    downloadBlob(html,'text/html','freedom-engine-export.html');
+  }catch(e){ showErr(e); alert("Couldn’t generate export—cloud hiccup."); }
 };
 
-/* =================== MENU / MODULES =================== */
-const menuRoot = document.getElementById('menu'); // (redeclare-safe)
+/* ===== Menu / Modules ===== */
 document.getElementById('menuBtn').onclick=()=>menuRoot.classList.toggle('open');
 document.addEventListener('click',e=>{ if(!menuRoot.contains(e.target)) menuRoot.classList.remove('open'); });
-
 document.getElementById('saveSnap').onclick=()=>{
   const snap={when:new Date().toISOString(),memory:agentMemory,stage:currentStage,history,modules};
   downloadBlob(JSON.stringify(snap,null,2),'application/json',`freedom-snapshot-${Date.now()}.json`);
@@ -441,9 +405,9 @@ document.getElementById('loadSnap').addEventListener('change',async e=>{
     localStorage.setItem('fe_stage',currentStage);
     localStorage.setItem('fe_history',JSON.stringify(history));
     localStorage.setItem('fe_modules',JSON.stringify(modules));
-    dedupeHistory(); render(); updateProgressUI();
+    render(); updateProgressUI();
     push('assistant',"Snapshot loaded. We’ll pick up exactly where you left off.");
-  }catch{ alert("Bad snapshot file."); }
+  }catch(err){ showErr(err); alert("Bad snapshot file."); }
 });
 document.getElementById('reset').onclick=()=>{
   if(confirm("Reset all progress?")){
@@ -456,14 +420,21 @@ document.getElementById('switchMode').onclick=()=>{ if(confirm("Switch to Demo a
 document.getElementById('buy').onclick=()=>window.open(GUMROAD_URL,'_blank');
 document.getElementById('unlock').onclick=async()=>{
   const key=prompt("Paste your license key:"); if(!key) return;
-  const r=await fetch(`${CLOUD_ENDPOINT}/verify`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({license_key:key.trim()})}).then(r=>r.json()).catch(()=>({ok:false}));
-  if(r.ok){ localStorage.setItem('fe_unlocked','1'); unlocked=true; updateProgressUI(); push('assistant',"Premium engaged. Answer the opener—then we move fast."); }
-  else alert("Key didn’t verify. Check your Gumroad receipt.");
+  try{
+    const r=await fetch(`${CLOUD_ENDPOINT}/verify`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({license_key:key.trim()})}).then(r=>r.json());
+    if(r.ok){ localStorage.setItem('fe_unlocked','1'); unlocked=true; updateProgressUI(); push('assistant',"Premium engaged. Answer the opener—then we move fast."); }
+    else alert("Key didn’t verify. Check your Gumroad receipt.");
+  }catch(e){ showErr(e); alert("Verification failed—network/endpoint."); }
 };
 
-/* Modules UI */
+/* ===== Modules UI ===== */
+const modulesBtnEl=document.getElementById('modulesBtn');
+const modulesModalEl=document.getElementById('modulesModal');
+const modulesGridEl=document.getElementById('modulesGrid');
+document.getElementById('closeModules').onclick=()=>modulesModalEl.classList.remove('open');
+modulesBtnEl.onclick=()=>{ renderModules(); modulesModalEl.classList.add('open'); };
 function renderModules(){
-  modulesGrid.innerHTML = MODULES.map(m=>{
+  modulesGridEl.innerHTML = MODULES.map(m=>{
     const active = modules.some(x=>x.id===m.id);
     return `<div class="module">
       <div style="display:flex;justify-content:space-between;align-items:center">
@@ -479,28 +450,22 @@ function renderModules(){
     </div>`;
   }).join('');
 }
-modulesBtn.onclick=()=>{ renderModules(); modulesModal.classList.add('open'); };
-document.getElementById('closeModules').onclick=()=>modulesModal.classList.remove('open');
-modulesGrid.addEventListener('click', async (e)=>{
+modulesGridEl.addEventListener('click', async (e)=>{
   const btn=e.target.closest('button'); if(!btn) return;
   const id = btn.dataset.id; const act = btn.dataset.act; const mod = MODULES.find(x=>x.id===id); if(!mod) return;
-
-  if(act==='preview'){
-    push('assistant', `Preview: **${mod.name}** — ${mod.desc}\nAsk me to apply it and I’ll show you how it changes your current step.`);
-  }
-  if(act==='deactivate'){
-    modules = modules.filter(x=>x.id!==id); localStorage.setItem('fe_modules',JSON.stringify(modules)); renderModules();
-    push('assistant', `${mod.name} deactivated. Back to the core curriculum.`);
-  }
+  if(act==='preview'){ push('assistant', `Preview: **${mod.name}** — ${mod.desc}\nAsk me to apply it and I’ll show you how it changes your current step.`); }
+  if(act==='deactivate'){ modules = modules.filter(x=>x.id!==id); localStorage.setItem('fe_modules',JSON.stringify(modules)); renderModules(); push('assistant', `${mod.name} deactivated.`); }
   if(act==='unlock'){
     const key=prompt(`Paste the license key for ${mod.name}:`); if(!key) return;
-    const r=await fetch(`${CLOUD_ENDPOINT}/verify`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({license_key:key.trim(), product_id:mod.product_id})}).then(r=>r.json()).catch(()=>({ok:false}));
-    if(r.ok){ modules=[...modules.filter(x=>x.id!==id), {id:mod.id, when:Date.now()}]; localStorage.setItem('fe_modules',JSON.stringify(modules)); renderModules(); push('assistant', `${mod.name} unlocked. I’ll incorporate it automatically where relevant.`); }
-    else alert("That key didn’t verify for this module.");
+    try{
+      const r=await fetch(`${CLOUD_ENDPOINT}/verify`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({license_key:key.trim(), product_id:mod.product_id})}).then(r=>r.json());
+      if(r.ok){ modules=[...modules.filter(x=>x.id!==id), {id:mod.id, when:Date.now()}]; localStorage.setItem('fe_modules',JSON.stringify(modules)); renderModules(); push('assistant', `${mod.name} unlocked. I’ll incorporate it automatically.`); }
+      else alert("That key didn’t verify for this module.");
+    }catch(e){ showErr(e); alert("Verification failed—network/endpoint."); }
   }
 });
 
-/* =================== tiny io =================== */
+/* ===== tiny IO ===== */
 function downloadBlob(content,mime,name){ const blob=new Blob([content],{type:mime}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click(); }
 </script>
 </body>
