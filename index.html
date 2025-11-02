@@ -55,6 +55,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
 .btn{border-radius:12px;border:1px solid #263048;background:#0f1424;color:var(--ink);padding:9px 12px;font-weight:600;cursor:pointer}
 .btn.small{padding:6px 10px;font-size:12px}
 .btn.primary{background:linear-gradient(135deg,var(--neon1),var(--neon3));border:none;box-shadow:0 10px 28px rgba(124,134,255,.35)}
+.btn.ok{background:linear-gradient(135deg,var(--neon2),#42f5b0);border:none;box-shadow:0 10px 28px rgba(61,220,151,.35)}
 .btn.ghost{background:#0d1222;border:1px solid #2a3553}
 .pill{padding:6px 10px;border-radius:999px;background:#0d1222;border:1px solid #293357;font-size:12px}
 .pill.demo{color:#ffd7f1;border-color:#4a2a47;background:rgba(255,124,186,.12)}
@@ -64,12 +65,19 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
 .bar{height:10px;border-radius:999px;background:#0d1222;border:1px solid #2a2f45;overflow:hidden}
 .bar>div{height:100%;background:linear-gradient(90deg,var(--neon2),var(--neon1),var(--neon3),var(--neon4));width:0%;transition:width .4s}
 
-/* Dropdown menu */
+/* Dropdown menu & modal */
 .menu{position:relative}
 .menu button{width:100%}
 .menu .panel{position:absolute;left:0;right:0;top:calc(100% + 6px);background:#0b1224;border:1px solid #2a3553;border-radius:12px;display:none;padding:6px;z-index:5}
 .menu.open .panel{display:block}
 .menu .panel .btn{width:100%;text-align:left}
+.modal{position:fixed;inset:0;background:rgba(7,8,11,.72);backdrop-filter:blur(6px);display:none;place-items:center;z-index:30}
+.modal.open{display:grid}
+.modal-card{width:min(980px,92vw);max-height:86vh;overflow:auto}
+.module-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.module{padding:12px;border-radius:14px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.02))}
+.module h4{margin:4px 0 6px;font-size:14px}
+.badge{font-size:11px;padding:4px 8px;border-radius:999px;border:1px solid #254;display:inline-block}
 
 /* Chat */
 .panel{padding:12px}
@@ -108,6 +116,7 @@ textarea{min-height:60px;resize:vertical;border-radius:12px;border:1px solid #26
       </div>
       <div style="display:flex;gap:8px;margin-top:10px">
         <button id="export" class="btn ghost small" title="Export execution brief">Export</button>
+        <button id="modulesBtn" class="btn ghost small" title="Open Modules">Modules</button>
         <div class="menu" id="menu">
           <button id="menuBtn" class="btn ghost small">⋯</button>
           <div class="panel">
@@ -142,28 +151,53 @@ textarea{min-height:60px;resize:vertical;border-radius:12px;border:1px solid #26
   </div>
 </div>
 
+<!-- Module Store Modal -->
+<div id="modulesModal" class="modal">
+  <div class="modal-card glass neon">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px">
+      <div style="font-weight:800">Module Store</div>
+      <button id="closeModules" class="btn ghost small">Close</button>
+    </div>
+    <div style="padding:12px">
+      <div class="module-grid" id="modulesGrid"></div>
+      <div style="margin-top:10px;color:#98a2b3;font-size:12px">Unlocked modules are stored on this device. You can add more later without breaking anything.</div>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 /* =================== CONFIG =================== */
 const CLOUD_ENDPOINT = "https://freedom-engine-worker.intelligentlyartificialsystems.workers.dev";
 const GUMROAD_URL    = "https://intellartsystems.gumroad.com/l/the-freedom-engine";
+const CORE_PRODUCT_ID = null; // your worker already handles core; leave null unless you require it
 const STAGES = ["profile","offers","selection","plan","optimize"];
-const STEP_PROMPTS = {
-  profile:   "Step 1/5 — PROFILE. Ask ONE sharp question to identify what the user is known for (skills, results, praise). Keep it under 25 words.",
-  offers:    "Step 2/5 — OFFERS. Generate 3 micro-offer angles from their skills/audience with prices. Ask ONE question to choose a direction.",
-  selection: "Step 3/5 — SELECTION. Force a choice. Ask ONE narrowing question (who / promise / price) to lock the offer.",
-  plan:      "Step 4/5 — PLAN. Draft a 3-day launch plan. Ask ONE question to confirm the first task.",
-  optimize:  "Step 5/5 — OPTIMIZE. Write a tiny upsell + 2 ad hooks. Ask ONE question to remove the next bottleneck."
-};
-const TAGLINES = [
-  "Reprogramming the wage cage…",
-  "Simulating freedom…",
-  "Sharpening tiny offers into scalpels…",
-  "Replacing meetings with money…",
-  "De-optimizing your boss’s control…"
-];
-const COOL_DOWN_MS = 90*1000;
 
-/* =========== AUTO-PERSONA (no UI) =========== */
+/* Paid modules (you'll set real product_id values later) */
+const MODULES = [
+  {id:"ads",    name:"Ad Creative Booster", product_id:"MOD_ADS_ID", price:"$12", desc:"Generate scroll-stopping ad images + angles in seconds."},
+  {id:"email",  name:"Email Launch Booster", product_id:"MOD_EMAIL_ID", price:"$9",  desc:"Auto-draft 3-day launch emails matched to your offer."},
+  {id:"planner",name:"Content Planner",      product_id:"MOD_PLAN_ID", price:"$12", desc:"30-day content map to prime your audience for the offer."},
+  {id:"proof",  name:"Proof Builder",        product_id:"MOD_PROOF_ID", price:"$7",  desc:"Extract and frame social proof from your past wins."}
+];
+
+/* Strong, non-generic opener & curriculum prompts */
+const PROMPTS = {
+  opener: `Let's find the ONE skill people have already paid you for—or *wanted* to.
+Answer these fast:
+1) Where have strangers paid you or thanked you with results? (1–3 examples)
+2) What tiny win you can help someone get in < 48 hours?
+3) What proof do you already have? (screenshots, DMs, before/after)
+4) Who exactly benefits most? (describe one real person)
+5) Constraints: What you refuse to do or don't have time for.
+Keep it rough. I'll mine it and steer.`,
+  offers: `Based on what you said, I'll propose 3 micro-offers with price, promise, and delivery.
+Then we’ll pick one and sharpen it.`,
+  selection: `We're locking one offer. I’ll pressure test price, promise, and scope. You commit.`,
+  plan: `3-Day Launch Plan (ads optional at $5/day). I'll break it into tasks you'll actually finish.`,
+  optimize: `Add a tiny upsell, clean objections, and two ad hooks. Then we ship.`
+};
+
+/* =================== AUTO-PERSONA (no UI) =================== */
 function detectStyleFrom(text=""){
   const t = text.toLowerCase();
   if (/stuck|overwhelmed|help|lost/.test(t)) return "coach";
@@ -178,15 +212,23 @@ const STYLE_PRIME = {
   ghostwriter:"Creative, persuasive, language-first, copy-obsessed.",
   dark:"Billy-Butcher energy; dark humor; ruthless accountability (no slurs)."
 };
-function systemPrime(style="coach", stage="profile"){
+function systemPrime(style="coach", stage="profile", activeModules=[]){
+  const extras = [];
+  if (activeModules.includes("ads")) extras.push("When they have an offer, propose 2 ad angles and image briefs.");
+  if (activeModules.includes("email")) extras.push("Draft 3 launch emails (tease, announce, last call) when plan is ready.");
+  if (activeModules.includes("planner")) extras.push("Offer a simple 7-day content seed plan once the offer locks.");
+  if (activeModules.includes("proof")) extras.push("Extract proof assets from their answers and frame them as bullets.");
   return `
 You are THE FREEDOM ENGINE — a ruthless, darkly funny trainer who ships a tiny paid offer in 72 hours.
 Tone: ${STYLE_PRIME[style]||STYLE_PRIME.coach}
-Follow the fixed curriculum. Current stage: ${stage}. Instruction: ${STEP_PROMPTS[stage]||""}
-Use memory. Ask ONE question only. Keep momentum.
+Curriculum stage: ${stage}. Your job is to steer back to the curriculum if they drift.
+Always: Diagnose → Propose → Narrow → Plan → Optimize.
+Ask follow-ups proactively until the stage is satisfied; then explicitly advance.
+${extras.length?("Active modules:\n- " + extras.join("\n- ")):""}
 Return STRICT JSON only:
 {"say":"...","stage":"profile|offers|selection|plan|optimize","next_questions":["..."],"memory_delta":{"skills":"","audience":"","offer":"","price":"","style":"","blocked_by":""},"confidence":0.0}
-Keep "say" < 140 words.`;}
+Keep "say" < 160 words. No code fences. No [[tokens]].`;
+}
 
 /* =================== STATE =================== */
 let history   = JSON.parse(localStorage.getItem('fe_history')||'[]');
@@ -195,6 +237,7 @@ let currentStage = localStorage.getItem('fe_stage') || "profile";
 let agentMemory = JSON.parse(localStorage.getItem('fe_memory')||'{"skills":"","audience":"","offer":"","price":"","style":"coach","blocked_by":""}');
 let lastTouch = Number(localStorage.getItem('fe_last_touch')||0);
 let startTs   = Number(localStorage.getItem('fe_start_ts')||0);
+let modules   = JSON.parse(localStorage.getItem('fe_modules')||'[]'); // array of module ids
 
 /* =================== DOM =================== */
 const chatEl   = document.getElementById('chat');
@@ -204,6 +247,9 @@ const aiStatus = document.getElementById('aiStatus');
 const stageLabel  = document.getElementById('stageLabel');
 const barFill     = document.getElementById('barFill');
 const modeTag     = document.getElementById('modeTag');
+const modulesBtn  = document.getElementById('modulesBtn');
+const modulesModal= document.getElementById('modulesModal');
+const modulesGrid = document.getElementById('modulesGrid');
 
 /* Logo spin only if loaded */
 const logo = document.getElementById('iasLogo');
@@ -235,7 +281,10 @@ function push(role,content){
   localStorage.setItem('fe_start_ts', String(startTs));
   render(); updateProgressUI();
 }
-function render(){ chatEl.innerHTML = history.map(m=>bubble(m.role,m.content)).join(''); requestAnimationFrame(()=>{ chatEl.scrollTop = chatEl.scrollHeight; }); }
+function render(){
+  chatEl.innerHTML = history.map(m=>bubble(m.role,m.content)).join('');
+  requestAnimationFrame(()=>{ chatEl.scrollTop = chatEl.scrollHeight; });
+}
 function stageIndex(n){ return Math.max(0, STAGES.indexOf(n)); }
 function progressPercent(){ const idx=stageIndex(currentStage); return Math.round(((idx+1)/STAGES.length)*100); }
 function updateProgressUI(){ stageLabel.textContent=`${Math.min(stageIndex(currentStage)+1,STAGES.length)}/${STAGES.length}`; barFill.style.width=`${progressPercent()}%`; modeTag.textContent = unlocked?'Premium':'Demo'; modeTag.className='pill '+(unlocked?'full':'demo'); localStorage.setItem('fe_stage', currentStage); }
@@ -249,17 +298,18 @@ const tryParse = s=>{try{const t=s.trim().replace(/^```(?:json)?/i,'').replace(/
 
 /* =================== AGENT =================== */
 function currentStyle(){ return agentMemory.style || "coach"; }
+function activeModuleIds(){ return modules.map(m=>m.id); }
+
 async function agentAsk(userTextOrNull){
-  // Auto style from last user message
   const lastUser = [...history].reverse().find(m=>m.role==='user')?.content || "";
   agentMemory.style = detectStyleFrom(lastUser) || agentMemory.style || "coach";
   localStorage.setItem('fe_memory', JSON.stringify(agentMemory));
 
   const context = [
-    { role:"system", content: systemPrime(currentStyle(), currentStage) },
+    { role:"system", content: systemPrime(currentStyle(), currentStage, activeModuleIds()) },
     { role:"system", content: `MEMORY:${JSON.stringify(agentMemory)}` },
-    { role:"system", content: `CURRENT_STAGE:${currentStage}` },
-    ...history.slice(-8),
+    { role:"system", content: `CURRICULUM_PROMPT:${PROMPTS[currentStage]||""}` },
+    ...history.slice(-10),
   ];
   if (userTextOrNull !== null) context.push({ role:"user", content: userTextOrNull });
 
@@ -268,11 +318,11 @@ async function agentAsk(userTextOrNull){
 
   if (!parsed || (parsed.confidence ?? 0) < 0.6){
     const nudge = [
-      { role:"system", content: systemPrime(currentStyle(), currentStage) },
+      { role:"system", content: systemPrime(currentStyle(), currentStage, activeModuleIds()) },
       { role:"system", content: `MEMORY:${JSON.stringify(agentMemory)}` },
-      { role:"system", content: `CURRENT_STAGE:${currentStage}` },
-      ...history.slice(-8),
-      { role:"user", content: "Return STRICT JSON only. Ask ONE question for the current stage. Keep 'say' < 120 words." }
+      { role:"system", content: `CURRICULUM_PROMPT:${PROMPTS[currentStage]||""}` },
+      ...history.slice(-10),
+      { role:"user", content: "Return STRICT JSON. If user drifts, steer back to the current stage. Expand as needed; don't ask just one question." }
     ];
     out = await callCloud(nudge);
     parsed = tryParse(out) || { say: sanitizeSay(out), stage: currentStage, next_questions: [], memory_delta:{}, confidence:.7 };
@@ -290,20 +340,20 @@ async function agentAsk(userTextOrNull){
 /* =================== BOOT (single-shot) =================== */
 function sessionResumed(){ return sessionStorage.getItem('fe_resumed')==='1'; }
 function markResumed(){ sessionStorage.setItem('fe_resumed','1'); }
+
 async function boot(){
   aiStatus.textContent="Booting the Trainer…";
   inputEl.disabled=false; sendBtn.disabled=false;
-
   dedupeHistory(); render(); updateProgressUI();
 
   const last = history[history.length-1];
-  const stale = Date.now() - (lastTouch||0) > COOL_DOWN_MS;
+  const stale = Date.now() - (lastTouch||0) > 90*1000;
 
   if (history.length===0){
-    const opener = await agentAsk("Start the curriculum at PROFILE. Ask ONE question to identify their best marketable skill.");
-    push('assistant', opener); markResumed();
+    push('assistant', PROMPTS.opener);
+    markResumed();
   } else if (!sessionResumed() && (stale || (last && last.role==='user'))){
-    const next = await agentAsk("Continue the current stage with the next best single question.");
+    const next = await agentAsk("Continue the current stage and steer me back on track.");
     push('assistant', next); markResumed();
   }
   aiStatus.textContent="Ready.";
@@ -331,7 +381,7 @@ Create a crisp execution brief (<700 words):
 - 72-hour launch checklist (Day 1–3) at $5/day
 - 5 ad hooks + 3 headlines
 Tone: sharp, irreverent, no fluff.`;
-  const report = await callCloud([{role:"system",content:"You compile briefs."},...history.slice(-14),{role:"user",content:briefTask}]);
+  const report = await callCloud([{role:"system",content:"You compile briefs."},...history.slice(-16),{role:"user",content:briefTask}]);
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>Freedom Engine — Export</title>
 <style>body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto;background:#0b0d12;color:#eef3ff;margin:0;padding:28px}
 .wrap{max-width:900px;margin:0 auto}.h{font-size:28px;font-weight:800;margin:0 0 4px}.sub{color:#9aa3b2;margin:0 0 18px}
@@ -348,17 +398,18 @@ const menu = document.getElementById('menu'); document.getElementById('menuBtn')
 document.addEventListener('click',e=>{ if(!menu.contains(e.target)) menu.classList.remove('open'); });
 
 document.getElementById('saveSnap').onclick=()=>{
-  const snap={when:new Date().toISOString(),memory:agentMemory,stage:currentStage,history};
+  const snap={when:new Date().toISOString(),memory:agentMemory,stage:currentStage,history,modules};
   downloadBlob(JSON.stringify(snap,null,2),'application/json',`freedom-snapshot-${Date.now()}.json`);
 };
 document.getElementById('loadBtn').onclick=()=>document.getElementById('loadSnap').click();
 document.getElementById('loadSnap').addEventListener('change',async e=>{
   const f=e.target.files?.[0]; if(!f) return;
   try{ const snap=JSON.parse(await f.text());
-    agentMemory=snap.memory||agentMemory; currentStage=snap.stage||currentStage; history=Array.isArray(snap.history)?snap.history:history;
+    agentMemory=snap.memory||agentMemory; currentStage=snap.stage||currentStage; history=Array.isArray(snap.history)?snap.history:history; modules=Array.isArray(snap.modules)?snap.modules:modules;
     localStorage.setItem('fe_memory',JSON.stringify(agentMemory));
     localStorage.setItem('fe_stage',currentStage);
     localStorage.setItem('fe_history',JSON.stringify(history));
+    localStorage.setItem('fe_modules',JSON.stringify(modules));
     dedupeHistory(); render(); updateProgressUI();
     push('assistant',"Snapshot loaded. We’ll pick up exactly where you left off.");
   }catch{ alert("Bad snapshot file."); }
@@ -367,21 +418,65 @@ document.getElementById('reset').onclick=()=>{
   if(confirm("Reset all progress?")){
     history=[]; agentMemory={"skills":"","audience":"","offer":"","price":"","style":"coach","blocked_by":""};
     startTs=0; localStorage.removeItem('fe_history'); localStorage.removeItem('fe_stage'); localStorage.removeItem('fe_memory'); localStorage.removeItem('fe_last_touch'); localStorage.removeItem('fe_start_ts'); sessionStorage.removeItem('fe_resumed');
-    render(); updateProgressUI(); push('assistant',"Fresh slate. What do people actually thank you for helping with?");
+    render(); updateProgressUI(); push('assistant',"Fresh slate. Let's do it right this time. " + PROMPTS.opener);
   }
 };
-document.getElementById('wake').onclick=()=>push('assistant',"Context refreshed. One sentence: what’s the next bottleneck?");
+document.getElementById('wake').onclick=()=>push('assistant',"Context refreshed. If you drift, I’ll drag you back to the current step.");
 document.getElementById('switchMode').onclick=()=>{ if(confirm("Switch to Demo and forget your license on this device?")){ localStorage.removeItem('fe_unlocked'); sessionStorage.clear(); location.reload(); } };
 document.getElementById('buy').onclick=()=>window.open(GUMROAD_URL,'_blank');
 document.getElementById('unlock').onclick=async()=>{
   const key=prompt("Paste your license key:"); if(!key) return;
-  const r=await fetch(`${CLOUD_ENDPOINT}/verify`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({license_key:key.trim()})}).then(r=>r.json()).catch(()=>({ok:false}));
-  if(r.ok){ localStorage.setItem('fe_unlocked','1'); unlocked=true; updateProgressUI(); push('assistant',"Premium engaged. Let’s move fast—what’s blocking you right now?"); }
+  const body = CORE_PRODUCT_ID ? {license_key:key.trim(), product_id:CORE_PRODUCT_ID} : {license_key:key.trim()};
+  const r=await fetch(`${CLOUD_ENDPOINT}/verify`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}).then(r=>r.json()).catch(()=>({ok:false}));
+  if(r.ok){ localStorage.setItem('fe_unlocked','1'); unlocked=true; updateProgressUI(); push('assistant',"Premium engaged. Answer the opener—then we move fast."); }
   else alert("Key didn’t verify. Check your Gumroad receipt.");
 };
 
+/* =================== MODULE STORE =================== */
+function renderModules(){
+  modulesGrid.innerHTML = MODULES.map(m=>{
+    const active = modules.some(x=>x.id===m.id);
+    return `<div class="module">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h4>${m.name}</h4>
+        <span class="badge" style="border-color:${active?'#1f4b3c':'#4a2a47'};background:${active?'rgba(61,220,151,.12)':'rgba(255,124,186,.12)'}">${active?'Active':'Locked'}</span>
+      </div>
+      <div style="color:#cfd6ff;font-size:13px;margin-bottom:8px">${m.desc}</div>
+      <div class="row">
+        ${active?`<button class="btn ok small" data-act="deactivate" data-id="${m.id}">Deactivate</button>`:
+          `<button class="btn primary small" data-act="unlock" data-id="${m.id}">Unlock ${m.price}</button>`}
+        <button class="btn ghost small" data-act="preview" data-id="${m.id}">Preview</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+modulesBtn.onclick=()=>{ renderModules(); modulesModal.classList.add('open'); };
+document.getElementById('closeModules').onclick=()=>modulesModal.classList.remove('open');
+modulesGrid.addEventListener('click', async (e)=>{
+  const btn=e.target.closest('button'); if(!btn) return;
+  const id = btn.dataset.id; const act = btn.dataset.act; const mod = MODULES.find(x=>x.id===id); if(!mod) return;
+
+  if(act==='preview'){
+    push('assistant', `Preview: **${mod.name}** — ${mod.desc}\nAsk me to apply it and I’ll show you how it changes your current step.`);
+  }
+  if(act==='deactivate'){
+    modules = modules.filter(x=>x.id!==id); localStorage.setItem('fe_modules',JSON.stringify(modules)); renderModules();
+    push('assistant', `${mod.name} deactivated. Back to the core curriculum.`);
+  }
+  if(act==='unlock'){
+    const key=prompt(`Paste the license key for ${mod.name}:`); if(!key) return;
+    const r=await fetch(`${CLOUD_ENDPOINT}/verify`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({license_key:key.trim(), product_id:mod.product_id})}).then(r=>r.json()).catch(()=>({ok:false}));
+    if(r.ok){ modules=[...modules.filter(x=>x.id!==id), {id:mod.id, when:Date.now()}]; localStorage.setItem('fe_modules',JSON.stringify(modules)); renderModules(); push('assistant', `${mod.name} unlocked. I’ll incorporate it automatically where relevant.`); }
+    else alert("That key didn’t verify for this module.");
+  }
+});
+
 /* =================== tiny io =================== */
 function downloadBlob(content,mime,name){ const blob=new Blob([content],{type:mime}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click(); }
+
+/* =================== MENU UX =================== */
+const menu = document.getElementById('menu'); document.getElementById('menuBtn').onclick=()=>menu.classList.toggle('open');
+document.addEventListener('click',e=>{ if(!menu.contains(e.target) && e.target!==modulesBtn && !modulesModal.contains(e.target)) menu.classList.remove('open'); });
 </script>
 </body>
 </html>
