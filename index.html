@@ -1,196 +1,161 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="fe">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>The Freedom Engine — Personal AI Trainer</title>
+<!-- FE-UI v1.0.0 (locked) -->
 
 <style>
-  :root{
-    --bg:#0c0a1a;
-    --panel:#131129dd;
-    --panel-2:#171535dd;
-    --chip:#242046;
-    --ink:#e9e7ff;
-    --ink-dim:#c9c4ff;
-    --accent-1:#66e1ff;
-    --accent-2:#7bffad;
-    --accent-3:#ffc36c;
-    --accent-4:#ff7ad9;
-    --good:#7bffad;
-    --bad:#ff7a7a;
-    --glass:rgba(255,255,255,0.06);
-    --glass-2:rgba(255,255,255,0.10);
-    --ring:rgba(255,255,255,0.25);
-    --shadow:0 10px 30px rgba(0,0,0,.35), inset 0 0 1px rgba(255,255,255,.15);
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;background:radial-gradient(1200px 800px at 10% -10%, #2b2055 0%, #0c0a1a 55%) fixed;
-    color:var(--ink); font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, "Techfont-Italica", sans-serif;
-    overflow:hidden;
-  }
-  /* subtle star dust */
-  body::before{
-    content:""; position:fixed; inset:-20% -20% auto -20%; height:140%;
-    background:
-      radial-gradient(1200px 700px at 80% -20%, rgba(255,255,255,.07), transparent 60%),
-      radial-gradient(900px 600px at 10% 110%, rgba(255,255,255,.06), transparent 60%);
-    pointer-events:none; filter:saturate(120%);
-  }
+/* ========== NAMESPACE LOCK ========== */
+.fe :root{
+  --bg:#0a0b14;
+  --panel:#101327f0;
+  --panel-2:#141938f0;
+  --chip:#1a1f3f;
+  --ink:#eef1ff;
+  --ink-dim:#cfd6ff;
+  --ring:rgba(153,171,255,.28);
+  --glass-1:rgba(255,255,255,.10);
+  --glass-2:rgba(255,255,255,.05);
+  --n1:#7c86ff; --n2:#3ddc97; --n3:#ff7cba; --n4:#ffa93d;
+  --shadow:0 14px 40px rgba(0,0,0,.45), inset 0 0 1px rgba(255,255,255,.12);
+}
+.fe *{box-sizing:border-box}
+html.fe, .fe body{height:100%}
+.fe body{
+  margin:0; color:var(--ink);
+  background: radial-gradient(1200px 800px at 8% -10%, #2b2b66 0%, #0a0b14 55%) fixed;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, sans-serif;
+  overflow:hidden;
+}
+/* star haze */
+.fe body::before{
+  content:""; position:fixed; inset:-20% -20% auto -20%; height:140%; pointer-events:none;
+  background:
+    radial-gradient(1200px 700px at 80% -20%, rgba(255,255,255,.06), transparent 60%),
+    radial-gradient(900px 600px at 10% 110%, rgba(255,255,255,.06), transparent 60%);
+  filter:saturate(120%);
+}
+/* premium shimmer */
+.fe body.premium::after{
+  content:""; position:fixed; inset:0; pointer-events:none; mix-blend-mode:screen; opacity:.28;
+  background:
+    radial-gradient(600px 600px at 18% 24%, rgba(124,134,255,.45), transparent 60%),
+    radial-gradient(740px 620px at 84% 18%, rgba(61,220,151,.35), transparent 62%),
+    radial-gradient(800px 680px at 76% 80%, rgba(255,124,186,.35), transparent 58%),
+    radial-gradient(820px 700px at 22% 78%, rgba(255,169,61,.30), transparent 60%);
+  animation: fe-swirl 50s linear infinite;
+  filter: blur(36px);
+}
+@keyframes fe-swirl{to{transform:rotate(360deg) scale(1.03)}}
 
-  /* Premium fractal shimmer overlay */
-  body.premium::after{
-    content:""; position:fixed; inset:0; pointer-events:none; mix-blend-mode:screen; opacity:.35;
-    background:
-      conic-gradient(from 0deg at 20% 30%, #5ff 0 20%, #0f0 30%, #ff0 40%, #f0f 60%, #0ff 80%, #5ff 100%);
-    -webkit-mask:
-      radial-gradient(400px 400px at 10% 20%, rgba(0,0,0,.8) 30%, transparent 60%),
-      radial-gradient(600px 600px at 90% 80%, rgba(0,0,0,.8) 30%, transparent 60%);
-    animation: swirl 24s linear infinite;
-    filter: blur(40px);
-  }
-  @keyframes swirl { to { transform: rotate(360deg) scale(1.05); } }
+.fe .wrap{display:grid; grid-template-columns: 420px 1fr; gap:22px; padding:22px; height:100%}
+@media (max-width: 980px){
+  .fe body{overflow:auto}
+  .fe .wrap{grid-template-columns:1fr; gap:14px; padding:14px; height:auto}
+}
 
-  .wrap{ display:grid; grid-template-columns: 420px 1fr; gap:24px; padding:24px; height:100%; }
-  @media (max-width: 980px){
-    body{overflow:auto}
-    .wrap{ grid-template-columns: 1fr; height:auto; padding:16px; gap:16px; }
-  }
+/* cards */
+.fe .card{
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.05)) padding-box,
+    radial-gradient(120% 120% at -10% -30%, #7bffad44, transparent 40%),
+    radial-gradient(90% 90% at 120% 10%, #66e1ff33, transparent 40%),
+    var(--panel);
+  border:1px solid var(--ring);
+  border-radius:22px; box-shadow:var(--shadow); position:relative; overflow:hidden;
+}
+.fe .inner{padding:20px}
 
-  .card{
-    background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.05)) padding-box,
-                radial-gradient(120% 120% at -10% -30%, #7bffad55, transparent 40%),
-                radial-gradient(90% 90% at 120% 10%, #66e1ff40, transparent 40%),
-                var(--panel);
-    border:1px solid var(--ring);
-    border-radius:24px; box-shadow: var(--shadow); position:relative; overflow:hidden;
-  }
-  .card .inner{ padding:24px; }
+/* left header */
+.fe .header{display:grid; grid-template-rows:auto auto auto 1fr; gap:12px; height:100%}
+.fe .brand{display:grid; grid-template-columns:140px 1fr; gap:16px; align-items:center}
+@media(max-width:980px){ .fe .brand{grid-template-columns:110px 1fr} }
+.fe .logo-box{
+  width:140px;height:140px;border-radius:20px;background:linear-gradient(180deg,var(--glass-1),var(--glass-2));
+  border:1px solid var(--ring); display:grid; place-items:center; overflow:hidden; box-shadow:var(--shadow)
+}
+@media(max-width:980px){ .fe .logo-box{width:110px;height:110px} }
+/* 3x big logo clipped in the box */
+.fe .logo{
+  width:420px;height:420px; background:url("./ias-logo.png?v=fe1") center/contain no-repeat;
+  animation: fe-logo 44s linear infinite;
+  filter: drop-shadow(0 0 12px rgba(124,134,255,.35)) drop-shadow(0 0 18px rgba(61,220,151,.25));
+}
+@keyframes fe-logo{to{transform:rotate(360deg)}}
 
-  /* header / left column */
-  .header{
-    display:grid; grid-template-rows:auto auto auto 1fr; gap:14px; height:100%;
-  }
-  .brand{
-    display:grid; grid-template-columns:120px 1fr; gap:18px; align-items:center;
-  }
-  .brand .logo-box{
-    width:120px; height:120px; border-radius:20px; background:var(--glass);
-    border:1px solid var(--ring); display:grid; place-items:center; overflow:hidden;
-    box-shadow:var(--shadow);
-  }
-  .brand .logo{
-    width:360px; height:360px; /* 3x bigger than box; clipped by overflow */
-    background: url("./ias-logo.png") center/contain no-repeat;
-    animation: spin 40s linear infinite;
-    filter: drop-shadow(0 0 12px rgba(123,255,173,.35)) drop-shadow(0 0 16px rgba(255,122,217,.25));
-  }
-  @keyframes spin { to{ transform:rotate(360deg);} }
+.fe .title h1{margin:0; line-height:1.05; font-weight:900; font-size:44px; letter-spacing:.4px;
+  text-shadow:0 2px 0 rgba(0,0,0,.35), 0 0 16px rgba(102,225,255,.30)}
+@media(max-width:980px){ .fe .title h1{font-size:34px} }
+.fe .sub{opacity:.9; margin-top:6px; font-size:14px}
+.fe .badge{display:inline-block; margin-left:8px; padding:6px 10px; border-radius:999px;
+  background:#0f1532; border:1px solid var(--ring); font-size:12px; font-weight:800}
 
-  .title h1{
-    margin:0; line-height:1;
-    font-weight:800; font-size:48px; letter-spacing:.5px;
-    text-shadow: 0 2px 0 rgba(0,0,0,.35), 0 0 18px rgba(102,225,255,.35);
-  }
-  .sub{ opacity:.85; margin-top:6px; font-size:15px }
-  .badge{
-    display:inline-block; padding:6px 10px; border-radius:999px;
-    background: linear-gradient(90deg, #5ff6, #f7a6); border:1px solid var(--ring);
-    font-size:12px; font-weight:700;
-  }
+/* roadmap */
+.fe .roadmap{margin-top:8px}
+.fe .bar-head{display:flex;justify-content:space-between;font-size:12px;opacity:.9;margin:8px 2px 6px}
+.fe .bar{height:14px;border-radius:999px;background:#050712;border:1px solid var(--ring);position:relative;overflow:hidden}
+.fe .fill{position:absolute;inset:0 auto 0 0;width:20%;
+  background:linear-gradient(90deg, var(--n2), var(--n1), var(--n3), var(--n4));
+  border-right:1px solid rgba(255,255,255,.35)}
 
-  .roadmap{ margin-top:8px }
-  .bar{
-    height:14px; border-radius:999px; background: #0006; border:1px solid var(--ring);
-    position:relative; overflow:hidden;
-  }
-  .fill{
-    position:absolute; inset:0 auto 0 0; width:20%;
-    background: linear-gradient(90deg, var(--accent-1), var(--accent-2), var(--accent-3), var(--accent-4));
-    border-right:1px solid rgba(255,255,255,.4);
-  }
-  .bar-head{ display:flex; justify-content:space-between; font-size:12px; opacity:.9; margin:8px 2px 6px }
+/* actions + kebab */
+.fe .actions{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap}
+.fe .btn{background:#0d132d;color:var(--ink);border:1px solid var(--ring);
+  padding:9px 12px;border-radius:12px;font-weight:800;cursor:pointer;box-shadow:var(--shadow)}
+.fe .btn.primary{background:linear-gradient(90deg, var(--n1), var(--n3)); color:#0a0b14; border:none}
+.fe .btn.kebab{width:42px;height:42px;display:grid;place-items:center}
+.fe .btn.kebab::after{content:"⋯"; font-size:22px}
 
-  .actions{ display:flex; gap:12px; margin-top:14px; flex-wrap:wrap; }
-  .btn{
-    background: var(--chip); color:var(--ink); border:1px solid var(--ring);
-    padding:10px 14px; border-radius:14px; font-weight:700; cursor:pointer;
-    box-shadow:var(--shadow); transition: transform .06s ease, box-shadow .12s ease;
-  }
-  .btn:hover{ transform: translateY(-1px); }
-  .btn.primary{
-    background: linear-gradient(90deg, #66e1ff, #7bffad, #ffc36c, #ff7ad9);
-    color:#0b0a16; border:none;
-  }
-  .kebab{ width:44px; height:44px; display:grid; place-items:center; border-radius:12px }
-  .kebab::after{ content:"⋯"; font-size:22px }
+/* kebab menu above button */
+.fe .menu{position:absolute;min-width:240px;background:var(--panel-2);border:1px solid var(--ring);
+  border-radius:16px;box-shadow:var(--shadow);padding:8px;display:none;z-index:40}
+.fe .menu.open{display:block}
+.fe .menu .mi{padding:10px 12px;border-radius:12px;cursor:pointer}
+.fe .menu .mi:hover{background:rgba(255,255,255,.08)}
 
-  /* kebab menu – opens above the kebab */
-  .menu{
-    position:absolute; min-width:240px; background:var(--panel-2); border:1px solid var(--ring);
-    border-radius:16px; box-shadow:var(--shadow); padding:8px; z-index:30; display:none;
-  }
-  .menu.open{ display:block; }
-  .menu .mi{ padding:10px 12px; border-radius:12px; cursor:pointer; background:transparent; }
-  .menu .mi:hover{ background:rgba(255,255,255,.07); }
+/* demo CTA */
+.fe .cta{margin-top:12px;padding:12px;border:1px dashed var(--ring);border-radius:16px;
+  background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.03))}
+.fe .cta-title{font-weight:900;margin-bottom:8px}
+.fe .cta-note{font-size:13px;opacity:.9}
 
-  /* CTA ribbon for demo (big button) */
-  .cta-ribbon{ margin-top:14px; padding:14px; border-radius:16px; border:1px dashed var(--ring);
-    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-  }
-  .cta-title{ font-weight:800; margin-bottom:10px }
-  .cta-note{ font-size:13px; opacity:.85 }
+/* chat column */
+.fe .chat{display:grid;grid-template-rows:1fr auto;height:100%}
+.fe .surface{
+  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.05)),var(--panel);
+  border:1px solid var(--ring); border-radius:22px; padding:18px; overflow:auto; min-height:240px;
+}
+.fe .msg{background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.05));
+  border:1px solid var(--ring); border-radius:18px; margin:12px 0; padding:16px 18px; box-shadow:var(--shadow); position:relative}
+.fe .msg .head{position:absolute;left:-12px;top:-12px;width:36px;height:36px;display:grid;place-items:center;
+  border-radius:10px;background:#141a3b;border:1px solid var(--ring)}
+.fe .msg.user .head{background:linear-gradient(135deg, var(--n1), var(--n3));color:#0a0b14;font-weight:900}
+.fe .msg.user .head::after{content:"💬"}
+.fe .msg.bot  .head::after{content:"⚙️"}
 
-  /* chat column */
-  .chat{
-    display:grid; grid-template-rows: 1fr auto; height:100%;
-  }
-  .chat .surface{
-    background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03)), var(--panel);
-    border:1px solid var(--ring); border-radius:24px; padding:20px; overflow:auto; min-height:240px;
-  }
-  .msg{
-    background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.05));
-    border:1px solid var(--ring); border-radius:18px; margin:14px 0; padding:16px 18px;
-    box-shadow:var(--shadow); position:relative;
-  }
-  .msg .bubble-head{ position:absolute; left:-12px; top:-12px; width:36px; height:36px;
-    display:grid; place-items:center; border-radius:10px; background:var(--chip); border:1px solid var(--ring);
-  }
-  .msg.user .bubble-head{ background: linear-gradient(135deg, #66e1ff, #ff7ad9); color:#0b0a16; font-weight:900 }
-  .msg.user .bubble-head::after{ content:"💬"; }
-  .msg.bot .bubble-head::after{ content:"⚙️"; }
+.fe .composer{margin-top:10px;display:grid;grid-template-columns:1fr 84px;gap:10px}
+.fe .composer textarea{
+  resize:none;height:64px;border-radius:14px;border:1px solid var(--ring);
+  background:#0d1126;color:var(--ink);padding:14px 16px;outline:none;box-shadow:var(--shadow)
+}
+.fe .composer button{
+  height:64px;border-radius:14px;border:1px solid var(--ring);background:#101636;color:var(--ink);
+  font-weight:900;cursor:pointer;box-shadow:var(--shadow);background-image:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.04))
+}
 
-  .composer{
-    margin-top:12px; display:grid; grid-template-columns: 1fr 80px; gap:10px; align-items:end;
-  }
-  .composer textarea{
-    resize:none; height:64px; border-radius:16px; border:1px solid var(--ring);
-    background:#0f0e20; color:var(--ink); padding:14px 16px; outline:none; box-shadow:var(--shadow);
-  }
-  .composer button{
-    height:64px; border-radius:16px; border:1px solid var(--ring); background:var(--chip);
-    color:var(--ink); font-weight:800; cursor:pointer; box-shadow:var(--shadow);
-    background-image: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.04));
-  }
-  .composer button:hover{ filter:saturate(120%) }
-
-  @media (max-width:980px){
-    .title h1{ font-size:34px }
-    .brand{ grid-template-columns:96px 1fr }
-    .brand .logo-box{ width:96px; height:96px }
-    .brand .logo{ width:288px; height:288px }
-    .composer{ grid-template-columns: 1fr 76px }
-    .composer textarea{ height:72px }
-  }
+@media(max-width:980px){
+  .fe .composer{grid-template-columns:1fr 76px}
+  .fe .composer textarea{height:76px}
+}
 </style>
 </head>
-<body>
+
+<body class="fe">
   <div class="wrap">
-    <!-- LEFT CARD -->
-    <section class="card header" id="leftCard">
+    <!-- LEFT PANEL -->
+    <section class="card header" id="left">
       <div class="inner">
         <div class="brand">
           <div class="logo-box"><div class="logo" aria-hidden="true"></div></div>
@@ -201,10 +166,7 @@
         </div>
 
         <div class="roadmap">
-          <div class="bar-head">
-            <div>Roadmap</div>
-            <div data-roadmap-text>1/5</div>
-          </div>
+          <div class="bar-head"><div>Roadmap</div><div data-roadmap-text>1/5</div></div>
           <div class="bar"><div class="fill" data-roadmap-fill style="width:20%"></div></div>
         </div>
 
@@ -212,8 +174,8 @@
           <button class="btn" id="btnExport">Export</button>
           <button class="btn" id="btnModules">Modules</button>
           <button class="btn kebab" id="btnMore" aria-haspopup="menu" aria-expanded="false"></button>
-          <!-- Kebab menu (opens ABOVE the kebab) -->
-          <div class="menu" id="moreMenu" role="menu" aria-label="More">
+
+          <div class="menu" id="menu" role="menu" aria-label="More">
             <div class="mi" id="miSave">Save Snapshot</div>
             <div class="mi" id="miLoad">Load Snapshot</div>
             <div class="mi" id="miWake">Wake the Engine</div>
@@ -224,21 +186,21 @@
           </div>
         </div>
 
-        <!-- Demo CTA ribbon -->
-        <div class="cta-ribbon" id="demoCta" role="region" aria-live="polite">
+        <!-- Demo CTA (hidden in Premium) -->
+        <div class="cta" id="demoCta">
           <div class="cta-title">Unlock Full Engine — <strong>$29</strong></div>
-          <div class="cta-note">Keep cloud progress across devices. Premium modules included.</div>
-          <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap">
-            <button class="btn primary" data-cta-buy>$29 – Unlock Full Engine</button>
+          <div class="cta-note">Keep your progress across devices. Premium modules included.</div>
+          <div style="margin-top:8px;display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn primary" data-cta-buy>$29 — Unlock Full Engine</button>
             <button class="btn" data-cta-have-key>I have a license key</button>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- CHAT COLUMN -->
+    <!-- CHAT PANEL -->
     <section class="card chat" id="chatCard">
-      <div class="surface" id="chatSurface" aria-live="polite" aria-label="Conversation"></div>
+      <div class="surface" id="chatSurface" aria-live="polite"></div>
       <div class="composer">
         <textarea id="composer" placeholder="Answer here. Press Enter to send."></textarea>
         <button id="sendBtn">Send</button>
@@ -247,26 +209,25 @@
   </div>
 
 <script>
-/* ---------- CONFIG ---------- */
+/* ---------------- CONFIG ---------------- */
 const ENDPOINT = "https://freedom-engine-worker.intelligentlyartificialsystems.workers.dev";
 const VERIFY_URL = `${ENDPOINT}/verify`;
 const CHAT_URL   = `${ENDPOINT}/chat`;
 
-/* ---------- PROGRESS / LICENSE (cloud + local) ---------- */
+/* -------------- PROGRESS / LICENSE (cloud + local) -------------- */
 (() => {
   const LS = { key:"fe.license", cache:"fe.progress.cache" };
   const STAGES = ["profile","offer","copy","launch","done"];
   const stageIndex = s => Math.max(1, Math.min(5, STAGES.indexOf((s||"").toLowerCase()) + 1));
 
+  const $ = s => document.querySelector(s);
   const el = {
-    roadmapFill: () => document.querySelector('[data-roadmap-fill]'),
-    roadmapText: () => document.querySelector('[data-roadmap-text]'),
-    modeBadge: () => document.querySelector('[data-mode-badge]'),
-    buyBtn: () => document.querySelector('[data-cta-buy]'),
-    haveKeyBtn: () => document.querySelector('[data-cta-have-key]'),
-    menuBuy: () => document.querySelector('[data-menu-buy]'),
-    menuHaveKey: () => document.querySelector('[data-menu-have-key]'),
-    demoCta: () => document.getElementById('demoCta'),
+    fill: $('[data-roadmap-fill]'),
+    text: $('[data-roadmap-text]'),
+    badge:$('[data-mode-badge]'),
+    demoCta: $('#demoCta'),
+    buyBtns: [...document.querySelectorAll('[data-cta-buy],[data-menu-buy]')],
+    keyBtns: [...document.querySelectorAll('[data-cta-have-key],[data-menu-have-key]')],
   };
 
   const getLicense = () => localStorage.getItem(LS.key) || "";
@@ -293,18 +254,15 @@ const CHAT_URL   = `${ENDPOINT}/chat`;
     saveTimer=setTimeout(()=>{ saving=saving.then(()=>api.putProgress(license,payload).catch(()=>{})); },350);
   }
 
-  function setModeUI(isPremium){
-    const badge=el.modeBadge(); if(badge) badge.textContent=isPremium?"Premium":"Demo";
-    document.body.classList.toggle('premium', !!isPremium);
-    const showDemo=!isPremium;
-    [el.buyBtn(), el.haveKeyBtn(), el.menuBuy(), el.menuHaveKey(), el.demoCta()].forEach(n=>{
-      if(!n) return; n.style.display = showDemo ? "" : "none";
-    });
+  function setModeUI(premium){
+    if(el.badge) el.badge.textContent = premium? "Premium":"Demo";
+    document.body.classList.toggle('premium', !!premium);
+    if(el.demoCta) el.demoCta.style.display = premium? "none":"";
   }
   function setRoadmap(stage){
-    const idx=stageIndex(stage); const pct=(idx/5)*100;
-    const f=el.roadmapFill(); if(f) f.style.width=pct+"%";
-    const t=el.roadmapText(); if(t) t.textContent=`${idx}/5`;
+    const idx=stageIndex(stage), pct=(idx/5)*100;
+    if(el.fill) el.fill.style.width = pct+"%";
+    if(el.text) el.text.textContent = `${idx}/5`;
   }
 
   const Progress = {
@@ -339,181 +297,128 @@ const CHAT_URL   = `${ENDPOINT}/chat`;
     async unlock(k){ setLicense(k); await this.hydrate(); },
     async signOut(){
       setLicense(""); setLocal(null); this.license=""; this.isPremium=false;
-      this.data={stage:"profile",memory:{},history:[],modules:[]};
+      this.data={stage:"profile", memory:{}, history:[], modules:[]};
       setModeUI(false); setRoadmap(this.data.stage);
       document.dispatchEvent(new CustomEvent("fe:signedout"));
     }
   };
-
   window.FEProgress = Progress;
   document.addEventListener("DOMContentLoaded", ()=>Progress.hydrate());
+
+  // Demo CTA + Key handlers
+  el.buyBtns.forEach(n=>n.addEventListener('click',()=>window.open("https://intellartsystems.gumroad.com/l/the-freedom-engine","_blank")));
+  el.keyBtns.forEach(n=>n.addEventListener('click',()=>{
+    const k = prompt("Enter your license key:"); if(!k) return;
+    fetch(VERIFY_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({license_key:k.trim()})})
+      .then(r=>r.json()).then(j=>{
+        if(j?.ok || j?.success){ Progress.unlock(k.trim()).then(()=>post("Premium unlocked. I’ll remember your progress across devices.","bot",{opener:true})); }
+        else alert(j?.message||"Key not valid.");
+      }).catch(()=>alert("Verify failed."));
+  }));
 })();
 </script>
 
 <script>
-/* ---------- UI + CHAT WIRING ---------- */
-const chatSurface = document.getElementById('chatSurface');
+/* ---------------- CHAT & UI WIRING (unchanged look) ---------------- */
+const chat = document.getElementById('chatSurface');
 const composer = document.getElementById('composer');
 const sendBtn = document.getElementById('sendBtn');
 const kebab = document.getElementById('btnMore');
-const menu = document.getElementById('moreMenu');
-const miSave  = document.getElementById('miSave');
-const miLoad  = document.getElementById('miLoad');
-const miReset = document.getElementById('miReset');
-const miSign  = document.getElementById('miSign');
-const miWake  = document.getElementById('miWake');
+const menu  = document.getElementById('menu');
 
-function scrollBottom(){ chatSurface.scrollTop = chatSurface.scrollHeight + 9999; }
+function scrollBottom(){ chat.scrollTop = chat.scrollHeight + 9999; }
 
-function postMsg(text, who="bot", opts={}){
-  if(opts.opener){
-    // remove any previous opener to avoid stacks
-    [...chatSurface.querySelectorAll('.msg[data-opener]')].forEach(n=>n.remove());
-  }
-  const msg = document.createElement('div');
-  msg.className = `msg ${who}`;
-  if(opts.opener) msg.setAttribute('data-opener','1');
-  msg.innerHTML = `<div class="bubble-head"></div><div class="content">${text}</div>`;
-  chatSurface.appendChild(msg);
-  scrollBottom();
+function post(text, who="bot", opts={}){
+  if(opts.opener){ [...chat.querySelectorAll('.msg[data-opener]')].forEach(n=>n.remove()); }
+  const m = document.createElement('div');
+  m.className = `msg ${who}`; if(opts.opener) m.setAttribute('data-opener','1');
+  m.innerHTML = `<div class="head"></div><div class="content">${text}</div>`;
+  chat.appendChild(m); scrollBottom();
 }
 
-async function greet(isPremium){
-  const intro = isPremium
-    ? `Premium engaged. Clean slate. I’ll steer strategy, templates, and deadlines; you’ll do bite-size reps. We ship one thing in ~72 hours. 
-       To get moving, choose a lane, or say “help me choose” and I’ll pitch options. • design • writing • coaching • dev • other`
-    : `Welcome to the Freedom Engine. I’m your personal trainer for tiny paid offers. I’ll carry strategy, templates, and deadlines; you’ll do bite-size reps.
-       We’ll ship one in ~72 hours. If you’re blank, say “help me choose” and I’ll keep the sarcasm warm and the steps short.`;
-
-  postMsg(intro.replace(/\s+\n/g,' '),"bot",{opener:true});
+function greet(premium){
+  const t = premium
+    ? `Premium engaged. I’m your brutal mentor with nice lighting. We’ll ship one tiny paid offer in ~72 hours. Pick a lane or say “help me choose”: • design • writing • coaching • dev • other.`
+    : `Welcome to the Freedom Engine. I’m your personal trainer for tiny paid offers. I’ll handle the thinking; you’ll do the reps. If you’re blank, say “help me choose” and I’ll pitch options.`;
+  post(t,"bot",{opener:true});
 }
 
-function sanitizeLLM(s){
-  if(!s || typeof s!=="string") return "…";
-  // strip obvious "undefined" accidents
-  return s.replace(/\bundefined\b/gi,'').replace(/\s{2,}/g,' ').trim();
-}
-
-async function askLLM(userText){
-  // optimistic UI
-  postMsg(userText,"user");
-  try{
-    const payload = {
-      messages: [
-        { role:"system", content: "You are The Freedom Engine — a sharp, darkly funny mentor. Keep answers short, practical, and momentum-driven. Never be vulgar; sarcastic is fine. Push the user to produce shippable output in 5 steps: profile → offer → copy → launch → done." },
-        ...(window.FEProgress?.data?.memory?.persona? [{role:"system",content:window.FEProgress.data.memory.persona}] : []),
-        { role:"user", content: userText }
-      ]
-    };
-    const r = await fetch(CHAT_URL, { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload) });
-    const j = await r.json().catch(()=>({output:"No response."}));
-    const out = sanitizeLLM(j.output || j.text || j.message || "No response.");
-    postMsg(out,"bot");
-
-    // very light stage heuristic
-    const lower = (userText+" "+out).toLowerCase();
-    const prog = window.FEProgress;
-    if(prog){
-      prog.update(d=>{
-        if(d.stage==="profile" && /design|writing|coach|coaching|dev|code|other/.test(lower)) d.stage="offer";
-        else if(d.stage==="offer" && /price|proof|benefit|deliver|scope/.test(lower)) d.stage="copy";
-        else if(d.stage==="copy" && /email|post|cta|sales/.test(lower)) d.stage="launch";
-        else if(d.stage==="launch" && /scheduled|uploaded|published|live/.test(lower)) d.stage="done";
-        // append to transcript (trim)
-        d.history = (d.history||[]).concat({who:"user",text:userText},{who:"bot",text:out}).slice(-200);
-      });
-    }
-  }catch(e){
-    postMsg("The engine coughed. Try again in a few seconds.","bot");
-  }
-}
-
-function promptLicense(onValid){
-  const k = prompt("Enter your license key:");
-  if(!k) return;
-  // optional verify call
-  fetch(VERIFY_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({license_key:k})})
-    .then(r=>r.json()).then(j=>{
-      if(j?.success || j?.ok){
-        window.FEProgress.unlock(k).then(()=> onValid && onValid());
-      }else{
-        alert(j?.message || "Key not valid.");
-      }
-    }).catch(()=>alert("Verify failed. Try again."));
-}
-
-/* kebab behavior (above the button) */
-function positionMenu(){
+// Kebab menu opens above button
+function placeMenu(){
   const r = kebab.getBoundingClientRect();
   menu.style.left = (r.left) + "px";
   menu.style.top  = (r.top - menu.offsetHeight - 8) + "px";
 }
 kebab.addEventListener('click', ()=>{
-  menu.classList.toggle('open');
-  kebab.setAttribute('aria-expanded', menu.classList.contains('open') ? 'true' : 'false');
-  if(menu.classList.contains('open')){
-    // ensure measured height
-    menu.style.display='block'; positionMenu();
-  }else{
-    menu.style.display='';
-  }
+  const open = !menu.classList.contains('open');
+  menu.classList.toggle('open', open);
+  kebab.setAttribute('aria-expanded', open?'true':'false');
+  if(open){ menu.style.display='block'; placeMenu(); } else { menu.style.display=''; }
 });
-window.addEventListener('resize', ()=>{ if(menu.classList.contains('open')) positionMenu(); });
-document.addEventListener('click', (e)=>{ if(!menu.contains(e.target) && e.target!==kebab) { menu.classList.remove('open'); menu.style.display=''; }});
+window.addEventListener('resize', ()=>{ if(menu.classList.contains('open')) placeMenu(); });
+document.addEventListener('click', (e)=>{ if(!menu.contains(e.target) && e.target!==kebab){ menu.classList.remove('open'); menu.style.display=''; }});
 
-/* menu items */
-miReset.addEventListener('click', ()=>{
-  if(confirm("Reset all local progress?")){
+// Menu actions
+document.getElementById('miSave').addEventListener('click', ()=>{
+  const data = JSON.stringify(window.FEProgress?.data||{}, null, 2);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([data],{type:"application/json"}));
+  a.download = 'freedom-engine-snapshot.json'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 5000);
+});
+document.getElementById('miLoad').addEventListener('click', ()=>{
+  const inp=document.createElement('input'); inp.type='file'; inp.accept='application/json';
+  inp.onchange=async()=>{ const f=inp.files[0]; if(!f) return;
+    try{ const d=JSON.parse(await f.text()); window.FEProgress.update(s=>Object.assign(s,d||{})); post("Snapshot loaded.","bot"); }
+    catch{ alert("Bad snapshot."); }
+  }; inp.click();
+});
+document.getElementById('miReset').addEventListener('click', ()=>{
+  if(confirm("Reset local progress?")){
     window.FEProgress.update(d=>{ d.stage="profile"; d.history=[]; d.memory={}; });
-    postMsg("Progress cleared. Fresh start. Want me to help you choose a lane? Say “help me choose”.","bot",{opener:true});
+    post("Progress cleared. Fresh start. Say “help me choose” if you want lanes.","bot",{opener:true});
   }
 });
-miSign.addEventListener('click', ()=> window.FEProgress.signOut().then(()=>greet(false)));
-miWake.addEventListener('click', ()=> postMsg("Trainer is awake. Keep moving. What lane: design, writing, coaching, dev, or other?","bot"));
-miSave.addEventListener('click', ()=>{
-  const snap = JSON.stringify(window.FEProgress?.data||{}, null, 2);
-  const url = URL.createObjectURL(new Blob([snap],{type:"application/json"}));
-  const a = Object.assign(document.createElement('a'), { href:url, download:'freedom-engine-snapshot.json' });
-  a.click(); URL.revokeObjectURL(url);
-});
-miLoad.addEventListener('click', async ()=>{
-  const inp = document.createElement('input'); inp.type='file'; inp.accept='application/json';
-  inp.onchange = async () => {
-    const file = inp.files[0]; if(!file) return;
-    try{
-      const text = await file.text(); const data = JSON.parse(text);
-      window.FEProgress.update(d=>Object.assign(d,data||{}));
-      postMsg("Snapshot loaded.","bot");
-    }catch{ alert("Not a valid snapshot."); }
-  };
-  inp.click();
-});
+document.getElementById('miSign').addEventListener('click', ()=>window.FEProgress.signOut().then(()=>greet(false)));
+document.getElementById('miWake').addEventListener('click', ()=>post("Trainer awake. Choose a lane: design, writing, coaching, dev, or say “help me choose”.","bot"));
 
-/* demo CTAs */
-document.querySelectorAll('[data-cta-have-key],[data-menu-have-key]').forEach(n=>{
-  n.addEventListener('click', ()=> promptLicense(()=>postMsg("Premium unlocked. I’ll remember progress across devices.","bot",{opener:true})));
-});
-document.querySelectorAll('[data-cta-buy],[data-menu-buy]').forEach(n=>{
-  n.addEventListener('click', ()=>{
-    window.open("https://intellartsystems.gumroad.com/l/the-freedom-engine","_blank");
-  });
-});
+/* Chat send */
+composer.addEventListener('keydown', e=>{ if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); sendBtn.click(); }});
+sendBtn.addEventListener('click', ()=>{ const t=composer.value.trim(); if(!t) return; composer.value=""; talk(t); });
 
-/* composer */
-composer.addEventListener('keydown', (e)=>{
-  if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); sendBtn.click(); }
-});
-sendBtn.addEventListener('click', ()=>{
-  const t = composer.value.trim(); if(!t) return;
-  composer.value=""; askLLM(t);
-});
+function sanitize(s){ return (s||"").replace(/\bundefined\b/gi,'').replace(/\s{2,}/g,' ').trim(); }
 
-/* Hydration → greet once, de-dupe opener */
-document.addEventListener('fe:hydrated', (ev)=>{
-  greet(!!ev.detail?.isPremium);
-});
+async function talk(userText){
+  post(userText,"user");
+  try{
+    const payload = {
+      messages:[
+        {role:"system",content:"You are The Freedom Engine — a sharp, darkly funny mentor. Keep answers short, practical, momentum-first. Avoid vulgarity; sarcastic is fine. Guide the user through: profile → offer → copy → launch → done."},
+        ...(window.FEProgress?.data?.memory?.persona? [{role:"system",content:window.FEProgress.data.memory.persona}] : []),
+        {role:"user",content:userText}
+      ]
+    };
+    const r=await fetch(CHAT_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+    const j=await r.json().catch(()=>({output:"No response."}));
+    const out=sanitize(j.output||j.text||"No response.");
+    post(out,"bot");
 
-/* Ensure chat always shows last message on load/resize */
+    // light stage bump
+    const lower=(userText+" "+out).toLowerCase();
+    window.FEProgress.update(d=>{
+      if(d.stage==="profile" && /design|writing|coach|coaching|dev|code|other/.test(lower)) d.stage="offer";
+      else if(d.stage==="offer" && /price|proof|deliver|scope|format/.test(lower)) d.stage="copy";
+      else if(d.stage==="copy" && /email|page|cta|ad|sales/.test(lower)) d.stage="launch";
+      else if(d.stage==="launch" && /live|published|scheduled|launched/.test(lower)) d.stage="done";
+      d.history=(d.history||[]).concat({who:"user",text:userText},{who:"bot",text:out}).slice(-200);
+    });
+  }catch{ post("Cloud hiccup. Hit me again.","bot"); }
+}
+
+/* greet once after hydration */
+document.addEventListener('fe:hydrated', e=>greet(!!e.detail?.isPremium));
+
+/* keep chat visible on load/resize */
 window.addEventListener('load', scrollBottom);
 window.addEventListener('resize', scrollBottom);
 </script>
