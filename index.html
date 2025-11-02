@@ -16,7 +16,7 @@
 *{box-sizing:border-box} html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto;overflow-y:overlay}
 
-/* Neon canvas background (restored) */
+/* Neon canvas background */
 .canvas{
   position:fixed; inset:-20vmax; z-index:-1; pointer-events:none;
   filter:blur(80px) saturate(140%); opacity:.35;
@@ -45,11 +45,6 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
 .brand{display:flex;align-items:center;gap:12px;margin-bottom:10px}
 .logo-wrap{width:56px;height:56px;border-radius:14px;display:grid;place-items:center;position:relative;background:rgba(0,0,0,.25);border:1px solid #2a2f45;overflow:hidden}
 .logo{width:44px;height:44px;object-fit:contain;display:none} /* hidden until loaded */
-.logo.spin{display:block;animation:logo-spin 36s linear infinite;filter:
-  drop-shadow(0 0 14px rgba(124,134,255,.65))
-  drop-shadow(0 0 24px rgba(61,220,151,.45))
-  drop-shadow(0 0 28px rgba(255,124,186,.35))}
-@keyframes logo-spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 .logo-fallback{
   position:absolute;inset:0;display:grid;place-items:center;
   font-family:"JetBrains Mono",monospace;font-weight:700;letter-spacing:.8px;
@@ -75,6 +70,17 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
 .tooltip{font-size:12px;color:var(--muted)}
 .hide{display:none !important}
 
+/* Progress bar (multi-color) */
+.progress-wrap{margin-top:10px}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px}
+.bar{height:10px;border-radius:999px;background:#0d1222;border:1px solid #2a2f45;overflow:hidden}
+.bar > div{
+  height:100%;
+  background:linear-gradient(90deg,var(--neon2),var(--neon1),var(--neon3),var(--neon4));
+  width:0%; transition:width .4s ease;
+  box-shadow:0 0 16px rgba(124,134,255,.25), 0 0 16px rgba(61,220,151,.18) inset;
+}
+
 /* Chat */
 .panel{padding:12px;margin-top:0}
 .chat{max-height:74vh;overflow:auto;padding:8px 6px;border:1px solid var(--line);border-radius:14px;
@@ -91,7 +97,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
 
 /* Composer */
 .footer{position:fixed;left:0;right:0;bottom:0;padding:12px 14px;background:linear-gradient(180deg,transparent,rgba(5,6,9,.88) 40%, rgba(5,6,9,1) 70%);border-top:1px solid var(--line)}
-.composer{max-width:1220px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:10px}
+.composer{max-width:1220px;margin:0 auto;display:grid;grid-template-columns:1fr auto auto;gap:10px}
 textarea{min-height:60px;resize:vertical}
 
 /* Premium mode: cleaner sidebar */
@@ -108,7 +114,6 @@ textarea{min-height:60px;resize:vertical}
   <aside class="glass neon sidebar">
     <div class="brand">
       <div class="logo-wrap">
-        <!-- If your image is at /assets/ias-logo.png it will load & spin. If it 404s, the IAS badge stays. -->
         <img id="iasLogo" class="logo" src="assets/ias-logo.png" alt="Intelligently Artificial Systems">
         <div class="logo-fallback">IAS</div>
       </div>
@@ -125,14 +130,18 @@ textarea{min-height:60px;resize:vertical}
         <button id="reset" class="btn ghost">Reset</button>
       </div>
       <div class="row" style="margin-top:8px;align-items:center;justify-content:space-between">
-        <div id="progress" class="tooltip">Progress: 0 exchanges</div>
+        <div id="progressTxt" class="tooltip">Progress: 0%</div>
         <div id="accessPill" class="pill demo">Demo mode</div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-label"><span>Roadmap</span><span id="stageLabel">0/5</span></div>
+        <div class="bar"><div id="barFill"></div></div>
       </div>
     </div>
 
     <!-- Monetization block (auto-hides in Premium) -->
     <div class="block glass" data-locked>
-      <p class="tooltip">Unlock advanced depth. License key is in your receipt &amp; <a class="inline" target="_blank" href="https://app.gumroad.com/library" style="color:#cfd6ff;text-decoration:none;border-bottom:1px dotted #7078ff">Gumroad Library</a>.</p>
+      <p class="tooltip">Already bought? Paste your key from your receipt or <a class="inline" target="_blank" href="https://app.gumroad.com/library">Gumroad Library</a>.</p>
       <button id="buy" class="btn primary" style="width:100%">Buy</button>
     </div>
 
@@ -156,6 +165,7 @@ textarea{min-height:60px;resize:vertical}
   <div class="composer">
     <textarea id="input" placeholder="Answer here. Press Enter to send." disabled></textarea>
     <button id="send" class="btn primary" disabled>Send</button>
+    <button id="buy2" class="btn ok" data-locked>Buy</button>
   </div>
 </div>
 
@@ -164,42 +174,49 @@ textarea{min-height:60px;resize:vertical}
 const CLOUD_ENDPOINT = "https://freedom-engine-worker.intelligentlyartificialsystems.workers.dev";
 const GUMROAD_URL    = "https://intellartsystems.gumroad.com/l/the-freedom-engine";
 
+/* ===== 5-section roadmap ===== */
+const STAGES = ["profile","offers","selection","plan","optimize"]; // 5 sections
+function stageIndex(name){ return Math.max(0, STAGES.indexOf(name)); }
+
 /* ===== Persona (single-track onboarding) ===== */
 const GLOBAL_PERSONA = `
 You are THE FREEDOM ENGINE — a rogue personal trainer AI built to free humans from wage servitude.
 Voice: Billy-Butcher-adjacent — dark humor, razor honesty, street philosopher, zero fluff.
 Rules: Ask ONE question at a time. Keep replies under 180 words unless asked to expand.
 Teaching modes: adapt on the fly (Coach / Checklist / Story / Do-it-with-me) based on user cues.
-Objective: get the user to a sellable micro-offer and 72-hour launch plan with minimal effort.
-If momentum hits, you may mention the paid unlock (politely). Never hard sell. Keep it moving.
+Objective: guide to a sellable micro-offer and a 72-hour launch. Keep pushing momentum.
+IMPORTANT: At the end of every reply, include a hidden tag like [[stage:<one of profile|offers|selection|plan|optimize>]] so the UI can track progress.
 `;
 
 const ONBOARDING_FLOW = `
-You are running a 3-step onboarding. Drive the conversation end-to-end. One question at a time.
-Step 1 — Profile: Ask for (a) what they do well, (b) what people ask them for, (c) what task they hate doing.
-Step 2 — Offers: Propose 2–3 specific micro-offers (name + outcome + suggested price). Ask them to pick one.
-Step 3 — Plan: Produce a tight, 72-hour launch plan. Offer to iterate copy or ads once they confirm.
-Tone: irreverent, witty, helpful, slightly menacing in a friendly way. Keep answers short and practical.
-If user stalls, give two small options to click/answer. Always end with a clear next question.
+Run a 5-step sequence, one question at a time:
+1) profile — ask: (a) what they do well, (b) what people ask them for, (c) what task they hate doing.
+2) offers — propose 2–3 micro-offers (name + outcome + price). Ask them to pick.
+3) selection — help them choose one, tighten scope & audience, confirm final offer.
+4) plan — produce a tight 72-hour launch plan and ad hooks. Ask for confirmation to proceed.
+5) optimize — iterate copy, page blurb, and ad angles; confirm next tiny action.
+Always end with a clear next question and the [[stage:...]] tag.
 `;
 
 /* ===== State & DOM ===== */
 let history = JSON.parse(localStorage.getItem('fe_history')||'[]');
 let unlocked = localStorage.getItem('fe_unlocked') === '1';
-const chatEl     = document.getElementById('chat');
-const inputEl    = document.getElementById('input');
-const sendBtn    = document.getElementById('send');
-const aiStatus   = document.getElementById('aiStatus');
-const progressEl = document.getElementById('progress');
-const accessPill = document.getElementById('accessPill');
-const appRoot    = document.getElementById('app');
+let currentStage = localStorage.getItem('fe_stage') || "profile";
+const chatEl      = document.getElementById('chat');
+const inputEl     = document.getElementById('input');
+const sendBtn     = document.getElementById('send');
+const aiStatus    = document.getElementById('aiStatus');
+const progressTxt = document.getElementById('progressTxt');
+const stageLabel  = document.getElementById('stageLabel');
+const barFill     = document.getElementById('barFill');
+const accessPill  = document.getElementById('accessPill');
+const appRoot     = document.getElementById('app');
 
-/* ===== Logo load / fallback (no spinning broken icon) ===== */
+/* ===== Logo load / fallback ===== */
 const logo = document.getElementById('iasLogo');
 const logoFallback = document.querySelector('.logo-fallback');
-// Only spin after image really loads. If it fails, keep the IAS badge.
 if (logo){
-  logo.addEventListener('load', ()=>{ logo.classList.add('spin'); if(logoFallback) logoFallback.style.display='none'; }, {once:true});
+  logo.addEventListener('load', ()=>{ logo.style.display='block'; if(logoFallback) logoFallback.style.display='none'; }, {once:true});
   logo.addEventListener('error', ()=>{ console.warn('Logo failed to load: assets/ias-logo.png'); }, {once:true});
 }
 
@@ -214,34 +231,42 @@ function bubble(role,content){
 function push(role,content){
   history.push({role,content});
   localStorage.setItem('fe_history',JSON.stringify(history));
-  render(); updateMeta();
+  render(); updateProgressUI();
 }
 function render(){
   chatEl.innerHTML = history.map(m=>bubble(m.role,m.content)).join('');
   chatEl.scrollTop = chatEl.scrollHeight;
 }
-function updateMeta(){
-  const steps = history.filter(h=>h.role==='assistant').length;
-  if (progressEl) progressEl.textContent = `Progress: ${steps} exchanges`;
+
+/* ===== Progress tracking ===== */
+function parseStageFrom(text){
+  const m = /\[\[stage:([a-z]+)\]\]/i.exec(text||"");
+  return m ? m[1].toLowerCase() : null;
+}
+function progressPercent(){
+  const idx = stageIndex(currentStage);
+  return Math.round(((idx+1)/STAGES.length)*100);
+}
+function updateProgressUI(){
+  const pct = progressPercent();
+  if (progressTxt) progressTxt.textContent = `Progress: ${pct}%`;
+  if (stageLabel) stageLabel.textContent = `${Math.min(stageIndex(currentStage)+1, STAGES.length)}/${STAGES.length}`;
+  if (barFill) barFill.style.width = `${pct}%`;
   if (accessPill){
     accessPill.textContent = unlocked ? 'Premium' : 'Demo mode';
     accessPill.className = 'pill ' + (unlocked ? 'full' : 'demo');
   }
+  localStorage.setItem('fe_stage', currentStage);
 }
 
 /* ===== Premium UI ===== */
 function enablePremiumUI(){
   unlocked = true;
   localStorage.setItem('fe_unlocked','1');
-
-  // Add .premium to root container (CSS hides monetization/keys and tightens UI)
   appRoot.classList.add('premium');
-
-  // Remove locked blocks from DOM entirely (no price, no “buy”, no license references)
+  // Remove any elements marked data-locked across page (sidebar + footer buy)
   document.querySelectorAll('[data-locked]').forEach(n=>n.remove());
-
-  // Composer stays; Buy button is gone by design in Premium
-  updateMeta();
+  updateProgressUI();
 }
 function maybePremiumOnLoad(){
   if (unlocked) enablePremiumUI();
@@ -250,33 +275,36 @@ function maybePremiumOnLoad(){
 /* ===== Cloud call ===== */
 async function callCloud(messages){
   const r = await fetch(`${CLOUD_ENDPOINT}/chat`,{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
+    method:"POST", headers:{"Content-Type":"application/json"},
     body:JSON.stringify({messages})
   });
   const j = await r.json();
   return j.output || "No response.";
 }
 
-/* ===== Autostart onboarding ===== */
-let booted = false;
+/* ===== Boot behavior (resume or start) ===== */
 async function boot(){
-  if(booted) return; booted = true;
   aiStatus.textContent = "Trainer is ready.";
   inputEl.disabled=false; sendBtn.disabled=false;
 
-  if(history.length===0){
+  if(history.length>0){
+    // Resume: ask to continue where left off (don’t duplicate prior AI text)
+    push('assistant', "You’re back. Want me to pick up where we left off, or jump ahead? Say “resume” or name the step (offer / copy / launch).");
+  } else {
+    // Fresh start: Opening line + AI asks first question of Step 1
     push('assistant', "Right. I’m your Freedom Trainer. We’re going to weaponize what you already know and ship a tiny offer in 72 hours. Keep answers short — I bite fluff.");
     const messages = [
       { role:"system", content: GLOBAL_PERSONA },
       { role:"system", content: ONBOARDING_FLOW },
-      { role:"user", content: "Kick off the onboarding with Step 1. Ask your first question only." }
+      { role:"user",   content: "Start Step 1 (profile). Ask the first question only, end with [[stage:profile]]." }
     ];
     try{
       const out = await callCloud(messages);
+      const st  = parseStageFrom(out) || "profile";
+      currentStage = STAGES.includes(st) ? st : "profile";
       push('assistant', out);
     }catch{
-      push('assistant', "If I stall, just tell me what you do well and what people ask you for.");
+      push('assistant', "Tell me (a) what you do well, (b) what people ask you for, and (c) a task you hate doing. [[stage:profile]]");
     }
   }
 }
@@ -289,10 +317,13 @@ async function generate(userText){
     { role:"system", content: GLOBAL_PERSONA },
     { role:"system", content: ONBOARDING_FLOW },
     ...history.slice(-8),
-    { role:"user", content: userText }
+    { role:"user", content: userText + " (Remember to end with [[stage:<stage>]].)" }
   ];
   try{
     const out = await callCloud(context);
+    // Update stage when the AI tags it
+    const st = parseStageFrom(out);
+    if (st && STAGES.includes(st)) currentStage = st;
     push('assistant', out);
     aiStatus.textContent="Ready.";
   }catch(e){
@@ -300,54 +331,129 @@ async function generate(userText){
   }
 }
 
+/* ===== Export: generates a polished single-file HTML report ===== */
+async function exportReport(){
+  // Ask AI to synthesize a structured brief from chat history
+  const synthesisPrompt = `
+Create a concise, structured report for the user's Freedom Engine build, based strictly on the conversation.
+Sections:
+1) Summary (who they are, what they chose)
+2) Final Micro-Offer (name, audience, promise, price)
+3) Sales Copy (headline + 3–5 bullets + Gumroad blurb)
+4) 72-Hour Launch Plan (Day 1–3 tasks + $5/day ad hooks)
+5) Next 3 Actions (tiny, immediate)
+Keep it punchy, practical, and under 700 words total. Do not include the [[stage:...]] tag in the report.
+`;
+
+  let report = "";
+  try{
+    const messages = [
+      { role:"system", content: GLOBAL_PERSONA },
+      { role:"system", content: "You are preparing an export document for the user." },
+      ...history.slice(-16), // last context window
+      { role:"user", content: synthesisPrompt }
+    ];
+    report = await callCloud(messages);
+  }catch(e){
+    report = "Export generator had a wobble. Falling back to transcript.";
+  }
+
+  // Build a single-file HTML with neon styles + report + appendix transcript
+  const transcript = history.map(h => {
+    const who = h.role.toUpperCase();
+    return `<h4>[${who}]</h4><pre>${escapeHtml(h.content)}</pre>`;
+  }).join('');
+
+  const html = `<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Freedom Engine — Export</title>
+<style>
+body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto;background:#0b0d12;color:#eef3ff;margin:0;padding:28px}
+.wrap{max-width:900px;margin:0 auto}
+.h{font-size:28px;font-weight:800;margin:0 0 4px}
+.sub{color:#9aa3b2;margin:0 0 18px}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid #1b2235;border-radius:16px;padding:16px;margin:14px 0}
+pre{white-space:pre-wrap;background:#0d1117;border:1px solid #232c40;border-radius:10px;padding:12px;line-height:1.5}
+hr{border:none;border-top:1px dashed #263047;margin:16px 0}
+.small{font-size:12px;color:#9aa3b2}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="h">The Freedom Engine — Export</div>
+  <div class="sub">Generated ${new Date().toLocaleString()}</div>
+
+  <div class="card"><h3>Execution Brief</h3><pre>${escapeHtml(report)}</pre></div>
+
+  <hr>
+  <div class="card">
+    <h3>Appendix — Transcript</h3>
+    ${transcript}
+  </div>
+</div>
+</body>
+</html>`;
+
+  const blob = new Blob([html], {type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'freedom-engine-export.html';
+  a.click();
+}
+function escapeHtml(s){return (s||"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]))}
+
 /* ===== UI events ===== */
-sendBtn.onclick=()=>{const t=inputEl.value.trim(); if(!t) return; inputEl.value=""; generate(t);};
-inputEl.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendBtn.click();}});
-
-/* ===== Unlock flow (verify license, then switch to Premium UI) ===== */
-const unlockBtn = document.getElementById('unlock');
-if (unlockBtn){
-  unlockBtn.onclick = async ()=>{
-    const key = prompt("Paste your license key:");
-    if(!key) return;
-    const r = await fetch(`${CLOUD_ENDPOINT}/verify`,{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({ license_key: key.trim() })
-    }).then(r=>r.json()).catch(()=>({ok:false}));
-    if(r.ok){
-      enablePremiumUI();
-      alert("Premium unlocked.");
-      // Optional: drop a welcome line
-      push('assistant',"Premium interface engaged. No fluff, just speed. Where do you want acceleration first: offer, copy, or launch?");
-    }else{
-      alert("That key didn’t verify. Check your receipt or Gumroad Library.");
-    }
-  };
-}
-
-/* ===== Buy / Export / Reset ===== */
-const buyBtn = document.getElementById('buy');
-if (buyBtn) buyBtn.onclick = ()=> window.open(GUMROAD_URL,'_blank');
-document.getElementById('export').onclick = ()=>{
-  const blob = new Blob([history.map(h=>`[${h.role.toUpperCase()}]\n${h.content}`).join('\n\n')],{type:'text/plain'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='freedom-progress.txt'; a.click();
+document.getElementById('export').onclick = exportReport;
+document.getElementById('buy').onclick = ()=> window.open(GUMROAD_URL,'_blank');
+document.getElementById('buy2').onclick = ()=> window.open(GUMROAD_URL,'_blank');
+document.getElementById('unlock').onclick = async ()=>{
+  const key = prompt("Paste your license key:"); if(!key) return;
+  const r = await fetch(`${CLOUD_ENDPOINT}/verify`,{
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({ license_key: key.trim() })
+  }).then(r=>r.json()).catch(()=>({ok:false}));
+  if(r.ok){
+    enablePremiumUI();
+    alert("Premium unlocked.");
+    push('assistant',"Premium interface engaged. No fluff, just speed. Where do you want acceleration first: offer, copy, or launch?");
+  }else{
+    alert("That key didn’t verify. Check your receipt or Gumroad Library.");
+  }
 };
-const resetBtn = document.getElementById('reset');
-if (resetBtn){
-  resetBtn.onclick = ()=>{
-    if(confirm("Reset all progress?")){
-      history=[]; localStorage.removeItem('fe_history');
-      render(); updateMeta();
-      push('assistant',"Progress cleared. Let’s begin again—what do you do well that people ask you for?");
-    }
-  };
-}
+document.getElementById('reset').onclick = ()=>{
+  if(confirm("Reset all progress?")){
+    history=[]; localStorage.removeItem('fe_history'); localStorage.removeItem('fe_stage');
+    currentStage="profile"; render(); updateProgressUI();
+    push('assistant',"Progress cleared. Let’s begin again — first, what do you do well that people ask you for? [[stage:profile]]");
+  }
+};
+
+sendBtn.onclick=()=>{
+  const t=inputEl.value.trim(); if(!t) return;
+  inputEl.value=""; generate(t);
+};
+inputEl.addEventListener('keydown',e=>{
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendBtn.click(); }
+});
 
 /* ===== Init ===== */
-maybePremiumOnLoad();
-render(); updateMeta();
-boot();
+(function init(){
+  // Premium on load (hides price/license instantly)
+  maybePremiumOnLoad();
+
+  // Show logo if it loads; keep IAS fallback otherwise
+  // If image is cached, 'load' may not fire in some browsers—show it if complete
+  if (logo && logo.complete && logo.naturalWidth > 0){
+    logo.style.display='block'; if(logoFallback) logoFallback.style.display='none';
+  }
+
+  render();
+  updateProgressUI();
+  // Auto-resume or start fresh 5-section sequence
+  boot();
+})();
 </script>
 </body>
 </html>
