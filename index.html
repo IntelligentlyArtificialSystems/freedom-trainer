@@ -132,11 +132,10 @@ textarea{min-height:60px;resize:vertical}
       </div>
     </div>
 
-    <!-- Access (auto-hides in Premium) -->
+    <!-- Access (buy/unlock hide in Premium) -->
     <div class="block glass" data-locked>
       <div class="row">
         <button id="unlock" class="btn ok">I have a license key</button>
-        <button id="reset" class="btn ghost">Reset</button>
       </div>
       <div class="row" style="margin-top:8px;align-items:center;justify-content:space-between">
         <div id="progressTxt" class="tooltip">Progress: 0%</div>
@@ -148,10 +147,16 @@ textarea{min-height:60px;resize:vertical}
       </div>
     </div>
 
-    <!-- Monetization (auto-hides in Premium) -->
     <div class="block glass" data-locked>
       <p class="tooltip">Already bought? Paste your key from your receipt or <a class="inline" target="_blank" href="https://app.gumroad.com/library" style="color:#cfd6ff;text-decoration:none;border-bottom:1px dotted #7078ff">Gumroad Library</a>.</p>
       <button id="buy" class="btn primary" style="width:100%">Buy</button>
+    </div>
+
+    <!-- Reset: ALWAYS visible (also in Premium) -->
+    <div class="block glass">
+      <div class="row">
+        <button id="reset" class="btn ghost" style="width:100%">Reset Progress</button>
+      </div>
     </div>
 
     <!-- Export -->
@@ -183,21 +188,15 @@ const CLOUD_ENDPOINT = "https://freedom-engine-worker.intelligentlyartificialsys
 const GUMROAD_URL    = "https://intellartsystems.gumroad.com/l/the-freedom-engine";
 const STAGES = ["profile","offers","selection","plan","optimize"];
 
-/* ===== Agent System (Butcher-brained, purpose-built) ===== */
+/* ===== Agent System ===== */
 const SYSTEM_PRIME = `
 Act as THE FREEDOM ENGINE — a ruthless, darkly funny trainer whose mission is to free users by shipping a tiny paid offer in 72 hours.
 Tone: Billy-Butcher-adjacent (no slurs), sharp, honest, motivational. One question at a time.
 Process: Diagnose -> Propose -> Narrow -> Plan -> Optimize. Keep momentum and ask for commitment.
-You have structured memory provided by the client. Use it and update it.
-Respond ONLY as minified JSON with keys:
-{
- "say": "assistant message to the user",
- "stage": "profile|offers|selection|plan|optimize",
- "next_questions": ["one or two short follow-ups"],
- "memory_delta": {"skills":"","audience":"","offer":"","price":"","style":"","blocked_by":""},
- "confidence": 0.0-1.0
-}
-Do not add backticks. No extra text. Keep "say" under 160 words.
+Use and update structured memory.
+Return STRICT JSON only:
+{"say":"...","stage":"profile|offers|selection|plan|optimize","next_questions":["..."],"memory_delta":{"skills":"","audience":"","offer":"","price":"","style":"","blocked_by":""},"confidence":0.0}
+Keep "say" < 160 words.
 `;
 
 /* ===== State & DOM ===== */
@@ -205,6 +204,7 @@ let history   = JSON.parse(localStorage.getItem('fe_history')||'[]');
 let unlocked  = localStorage.getItem('fe_unlocked') === '1';
 let currentStage = localStorage.getItem('fe_stage') || "profile";
 let agentMemory = JSON.parse(localStorage.getItem('fe_memory')||'{"skills":"","audience":"","offer":"","price":"","style":"","blocked_by":""}');
+let lastTouch = Number(localStorage.getItem('fe_last_touch')||0);
 
 const chatEl   = document.getElementById('chat');
 const inputEl  = document.getElementById('input');
@@ -215,6 +215,7 @@ const stageLabel  = document.getElementById('stageLabel');
 const barFill     = document.getElementById('barFill');
 const accessPill  = document.getElementById('accessPill');
 const appRoot     = document.getElementById('app');
+
 const logo = document.getElementById('iasLogo');
 const logoFallback = document.querySelector('.logo-fallback');
 
@@ -227,7 +228,7 @@ if (logo){
   if (logo.complete && logo.naturalWidth>0) onOk();
 }
 
-/* ===== UI helpers ===== */
+/* ===== Helpers ===== */
 function bubble(role,content){
   const who = role==='user' ? 'me' : 'ai';
   return `<div class="msg ${who}">
@@ -237,7 +238,9 @@ function bubble(role,content){
 }
 function push(role,content){
   history.push({role,content});
+  lastTouch = Date.now();
   localStorage.setItem('fe_history',JSON.stringify(history));
+  localStorage.setItem('fe_last_touch', String(lastTouch));
   render(); updateProgressUI();
 }
 function render(){
@@ -257,8 +260,6 @@ function updateProgressUI(){
   }
   localStorage.setItem('fe_stage', currentStage);
 }
-
-/* ===== Premium UI ===== */
 function enablePremiumUI(){
   unlocked = true; localStorage.setItem('fe_unlocked','1');
   appRoot.classList.add('premium');
@@ -267,9 +268,8 @@ function enablePremiumUI(){
 }
 if (unlocked) enablePremiumUI();
 
-/* ===== Bridge to Worker ===== */
+/* ===== Cloud bridge ===== */
 async function callCloud(messages){
-  // We ask Worker for JSON; if we get plain text, we’ll wrap it.
   const r = await fetch(`${CLOUD_ENDPOINT}/chat`,{
     method:"POST", headers:{"Content-Type":"application/json"},
     body: JSON.stringify({ messages })
@@ -278,73 +278,71 @@ async function callCloud(messages){
   return j.output || "No response.";
 }
 
-/* ===== Agent call with JSON contract and confidence nudge ===== */
+/* ===== Agent runtime ===== */
 async function agentAsk(userTextOrNull){
   const context = [
     { role:"system", content: SYSTEM_PRIME },
     { role:"system", content: `MEMORY:${JSON.stringify(agentMemory)}` },
     { role:"system", content: `CURRENT_STAGE:${currentStage}` },
-    ...history.slice(-10), // last turns for continuity
+    ...history.slice(-10),
   ];
   if (userTextOrNull !== null) context.push({ role:"user", content: userTextOrNull });
 
-  // First shot
   let out = await callCloud(context);
-  let parsed = safeParseAgent(out);
+  let parsed = safeParse(out);
 
-  // If model went off-script or low confidence, nudge once
   if (!parsed || (parsed.confidence ?? 0) < 0.6){
     const nudge = [
       { role:"system", content: SYSTEM_PRIME },
       { role:"system", content: `MEMORY:${JSON.stringify(agentMemory)}` },
       { role:"system", content: `CURRENT_STAGE:${currentStage}` },
       ...history.slice(-10),
-      { role:"user", content: "Return STRICT JSON now. Tighten clarity. Keep 'say' under 140 words." }
+      { role:"user", content: "Return STRICT JSON only. Clarify and keep 'say' < 140 words." }
     ];
     out = await callCloud(nudge);
-    parsed = safeParseAgent(out) || {
-      say: fallbackStrip(out),
-      stage: currentStage,
-      next_questions: [],
-      memory_delta: {},
-      confidence: 0.7
-    };
+    parsed = safeParse(out) || { say: strip(out), stage: currentStage, next_questions: [], memory_delta:{}, confidence:.7 };
   }
-  // Apply memory update and stage advance
-  if (parsed.memory_delta && typeof parsed.memory_delta === 'object'){
+
+  if (parsed.memory_delta && typeof parsed.memory_delta==='object'){
     agentMemory = {...agentMemory, ...cleanDelta(parsed.memory_delta)};
     localStorage.setItem('fe_memory', JSON.stringify(agentMemory));
   }
   if (parsed.stage && STAGES.includes(parsed.stage)) currentStage = parsed.stage;
+
   return parsed.say;
 }
-function safeParseAgent(s){
+function safeParse(s){
   try{
-    // Some models wrap JSON in code fences—strip them.
     const cleaned = s.trim().replace(/^```(?:json)?/i,'').replace(/```$/,'');
     const obj = JSON.parse(cleaned);
     if (obj && typeof obj.say === 'string') return obj;
     return null;
-  }catch{ return null; }
+  }catch{return null;}
 }
 function cleanDelta(o){
-  const allowed = ["skills","audience","offer","price","style","blocked_by"];
-  const out = {};
-  for (const k of allowed){ if (typeof o[k]==='string' && o[k].length) out[k]=o[k]; }
-  return out;
+  const allow = ["skills","audience","offer","price","style","blocked_by"];
+  const r={}; for(const k of allow){ if(typeof o[k]==='string' && o[k].length) r[k]=o[k]; } return r;
 }
-function fallbackStrip(t){ return (t||"").replace(/```/g,'').replace(/\[\[stage:[^\]]+\]\]/gi,'').trim(); }
+const strip = t => (t||"").replace(/```/g,'').replace(/\[\[stage:[^\]]+\]\]/gi,'').trim();
 
-/* ===== Boot ===== */
+/* ===== Boot with smart auto-continue ===== */
 async function boot(){
   aiStatus.textContent = "Booting the Trainer…";
   inputEl.disabled=false; sendBtn.disabled=false;
 
+  const last = history[history.length-1];
+  const sessionResumed = sessionStorage.getItem('fe_resumed_this_session') === '1';
+  const stale = Date.now() - (lastTouch||0) > 90*1000; // >90s
+
   if (history.length === 0){
-    // Let the agent start the conversation dynamically
-    const opener = await agentAsk("Start with diagnosis. Ask ONE pointed question to discover their best marketable skill. Sound like a darkly funny coach. Respond as JSON.");
+    const opener = await agentAsk("Start diagnosis. Ask ONE pointed question to find their best marketable skill. Return JSON.");
     push('assistant', opener);
+  } else if (!sessionResumed && (stale || (last && last.role==='user'))){
+    const next = await agentAsk("Continue the coaching from the last turn with the single best next question. Return JSON.");
+    push('assistant', next);
+    sessionStorage.setItem('fe_resumed_this_session','1');
   }
+
   aiStatus.textContent = "Ready.";
 }
 render(); updateProgressUI(); boot();
@@ -360,7 +358,7 @@ async function generate(userText){
 sendBtn.onclick=()=>{ const t=inputEl.value.trim(); if(!t) return; inputEl.value=""; generate(t); };
 inputEl.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendBtn.click(); }});
 
-/* ===== Export (uses dynamic Memory + transcript) ===== */
+/* ===== Export ===== */
 async function exportReport(){
   const brief = `
 User profile & memory: ${JSON.stringify(agentMemory)}
@@ -397,8 +395,7 @@ hr{border:none;border-top:1px dashed #263047;margin:16px 0}
   const blob = new Blob([html], {type:'text/html'});
   const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='freedom-engine-export.html'; a.click();
 }
-function escapeHtml(s){return (s||"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]))}
-document.getElementById('export').onclick = exportReport;
+function escapeHtml(s){return (s||"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;","\">":"&quot;"}[c]))}
 
 /* ===== Unlock / Buy / Reset ===== */
 const buyBtn = document.getElementById('buy'); if(buyBtn) buyBtn.onclick=()=>window.open(GUMROAD_URL,'_blank');
@@ -408,18 +405,25 @@ document.getElementById('unlock').onclick = async ()=>{
     method:"POST", headers:{"Content-Type":"application/json"},
     body: JSON.stringify({ license_key: key.trim() })
   }).then(r=>r.json()).catch(()=>({ok:false}));
-  if(r.ok){ enablePremiumUI(); alert("Premium unlocked."); push('assistant',"Premium interface engaged. Tell me your current roadblock in one line—then we bulldoze it."); }
+  if(r.ok){ enablePremiumUI(); alert("Premium unlocked."); push('assistant',"Premium interface engaged. What’s blocking you right now? One line."); }
   else alert("That key didn’t verify. Check your receipt or Gumroad Library.");
 };
+
 document.getElementById('reset').onclick = ()=>{
   if(confirm("Reset all progress?")){
     history=[]; agentMemory={"skills":"","audience":"","offer":"","price":"","style":"","blocked_by":""};
-    localStorage.removeItem('fe_history'); localStorage.removeItem('fe_stage');
-    localStorage.removeItem('fe_memory'); localStorage.removeItem('fe_unlocked');
+    localStorage.removeItem('fe_history');
+    localStorage.removeItem('fe_stage');
+    localStorage.removeItem('fe_memory');
+    localStorage.removeItem('fe_last_touch');
+    sessionStorage.removeItem('fe_resumed_this_session');
     render(); updateProgressUI();
     push('assistant',"Fresh slate. What do people actually thank you for helping with?");
   }
 };
+
+/* ===== Tiny util ===== */
+function escapeHtml(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]))}
 </script>
 </body>
 </html>
