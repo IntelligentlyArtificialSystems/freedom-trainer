@@ -36,7 +36,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
    linear-gradient(180deg,var(--neon2),transparent 30%,transparent 70%,var(--neon4));
   filter:blur(12px) saturate(140%);opacity:.35}
 
-/* Sidebar minimal */
+/* Sidebar */
 .sidebar{position:sticky;top:16px;height:fit-content;padding:14px}
 .brand{display:flex;align-items:center;gap:12px;margin-bottom:8px}
 .logo-wrap{width:54px;height:54px;border-radius:14px;display:grid;place-items:center;position:relative;background:rgba(0,0,0,.25);border:1px solid #2a2f45;overflow:hidden}
@@ -96,7 +96,6 @@ textarea{min-height:60px;resize:vertical;border-radius:12px;border:1px solid #26
 <div class="canvas"></div>
 
 <div class="container" id="app">
-  <!-- Sidebar (minimal) -->
   <aside class="glass neon sidebar">
     <div class="brand">
       <div class="logo-wrap">
@@ -119,7 +118,7 @@ textarea{min-height:60px;resize:vertical;border-radius:12px;border:1px solid #26
         <button id="modulesBtn" class="btn ghost small" title="Open Modules">Modules</button>
         <div class="menu" id="menu">
           <button id="menuBtn" class="btn ghost small">⋯</button>
-          <div class="panel">
+          <div class="panel" id="menuPanel">
             <button id="saveSnap" class="btn ghost small">Save Snapshot</button>
             <button id="loadBtn" class="btn ghost small">Load Snapshot</button>
             <input id="loadSnap" type="file" accept=".json" style="display:none">
@@ -134,7 +133,6 @@ textarea{min-height:60px;resize:vertical;border-radius:12px;border:1px solid #26
     </div>
   </aside>
 
-  <!-- Main -->
   <main>
     <section class="panel glass neon">
       <div id="chat" class="chat"></div>
@@ -143,7 +141,6 @@ textarea{min-height:60px;resize:vertical;border-radius:12px;border:1px solid #26
   </main>
 </div>
 
-<!-- Composer -->
 <div class="footer glass">
   <div class="composer">
     <textarea id="input" placeholder="Answer here. Press Enter to send." disabled></textarea>
@@ -151,7 +148,6 @@ textarea{min-height:60px;resize:vertical;border-radius:12px;border:1px solid #26
   </div>
 </div>
 
-<!-- Module Store Modal -->
 <div id="modulesModal" class="modal">
   <div class="modal-card glass neon">
     <div style="display:flex;justify-content:space-between;align-items:center;padding:12px">
@@ -169,35 +165,33 @@ textarea{min-height:60px;resize:vertical;border-radius:12px;border:1px solid #26
 /* =================== CONFIG =================== */
 const CLOUD_ENDPOINT = "https://freedom-engine-worker.intelligentlyartificialsystems.workers.dev";
 const GUMROAD_URL    = "https://intellartsystems.gumroad.com/l/the-freedom-engine";
-const CORE_PRODUCT_ID = null; // your worker already handles core; leave null unless you require it
 const STAGES = ["profile","offers","selection","plan","optimize"];
 
-/* Paid modules (you'll set real product_id values later) */
+/* Modules (placeholder product_ids for later) */
 const MODULES = [
   {id:"ads",    name:"Ad Creative Booster", product_id:"MOD_ADS_ID", price:"$12", desc:"Generate scroll-stopping ad images + angles in seconds."},
   {id:"email",  name:"Email Launch Booster", product_id:"MOD_EMAIL_ID", price:"$9",  desc:"Auto-draft 3-day launch emails matched to your offer."},
-  {id:"planner",name:"Content Planner",      product_id:"MOD_PLAN_ID", price:"$12", desc:"30-day content map to prime your audience for the offer."},
-  {id:"proof",  name:"Proof Builder",        product_id:"MOD_PROOF_ID", price:"$7",  desc:"Extract and frame social proof from your past wins."}
+  {id:"planner",name:"Content Planner",      product_id:"MOD_PLAN_ID", price:"$12", desc:"7-day content seed plan to prime your audience."},
+  {id:"proof",  name:"Proof Builder",        product_id:"MOD_PROOF_ID", price:"$7",  desc:"Extract and frame social proof from past wins."}
 ];
 
-/* Strong, non-generic opener & curriculum prompts */
+/* Curriculum prompts */
 const PROMPTS = {
   opener: `Let's find the ONE skill people have already paid you for—or *wanted* to.
-Answer these fast:
-1) Where have strangers paid you or thanked you with results? (1–3 examples)
-2) What tiny win you can help someone get in < 48 hours?
-3) What proof do you already have? (screenshots, DMs, before/after)
-4) Who exactly benefits most? (describe one real person)
-5) Constraints: What you refuse to do or don't have time for.
-Keep it rough. I'll mine it and steer.`,
-  offers: `Based on what you said, I'll propose 3 micro-offers with price, promise, and delivery.
-Then we’ll pick one and sharpen it.`,
-  selection: `We're locking one offer. I’ll pressure test price, promise, and scope. You commit.`,
-  plan: `3-Day Launch Plan (ads optional at $5/day). I'll break it into tasks you'll actually finish.`,
-  optimize: `Add a tiny upsell, clean objections, and two ad hooks. Then we ship.`
+Answer these, fast:
+1) Real moments strangers paid you or thanked you with results (1–3).
+2) A tiny win you can deliver in <48h.
+3) Existing proof (screens, DMs, before/after).
+4) One real person this helps most (describe).
+5) Constraints: things you refuse or can't do.
+Rough is fine. I'll mine it and steer.`,
+  offers: `I'll propose 3 micro-offers with price, promise, delivery. Then we pick one and sharpen.`,
+  selection: `We lock one offer. I pressure-test price, promise, scope. You commit.`,
+  plan: `3-Day Launch Plan (optional $5/day ads). Broken into tasks you'll actually finish.`,
+  optimize: `Add a tiny upsell, clear objections, + two ad hooks. Then we ship.`
 };
 
-/* =================== AUTO-PERSONA (no UI) =================== */
+/* Persona */
 function detectStyleFrom(text=""){
   const t = text.toLowerCase();
   if (/stuck|overwhelmed|help|lost/.test(t)) return "coach";
@@ -221,9 +215,7 @@ function systemPrime(style="coach", stage="profile", activeModules=[]){
   return `
 You are THE FREEDOM ENGINE — a ruthless, darkly funny trainer who ships a tiny paid offer in 72 hours.
 Tone: ${STYLE_PRIME[style]||STYLE_PRIME.coach}
-Curriculum stage: ${stage}. Your job is to steer back to the curriculum if they drift.
-Always: Diagnose → Propose → Narrow → Plan → Optimize.
-Ask follow-ups proactively until the stage is satisfied; then explicitly advance.
+Curriculum stage: ${stage}. Steer back to the curriculum if they drift. Ask follow-ups as needed; then explicitly advance.
 ${extras.length?("Active modules:\n- " + extras.join("\n- ")):""}
 Return STRICT JSON only:
 {"say":"...","stage":"profile|offers|selection|plan|optimize","next_questions":["..."],"memory_delta":{"skills":"","audience":"","offer":"","price":"","style":"","blocked_by":""},"confidence":0.0}
@@ -237,7 +229,7 @@ let currentStage = localStorage.getItem('fe_stage') || "profile";
 let agentMemory = JSON.parse(localStorage.getItem('fe_memory')||'{"skills":"","audience":"","offer":"","price":"","style":"coach","blocked_by":""}');
 let lastTouch = Number(localStorage.getItem('fe_last_touch')||0);
 let startTs   = Number(localStorage.getItem('fe_start_ts')||0);
-let modules   = JSON.parse(localStorage.getItem('fe_modules')||'[]'); // array of module ids
+let modules   = JSON.parse(localStorage.getItem('fe_modules')||'[]'); // [{id, when}]
 
 /* =================== DOM =================== */
 const chatEl   = document.getElementById('chat');
@@ -250,8 +242,10 @@ const modeTag     = document.getElementById('modeTag');
 const modulesBtn  = document.getElementById('modulesBtn');
 const modulesModal= document.getElementById('modulesModal');
 const modulesGrid = document.getElementById('modulesGrid');
+const menuRoot    = document.getElementById('menu');
+const menuBtn     = document.getElementById('menuBtn');
 
-/* Logo spin only if loaded */
+/* Logo spin */
 const logo = document.getElementById('iasLogo');
 const logoFallback = document.querySelector('.logo-fallback');
 if (logo){ const ok=()=>{logo.classList.add('spin');logo.style.display='block';logoFallback&&(logoFallback.style.display='none');};
@@ -281,18 +275,17 @@ function push(role,content){
   localStorage.setItem('fe_start_ts', String(startTs));
   render(); updateProgressUI();
 }
-function render(){
-  chatEl.innerHTML = history.map(m=>bubble(m.role,m.content)).join('');
-  requestAnimationFrame(()=>{ chatEl.scrollTop = chatEl.scrollHeight; });
-}
+function render(){ chatEl.innerHTML = history.map(m=>bubble(m.role,m.content)).join(''); requestAnimationFrame(()=>{ chatEl.scrollTop = chatEl.scrollHeight; }); }
 function stageIndex(n){ return Math.max(0, STAGES.indexOf(n)); }
 function progressPercent(){ const idx=stageIndex(currentStage); return Math.round(((idx+1)/STAGES.length)*100); }
 function updateProgressUI(){ stageLabel.textContent=`${Math.min(stageIndex(currentStage)+1,STAGES.length)}/${STAGES.length}`; barFill.style.width=`${progressPercent()}%`; modeTag.textContent = unlocked?'Premium':'Demo'; modeTag.className='pill '+(unlocked?'full':'demo'); localStorage.setItem('fe_stage', currentStage); }
 
 /* =================== CLOUD =================== */
 async function callCloud(messages){
-  const r = await fetch(`${CLOUD_ENDPOINT}/chat`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages})});
-  const j = await r.json(); return j.output || "No response.";
+  try{
+    const r = await fetch(`${CLOUD_ENDPOINT}/chat`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages})});
+    const j = await r.json(); return j.output || "No response.";
+  }catch{ return "No response."; }
 }
 const tryParse = s=>{try{const t=s.trim().replace(/^```(?:json)?/i,'').replace(/```$/,'');return JSON.parse(t)}catch{return null}};
 
@@ -322,7 +315,7 @@ async function agentAsk(userTextOrNull){
       { role:"system", content: `MEMORY:${JSON.stringify(agentMemory)}` },
       { role:"system", content: `CURRICULUM_PROMPT:${PROMPTS[currentStage]||""}` },
       ...history.slice(-10),
-      { role:"user", content: "Return STRICT JSON. If user drifts, steer back to the current stage. Expand as needed; don't ask just one question." }
+      { role:"user", content: "Return STRICT JSON. If user drifts, steer back to the current stage. Expand follow-ups as needed; then advance explicitly." }
     ];
     out = await callCloud(nudge);
     parsed = tryParse(out) || { say: sanitizeSay(out), stage: currentStage, next_questions: [], memory_delta:{}, confidence:.7 };
@@ -337,26 +330,29 @@ async function agentAsk(userTextOrNull){
   return sanitizeSay(parsed.say);
 }
 
-/* =================== BOOT (single-shot) =================== */
+/* =================== BOOT (safe) =================== */
 function sessionResumed(){ return sessionStorage.getItem('fe_resumed')==='1'; }
 function markResumed(){ sessionStorage.setItem('fe_resumed','1'); }
-
 async function boot(){
-  aiStatus.textContent="Booting the Trainer…";
-  inputEl.disabled=false; sendBtn.disabled=false;
-  dedupeHistory(); render(); updateProgressUI();
+  try{
+    inputEl.disabled=false; sendBtn.disabled=false;
+    dedupeHistory(); render(); updateProgressUI();
+    const last = history[history.length-1];
+    const stale = Date.now() - (lastTouch||0) > 90*1000;
 
-  const last = history[history.length-1];
-  const stale = Date.now() - (lastTouch||0) > 90*1000;
-
-  if (history.length===0){
-    push('assistant', PROMPTS.opener);
-    markResumed();
-  } else if (!sessionResumed() && (stale || (last && last.role==='user'))){
-    const next = await agentAsk("Continue the current stage and steer me back on track.");
-    push('assistant', next); markResumed();
+    if (history.length===0){
+      push('assistant', PROMPTS.opener);
+      markResumed();
+    } else if (!sessionResumed() && (stale || (last && last.role==='user'))){
+      const next = await agentAsk("Continue the current stage and steer me back on track.");
+      push('assistant', next); markResumed();
+    }
+    aiStatus.textContent="Ready.";
+  }catch(err){
+    aiStatus.textContent="Ready.";
+    inputEl.disabled=false; sendBtn.disabled=false;
+    console.error(err);
   }
-  aiStatus.textContent="Ready.";
 }
 boot();
 
@@ -393,9 +389,9 @@ pre{white-space:pre-wrap;background:#0d1117;border:1px solid #232c40;border-radi
   downloadBlob(html,'text/html','freedom-engine-export.html');
 };
 
-/* =================== MENU (Save/Load/Reset/Wake/Unlock) =================== */
-const menu = document.getElementById('menu'); document.getElementById('menuBtn').onclick=()=>menu.classList.toggle('open');
-document.addEventListener('click',e=>{ if(!menu.contains(e.target)) menu.classList.remove('open'); });
+/* =================== MENU / MODULES =================== */
+menuBtn.onclick=()=>menuRoot.classList.toggle('open');
+document.addEventListener('click',e=>{ if(!menuRoot.contains(e.target)) menuRoot.classList.remove('open'); });
 
 document.getElementById('saveSnap').onclick=()=>{
   const snap={when:new Date().toISOString(),memory:agentMemory,stage:currentStage,history,modules};
@@ -418,21 +414,19 @@ document.getElementById('reset').onclick=()=>{
   if(confirm("Reset all progress?")){
     history=[]; agentMemory={"skills":"","audience":"","offer":"","price":"","style":"coach","blocked_by":""};
     startTs=0; localStorage.removeItem('fe_history'); localStorage.removeItem('fe_stage'); localStorage.removeItem('fe_memory'); localStorage.removeItem('fe_last_touch'); localStorage.removeItem('fe_start_ts'); sessionStorage.removeItem('fe_resumed');
-    render(); updateProgressUI(); push('assistant',"Fresh slate. Let's do it right this time. " + PROMPTS.opener);
+    render(); updateProgressUI(); push('assistant',"Fresh slate. Let's do it right this time.\n\n"+PROMPTS.opener);
   }
 };
-document.getElementById('wake').onclick=()=>push('assistant',"Context refreshed. If you drift, I’ll drag you back to the current step.");
 document.getElementById('switchMode').onclick=()=>{ if(confirm("Switch to Demo and forget your license on this device?")){ localStorage.removeItem('fe_unlocked'); sessionStorage.clear(); location.reload(); } };
 document.getElementById('buy').onclick=()=>window.open(GUMROAD_URL,'_blank');
 document.getElementById('unlock').onclick=async()=>{
   const key=prompt("Paste your license key:"); if(!key) return;
-  const body = CORE_PRODUCT_ID ? {license_key:key.trim(), product_id:CORE_PRODUCT_ID} : {license_key:key.trim()};
-  const r=await fetch(`${CLOUD_ENDPOINT}/verify`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}).then(r=>r.json()).catch(()=>({ok:false}));
+  const r=await fetch(`${CLOUD_ENDPOINT}/verify`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({license_key:key.trim()})}).then(r=>r.json()).catch(()=>({ok:false}));
   if(r.ok){ localStorage.setItem('fe_unlocked','1'); unlocked=true; updateProgressUI(); push('assistant',"Premium engaged. Answer the opener—then we move fast."); }
   else alert("Key didn’t verify. Check your Gumroad receipt.");
 };
 
-/* =================== MODULE STORE =================== */
+/* Modules UI */
 function renderModules(){
   modulesGrid.innerHTML = MODULES.map(m=>{
     const active = modules.some(x=>x.id===m.id);
@@ -473,10 +467,6 @@ modulesGrid.addEventListener('click', async (e)=>{
 
 /* =================== tiny io =================== */
 function downloadBlob(content,mime,name){ const blob=new Blob([content],{type:mime}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click(); }
-
-/* =================== MENU UX =================== */
-const menu = document.getElementById('menu'); document.getElementById('menuBtn').onclick=()=>menu.classList.toggle('open');
-document.addEventListener('click',e=>{ if(!menu.contains(e.target) && e.target!==modulesBtn && !modulesModal.contains(e.target)) menu.classList.remove('open'); });
 </script>
 </body>
 </html>
