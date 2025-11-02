@@ -7,25 +7,30 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-/* ===== THEME ===== */
+/* ====== FONTS ====== */
 @font-face{
   font-family:"Techfont Italica";
   src:url("assets/Techfont-Italica.ttf") format("truetype"),
       url("Techfont-Italica.ttf") format("truetype");
   font-weight:800;font-style:normal;font-display:swap;
 }
+
+/* ====== THEME ====== */
 :root{
-  --bg:#07080b;--ink:#eaf0ff;--muted:#aab2c2;--line:#1b2235;
+  --bg:#07080b;--ink:#ecf2ff;--muted:#aab2c2;--line:#1b2235;
   --glass1:rgba(255,255,255,.06);--glass2:rgba(255,255,255,.02);
   --neon1:#7c86ff;--neon2:#3ddc97;--neon3:#ff7cba;--neon4:#ffa93d;
   --rad:18px;--shadow:0 18px 60px rgba(0,0,0,.55);
 }
 *{box-sizing:border-box}
 html,body{height:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto;overflow-y:overlay}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto;overflow-y:overlay
+}
 
-/* Ambient bloom */
-.canvas{position:fixed;inset:-20vmax;z-index:-1;filter:blur(80px) saturate(140%);opacity:.35;pointer-events:none;
+/* Ambient bloom (both modes) */
+.canvas{position:fixed;inset:-20vmax;z-index:-3;filter:blur(80px) saturate(140%);opacity:.35;pointer-events:none;
   background:
    conic-gradient(from 0deg at 30% 30%, var(--neon1), transparent 40%),
    conic-gradient(from 180deg at 70% 20%, var(--neon3), transparent 45%),
@@ -33,7 +38,24 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
   animation:drift 18s linear infinite alternate}
 @keyframes drift{0%{transform:translate3d(0,0,0) scale(1)}100%{transform:translate3d(4rem,-3rem,0) scale(1.1)}}
 
-/* Layout */
+/* Premium sacred-geometry overlays (subtle) */
+body.is-premium .sacred{
+  position:fixed; inset:0; pointer-events:none; z-index:-2; opacity:.28; mix-blend-mode:screen;
+  background:
+    radial-gradient(closest-side at 18% 22%, rgba(124,134,255,.45), transparent 60%),
+    radial-gradient(closest-side at 82% 18%, rgba(61,220,151,.35), transparent 62%),
+    radial-gradient(closest-side at 78% 78%, rgba(255,124,186,.35), transparent 58%),
+    radial-gradient(closest-side at 24% 76%, rgba(255,169,61,.30), transparent 60%);
+}
+body.is-premium .sacred::after{
+  content:""; position:absolute; inset:0; background:
+    repeating-conic-gradient(from 0deg, rgba(255,255,255,.06) 0 6deg, transparent 6deg 12deg);
+  mask:radial-gradient(ellipse at center, rgba(255,255,255,.6), transparent 68%);
+  animation:spinGeo 80s linear infinite;
+}
+@keyframes spinGeo{to{transform:rotate(360deg)}}
+
+/* ====== Layout ====== */
 .container{
   max-width:1320px;margin:0 auto;padding:18px 14px 130px;
   display:grid;gap:18px;grid-template-columns:420px 1fr;
@@ -67,10 +89,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
 
 .logo{position:absolute;left:50%;top:50%;width:300%;height:300%;
   transform:translate(-50%,-50%);object-fit:contain;display:none}
-.logo.spin{
-  display:block;animation:logo-spin 48s linear infinite;
-  filter:drop-shadow(0 0 14px rgba(124,134,255,.65)) drop-shadow(0 0 24px rgba(61,220,151,.45)) drop-shadow(0 0 28px rgba(255,124,186,.35))
-}
+.logo.spin{display:block;animation:logo-spin 48s linear infinite;
+  filter:drop-shadow(0 0 14px rgba(124,134,255,.65)) drop-shadow(0 0 24px rgba(61,220,151,.45)) drop-shadow(0 0 28px rgba(255,124,186,.35))}
 @keyframes logo-spin{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}
 
 .logo-fallback{position:absolute;inset:0;display:grid;place-items:center;
@@ -83,11 +103,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
   font-family:"Techfont Italica",Inter,system-ui;
   font-weight:800;
   font-size:clamp(22px,2.6vw,38px);
-  line-height:1.06;
-  letter-spacing:1.1px;
-  white-space:normal;
-  word-break:keep-all;
-  overflow-wrap:anywhere;
+  line-height:1.06; letter-spacing:1.1px;
+  white-space:normal; word-break:keep-all; overflow-wrap:anywhere;
 }
 .meta-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px}
 .pill{padding:6px 10px;border-radius:999px;background:#0d1222;border:1px solid #293357;font-size:12px}
@@ -104,11 +121,13 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
 .btn.primary{background:linear-gradient(135deg,var(--neon1),var(--neon3));border:none;box-shadow:0 10px 28px rgba(124,134,255,.35)}
 .btn.ok{background:linear-gradient(135deg,var(--neon2),#42f5b0);border:none;box-shadow:0 10px 28px rgba(61,220,151,.35)}
 .btn.ghost{background:#0d1222;border:1px solid #2a3553}
+
 .progress-wrap{margin-top:8px}
 .progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px}
 .bar{height:12px;border-radius:999px;background:#0d1222;border:1px solid #2a2f45;overflow:hidden}
 .bar>div{height:100%;background:linear-gradient(90deg,var(--neon2),var(--neon1),var(--neon3),var(--neon4));width:0%;transition:width .35s ease}
 
+/* CTA (demo-only) */
 .cta{margin-top:12px;display:none}
 .cta .cta-btn{display:block;width:100%;text-align:center;padding:14px 16px;border-radius:14px;border:1px solid #2a3553;background:linear-gradient(135deg,var(--neon1),var(--neon3));font-weight:800}
 .cta .cta-sub{margin-top:6px;font-size:12px;color:#cbd2e6;text-align:center}
@@ -133,7 +152,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
 .bubble{white-space:pre-wrap;line-height:1.55;padding:12px 14px;border-radius:14px;border:1px solid #28314e;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.015))}
 
 /* Footer Composer */
-.footer{position:fixed;left:0;right:0;bottom:0;padding:10px 14px;background:linear-gradient(180deg,transparent,rgba(5,6,9,.9) 50%, rgba(5,6,9,1) 80%);border-top:1px solid var(--line)}
+.footer{position:fixed;left:0;right:0;bottom:0;padding:10px 14px;background:linear-gradient(180deg,transparent,rgba(5,6,9,.9) 50%, rgba(5,6,9,1) 80%);border-top:1px solid var(--line);z-index:1200}
 .composer{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:10px}
 textarea{min-height:98px;resize:vertical;border-radius:12px;border:1px solid #263048;background:#0f1424;color:var(--ink);padding:10px}
 
@@ -151,8 +170,9 @@ textarea{min-height:98px;resize:vertical;border-radius:12px;border:1px solid #26
 .badge{border:1px solid #2a3553;border-radius:999px;padding:4px 8px;font-size:12px}
 </style>
 </head>
-<body>
+<body class="is-demo">
 <div class="canvas"></div>
+<div class="sacred"></div>
 <div id="error"></div>
 
 <div class="container" id="app">
@@ -199,7 +219,7 @@ textarea{min-height:98px;resize:vertical;border-radius:12px;border:1px solid #26
     <!-- DEMO CTA -->
     <div id="demoCta" class="cta">
       <button class="cta-btn" id="demoBuy">Unlock Full Engine — $29</button>
-      <div class="cta-sub">Keep your progress across devices. Premium modules included.</div>
+      <div class="cta-sub">Keep progress across devices. Premium modules included.</div>
     </div>
   </aside>
 
@@ -279,10 +299,9 @@ function showErr(msg){console.error(msg); if(errorEl){ errorEl.textContent=(msg?
   if(!logo) return;
   const primary=new URL('assets/ias-logo.png', location.href).href;
   const alt=new URL('ias-logo.png', location.href).href;
-  let tried=false;
-  const ok=()=>{logo.classList.add('spin');logo.style.display='block'; if(fallback) fallback.style.display='none';};
+  let tried=false; const ok=()=>{logo.classList.add('spin');logo.style.display='block'; if(fallback) fallback.style.display='none';};
   on(logo,'load',ok);
-  logo.onerror=()=>{ if(!tried){ tried=true; logo.src=alt; } else { showErr('Logo missing at /assets/ias-logo.png and /ias-logo.png'); } };
+  logo.onerror=()=>{ if(!tried){ tried=true; logo.src=alt; } };
   logo.src=primary;
 })();
 
@@ -302,7 +321,7 @@ const STYLE_PRIME={
 };
 function systemPrime(style="coach",stage="profile",mods=[]){
   return `You are THE FREEDOM ENGINE — mentor for tiny profitable offers. Mission: ship in ~72 hours.
-Explain first, guide second, ask ONE small thing. Keep it conversational, with dark witty asides.
+Explain first, guide second, ask ONE small thing. Conversational with dark witty asides.
 Tone: ${STYLE_PRIME[style]}. Stage: ${stage}. Advance the curriculum from ${stage}.
 Avoid interrogation lists. Prefer: suggest → confirm. Handle short replies like "idk" by proposing options.
 Return STRICT JSON ONLY:
@@ -318,9 +337,9 @@ function scrollBottom(){ if(!chatEl) return; chatEl.scrollTop=chatEl.scrollHeigh
 function render(){ chatEl.innerHTML=history.map(m=>bubble(m.role,m.content)).join(''); requestAnimationFrame(scrollBottom); }
 function stageIndex(n){return Math.max(0,STAGES.indexOf(n));}
 function setProgressUI(idx){ text(stageLabel,`${idx+1}/${STAGES.length}`); stageText.innerHTML=`Roadmap: <strong>${idx+1}/${STAGES.length}</strong>`; barFill.style.width=`${Math.round(((idx+1)/STAGES.length)*100)}%`; }
-function updateProgressUI(){ setProgressUI(stageIndex(currentStage)); modeTag.textContent=unlocked?'Premium':'Demo'; modeTag.className='pill '+(unlocked?'full':'demo'); show(demoCta,!unlocked); }
+function updateProgressUI(){ setProgressUI(stageIndex(currentStage)); }
 
-/* Chat height to meet composer */
+/* Chat height: bulletproof */
 function sizeChat(){
   const rect = chatEl.getBoundingClientRect();
   const footerH = footerEl.getBoundingClientRect().height || 120;
@@ -330,7 +349,35 @@ function sizeChat(){
   chatEl.style.height = target + "px";
 }
 ['resize','orientationchange','load'].forEach(ev=>window.addEventListener(ev,()=>setTimeout(sizeChat,50)));
-document.addEventListener('DOMContentLoaded',()=>setTimeout(sizeChat,50));
+new ResizeObserver(()=>setTimeout(sizeChat,10)).observe(footerEl);
+
+/* ===== self-healing UI state ===== */
+function bodyClassSync(){
+  document.body.classList.toggle('is-premium', !!unlocked);
+  document.body.classList.toggle('is-demo', !unlocked);
+}
+function enforceUIState(){
+  bodyClassSync();
+  // Menu items
+  show(unlockBtn,!unlocked);
+  show(buyBtn,!unlocked);
+  // Demo CTA
+  show(demoCta,!unlocked);
+  // Badge
+  modeTag.textContent=unlocked?'Premium':'Demo';
+  modeTag.className='pill '+(unlocked?'full':'demo');
+}
+function persistLocal(){
+  localStorage.setItem('fe_history',JSON.stringify(history));
+  localStorage.setItem('fe_memory',JSON.stringify(agentMemory));
+  localStorage.setItem('fe_modules',JSON.stringify(modules));
+  localStorage.setItem('fe_stage',currentStage);
+  localStorage.setItem('fe_unlocked',unlocked?'1':'');
+  if(licenseKey) localStorage.setItem('fe_license',licenseKey);
+  enforceUIState();
+}
+
+let saveTimer=null; function autoSaveSoon(){ if(saveTimer)clearTimeout(saveTimer); saveTimer=setTimeout(cloudSave,600); }
 
 /* ===== cloud save/load ===== */
 async function cloudSave(){
@@ -348,33 +395,22 @@ async function cloudLoad(){
     persistLocal(); return true;
   }catch{return false;}
 }
-let saveTimer=null; function autoSaveSoon(){if(saveTimer)clearTimeout(saveTimer); saveTimer=setTimeout(cloudSave,600);}
-function persistLocal(){localStorage.setItem('fe_history',JSON.stringify(history));localStorage.setItem('fe_memory',JSON.stringify(agentMemory));localStorage.setItem('fe_modules',JSON.stringify(modules));localStorage.setItem('fe_stage',currentStage);}
 
 /* ===== API & parsing (with hardening) ===== */
 async function callCloud(messages, strict=false){
-  const body={messages};
-  if(strict) body.strict_json=true;
+  const body={messages}; if(strict) body.strict_json=true;
   const r=await fetch(`${CLOUD_ENDPOINT}/chat`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
-  if(!r.ok) throw new Error(`Cloud ${r.status}`);
-  const j=await r.json(); return j.output||"";
+  if(!r.ok) throw new Error(`Cloud ${r.status}`); const j=await r.json(); return j.output||"";
 }
 function extractJSONBlock(s){
-  let start=s.indexOf('{'); while(start!==-1){
-    const sub=s.slice(start);
-    try{ return JSON.parse(sub); }catch{ start=s.indexOf('{', start+1); }
-  }
+  let start=s.indexOf('{'); while(start!==-1){ const sub=s.slice(start); try{ return JSON.parse(sub); }catch{ start=s.indexOf('{', start+1); } }
   return null;
 }
 function cleanText(t=""){
-  return t.replace(/undefined[\w-]*/gi,'')
-          .replace(/\{[\s\S]*?\}/g,'')
-          .replace(/\s{3,}/g,'  ').trim();
+  return t.replace(/undefined[\w-]*/gi,'').replace(/\{[\s\S]*?\}/g,'').replace(/\s{3,}/g,'  ').trim();
 }
 function parseAgent(out){
-  out=(out||"").trim();
-  let parsed=null; try{ parsed=JSON.parse(out); }catch{}
-  if(!parsed) parsed=extractJSONBlock(out);
+  out=(out||"").trim(); let parsed=null; try{ parsed=JSON.parse(out); }catch{} if(!parsed) parsed=extractJSONBlock(out);
   if(parsed && typeof parsed.say==="string"){
     parsed.say = cleanText(parsed.say);
     return { say: parsed.say, stage: parsed.stage||currentStage, memory_delta: parsed.memory_delta||{}, confidence: parsed.confidence??.7 };
@@ -384,7 +420,7 @@ function parseAgent(out){
 }
 
 /* ===== chat engine ===== */
-function push(role,content){history.push({role,content}); persistLocal(); render(); updateProgressUI(); autoSaveSoon();}
+function push(role,content){history.push({role,content}); persistLocal(); render(); updateProgressUI(); autoSaveSoon(); requestAnimationFrame(sizeChat);}
 function activeStyle(){ const lastUser=[...history].reverse().find(m=>m.role==='user')?.content||""; const s=detectStyleFrom(lastUser)||agentMemory.style||"coach"; agentMemory.style=s; localStorage.setItem('fe_memory',JSON.stringify(agentMemory)); return s; }
 function advanceStageMaybe(next){ if(!STAGES.includes(next))return; const cur=stageIndex(currentStage), nx=stageIndex(next); if(nx===cur+1) currentStage=next; }
 
@@ -402,10 +438,6 @@ async function agentRespond(){
              ...history.slice(-10).map(m=>({role:m.role==='assistant'?'assistant':'user',content:m.content}))];
   let raw=await callCloud(ctx);
   let p=parseAgent(raw);
-  if(!p.say){ // strict retry once
-    raw=await callCloud([{role:"system",content:systemPrime(style,currentStage,modules.map(m=>m.id))+" Output STRICT JSON only."},...history.slice(-6)], true);
-    p=parseAgent(raw);
-  }
   if(p.memory_delta&&typeof p.memory_delta==='object'){
     for(const k of ["skills","audience","offer","price","style","blocked_by"]){ if(p.memory_delta[k]) agentMemory[k]=p.memory_delta[k]; }
   }
@@ -417,8 +449,10 @@ async function agentRespond(){
 /* ===== boot ===== */
 function greetIfEmpty(){ if(history.length===0){ push('assistant', PROMPTS.opener); } }
 async function boot(){
+  // enforce UI on boot regardless of stored flags
+  enforceUIState();
   inputEl.disabled=false; sendBtn.disabled=false;
-  updateProgressUI(); refreshCTA(); sizeChat();
+  updateProgressUI(); sizeChat();
   if(unlocked&&licenseKey){ const loaded=await cloudLoad(); if(loaded){ render(); } }
   render(); greetIfEmpty();
   text(aiStatus,"Ready.");
@@ -432,7 +466,7 @@ on(sendBtn,'click',async()=>{
   inputEl.value=""; push('user',t);
   text(aiStatus,"Thinking…");
   try{ await agentRespond(); }catch(e){ showErr(e); push('assistant',"Cloud hiccup. Give me your next answer; I’ll keep us moving."); }
-  text(aiStatus,"Ready."); setTimeout(()=>{sizeChat(); scrollBottom();},60);
+  text(aiStatus,"Ready."); setTimeout(()=>{sizeChat();},60);
 });
 on(inputEl,'keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendBtn.click(); } });
 
@@ -472,7 +506,8 @@ on($('loadSnap'),'change',async e=>{
     const snap=JSON.parse(await f.text());
     agentMemory=snap.memory||agentMemory; currentStage=snap.stage||"profile";
     history=Array.isArray(snap.history)?snap.history:[]; modules=Array.isArray(snap.modules)?snap.modules:[];
-    unlocked=!!snap.unlocked; localStorage.setItem('fe_unlocked',unlocked?'1':''); persistLocal(); render(); updateProgressUI();
+    unlocked=!!snap.unlocked; licenseKey=localStorage.getItem('fe_license')||licenseKey;
+    persistLocal(); render(); updateProgressUI(); enforceUIState();
     push('assistant',"Snapshot loaded. Back on track."); autoSaveSoon(); sizeChat();
   }catch(err){ showErr(err); alert("Bad snapshot file."); }
 });
@@ -480,13 +515,15 @@ on($('reset'),'click',()=>{
   if(confirm("Reset all progress?")){
     history=[]; agentMemory={"skills":"","audience":"","offer":"","price":"","style":"coach","blocked_by":""}; currentStage="profile";
     localStorage.removeItem('fe_history'); localStorage.removeItem('fe_stage'); localStorage.removeItem('fe_memory');
-    setProgressUI(0); render(); push('assistant', PROMPTS.opener); autoSaveSoon(); sizeChat();
+    setProgressUI(0); render(); push('assistant', PROMPTS.opener); autoSaveSoon(); sizeChat(); enforceUIState();
   }
 });
 on($('switchMode'),'click',()=>{
   if(confirm("Sign out on this device? Your premium progress stays attached to the license.")){
-    try{ localStorage.clear(); sessionStorage.clear(); caches?.keys?.then(keys=>keys.forEach(k=>caches.delete(k))).catch(()=>{}); }
-    finally{ location.replace(location.pathname); }
+    try{ const keep=['fe_license']; const stash=keep.reduce((m,k)=>(m[k]=localStorage.getItem(k)||"",m),{});
+      localStorage.clear(); Object.entries(stash).forEach(([k,v])=>v&&localStorage.setItem(k,v));
+      unlocked=false; document.body.classList.remove('is-premium'); document.body.classList.add('is-demo');
+    }finally{ persistLocal(); location.replace(location.pathname); }
   }
 });
 on(buyBtn,'click',()=>window.open(GUMROAD_URL,'_blank'));
@@ -496,11 +533,10 @@ on(unlockBtn,'click',async()=>{
   try{
     const r=await fetch(`${CLOUD_ENDPOINT}/verify`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({license_key:key.trim()})}).then(r=>r.json());
     if(r.ok){
-      localStorage.setItem('fe_unlocked','1'); localStorage.setItem('fe_license',key.trim());
-      unlocked=true; licenseKey=key.trim();
+      unlocked=true; licenseKey=key.trim(); persistLocal();
       const loaded=await cloudLoad();
-      updateProgressUI();
-      if(loaded){ render(); push('assistant',"Premium engaged. I pulled your progress from the vault. Back to work."); }
+      enforceUIState();
+      if(loaded){ render(); push('assistant',"Premium engaged. Pulled your progress from the vault. Back to work."); }
       else { push('assistant',"Premium engaged. Clean slate stored in the vault. Let’s move."); await cloudSave(); }
       sizeChat();
     } else alert("Key didn’t verify. Check your Gumroad receipt.");
@@ -512,6 +548,7 @@ const MODULES=[{id:"ads",name:"Ad Creative Booster",product_id:"MOD_ADS_ID",pric
   {id:"email",name:"Email Launch Booster",product_id:"MOD_EMAIL_ID",price:"$9",desc:"Auto-draft 3-day launch emails."},
   {id:"planner",name:"Content Planner",product_id:"MOD_PLAN_ID",price:"$12",desc:"7-day content seed plan."},
   {id:"proof",name:"Proof Builder",product_id:"MOD_PROOF_ID",price:"$7",desc:"Extract proof from past wins."}];
+const modulesBtn=$('modulesBtn'), modulesModal=$('modulesModal'), modulesGrid=$('modulesGrid'), closeModules=$('closeModules');
 on(modulesBtn,'click',()=>{ renderModules(); modulesModal.classList.add('open'); });
 on(closeModules,'click',()=>modulesModal.classList.remove('open'));
 on(modulesGrid,'click', async (e)=>{
@@ -548,15 +585,22 @@ function renderModules(){
 
 /* ===== utilities ===== */
 function downloadBlob(content,type,name){const blob=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();}
-function refreshCTA(){ show(demoCta,!unlocked); }
 
 /* ===== greeting / wake / menu ===== */
 const $wake=$('wake'); on($wake,'click',()=>{ push('assistant',"Engine awake. No incense required."); });
-on(menuBtn,'click',()=>{ menuRoot.classList.toggle('open'); });
+const menuRoot=$('menu'), menuBtn=$('menuBtn'); on(menuBtn,'click',()=>{ menuRoot.classList.toggle('open'); });
 document.addEventListener('click',e=>{ if(!menuRoot.contains(e.target)) menuRoot.classList.remove('open'); });
 
+/* ===== init ===== */
+function refreshEverything(){ updateProgressUI(); enforceUIState(); render(); sizeChat(); }
+function enforceOnIntervals(){
+  // safety net: re-enforce visibility every few seconds (prevents any future regressions)
+  setInterval(enforceUIState, 3000);
+}
+document.addEventListener('DOMContentLoaded',()=>{ refreshEverything(); enforceOnIntervals(); });
+
 /* ===== boot now ===== */
-refreshCTA();
+(async function(){ await boot(); })();
 </script>
 </body>
 </html>
