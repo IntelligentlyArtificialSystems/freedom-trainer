@@ -6,8 +6,9 @@
 <title>The Freedom Engine — Personal AI Trainer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
 <style>
-/* ========= FONTS ========= */
+/* ====== FONTS ====== */
 @font-face{
   font-family:"Techfont Italica";
   src:url("assets/Techfont-Italica.ttf") format("truetype"),
@@ -15,7 +16,7 @@
   font-weight:800; font-style:normal; font-display:swap;
 }
 
-/* ========= THEME ========= */
+/* ====== THEME ====== */
 :root{
   --bg:#07080b; --ink:#ecf2ff; --muted:#aab2c2; --line:#1b2235;
   --glass1:rgba(255,255,255,.06); --glass2:rgba(255,255,255,.02);
@@ -26,12 +27,18 @@
 html,body{height:100%}
 body{
   margin:0; background:var(--bg); color:var(--ink);
-  font-family:"Techfont Italica", Inter, system-ui, -apple-system;
-  letter-spacing:.4px;
-  overflow-y:overlay;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto;
+  letter-spacing:.2px; overflow-y:overlay;
 }
 
-/* readable zones (keep chat text + inputs in Inter for comfort) */
+/* When the font is confirmed loaded, flip these targets */
+.has-techfont .headline,
+.has-techfont .btn,
+.has-techfont .pill,
+.has-techfont .title,
+.has-techfont .badge { font-family:"Techfont Italica", Inter, system-ui !important; letter-spacing:.8px }
+
+/* readable zones keep Inter for comfort */
 .readable{font-family: Inter, system-ui, -apple-system !important; letter-spacing:0 !important}
 
 /* Ambient bloom */
@@ -90,20 +97,18 @@ body.is-premium .sacred::after{
   background:rgba(0,0,0,.25);border:1px solid #2a2f45;overflow:hidden
 }
 @media(max-width:720px){.logo-wrap{width:120px;height:120px;border-radius:16px}}
-
 .logo{position:absolute;left:50%;top:50%;width:300%;height:300%;
   transform:translate(-50%,-50%);object-fit:contain;display:none}
 .logo.spin{display:block;animation:logo-spin 48s linear infinite;
   filter:drop-shadow(0 0 14px rgba(124,134,255,.65)) drop-shadow(0 0 24px rgba(61,220,151,.45)) drop-shadow(0 0 28px rgba(255,124,186,.35))}
 @keyframes logo-spin{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}
-
 .logo-fallback{position:absolute;inset:0;display:grid;place-items:center;
   font-size:40px;font-weight:800;letter-spacing:1.2px;
   background:linear-gradient(135deg,var(--neon2),var(--neon1),var(--neon3));-webkit-background-clip:text;background-clip:text;color:transparent}
 @media(max-width:720px){.logo-fallback{font-size:26px}}
 
 .brand-title{min-width:0}
-.title{
+.title.headline{
   font-weight:800;
   font-size:clamp(22px,2.6vw,40px);
   line-height:1.06; letter-spacing:1.1px;
@@ -125,19 +130,23 @@ body.is-premium .sacred::after{
 .btn.ok{background:linear-gradient(135deg,var(--neon2),#42f5b0);border:none;box-shadow:0 10px 28px rgba(61,220,151,.35)}
 .btn.ghost{background:#0d1222;border:1px solid #2a3553}
 
+/* Roadmap */
 .progress-wrap{margin-top:8px}
 .progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px}
 .bar{height:12px;border-radius:999px;background:#0d1222;border:1px solid #2a2f45;overflow:hidden}
 .bar>div{height:100%;background:linear-gradient(90deg,var(--neon2),var(--neon1),var(--neon3),var(--neon4));width:0%;transition:width .35s ease}
 
-/* Demo CTA */
+/* DEMO CTA */
 .cta{margin-top:12px;display:none}
 .cta .cta-btn{display:block;width:100%;text-align:center;padding:14px 16px;border-radius:14px;border:1px solid #2a3553;background:linear-gradient(135deg,var(--neon1),var(--neon3));font-weight:800}
 .cta .cta-sub{margin-top:6px;font-size:12px;color:#cbd2e6;text-align:center}
 
-/* Kebab menu */
-.menu{position:relative;z-index:1002}
-.menu .panel{position:absolute;left:0;top:100%;transform:translateY(8px);width:260px;background:#0b1224;border:1px solid #2a3553;border-radius:12px;display:none;padding:8px;z-index:1003;box-shadow:0 18px 50px rgba(0,0,0,.5)}
+/* Kebab menu (opens UP) */
+.menu{position:relative;z-index:3005}
+.menu .panel{
+  position:absolute; right:0; bottom:100%; transform:translateY(-8px);
+  width:260px;background:#0b1224;border:1px solid #2a3553;border-radius:12px;display:none;padding:8px;z-index:3006;box-shadow:0 18px 50px rgba(0,0,0,.6)
+}
 .menu.open .panel{display:block}
 .menu .panel .btn{display:block;width:100%;text-align:left;margin:4px 0}
 
@@ -155,15 +164,15 @@ body.is-premium .sacred::after{
 .bubble{white-space:pre-wrap;line-height:1.58;padding:12px 14px;border-radius:14px;border:1px solid #28314e;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.015))}
 
 /* Footer Composer */
-.footer{position:fixed;left:0;right:0;bottom:0;padding:10px 14px;background:linear-gradient(180deg,transparent,rgba(5,6,9,.9) 50%, rgba(5,6,9,1) 80%);border-top:1px solid var(--line);z-index:1200}
+.footer{position:fixed;left:0;right:0;bottom:0;padding:10px 14px;background:linear-gradient(180deg,transparent,rgba(5,6,9,.9) 50%, rgba(5,6,9,1) 80%);border-top:1px solid var(--line);z-index:3000}
 .composer{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:10px}
 textarea.readable{min-height:98px;resize:vertical;border-radius:12px;border:1px solid #263048;background:#0f1424;color:var(--ink);padding:10px}
 
 /* Error banner */
-#error{position:fixed;top:0;left:0;right:0;background:#3b0f14;border-bottom:1px solid #74222c;color:#ffd7dc;padding:10px 14px;font-size:13px;z-index:2000;display:none}
+#error{position:fixed;top:0;left:0;right:0;background:#3b0f14;border-bottom:1px solid #74222c;color:#ffd7dc;padding:10px 14px;font-size:13px;z-index:4000;display:none}
 
 /* Modules Modal */
-.modal{position:fixed;inset:0;background:rgba(3,5,10,.6);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:2005}
+.modal{position:fixed;inset:0;background:rgba(3,5,10,.6);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:3500}
 .modal.open{display:flex}
 .modal .sheet{width:min(880px,90vw);max-height:80vh;overflow:auto;border:1px solid #2a3553;border-radius:16px;background:#0b1224;padding:16px;box-shadow:0 22px 60px rgba(0,0,0,.6)}
 .sheet h3{margin:0 0 10px}
@@ -183,10 +192,10 @@ textarea.readable{min-height:98px;resize:vertical;border-radius:12px;border:1px 
     <div class="brand">
       <div class="logo-wrap">
         <img id="iasLogo" class="logo" alt="IAS">
-        <div class="logo-fallback">IAS</div>
+        <div class="logo-fallback headline">IAS</div>
       </div>
       <div class="brand-title">
-        <div class="title">The Freedom Engine</div>
+        <div class="title headline">The Freedom Engine</div>
         <div class="meta-line">
           <span class="sub readable">Personal AI Trainer</span>
           <span id="modeTag" class="pill demo readable">Demo</span>
@@ -201,19 +210,19 @@ textarea.readable{min-height:98px;resize:vertical;border-radius:12px;border:1px 
         <div class="bar"><div id="barFill"></div></div>
       </div>
       <div class="row" style="margin-top:10px">
-        <button id="export" class="btn ghost small">Export</button>
-        <button id="modulesBtn" class="btn ghost small">Modules</button>
+        <button id="export" class="btn ghost small headline">Export</button>
+        <button id="modulesBtn" class="btn ghost small headline">Modules</button>
         <div class="menu" id="menu">
-          <button id="menuBtn" class="btn ghost small">⋯</button>
+          <button id="menuBtn" class="btn ghost small headline">⋯</button>
           <div class="panel" id="menuPanel">
-            <button id="saveSnap" class="btn ghost small">Save Snapshot</button>
-            <button id="loadBtn" class="btn ghost small">Load Snapshot</button>
+            <button id="saveSnap" class="btn ghost small headline">Save Snapshot</button>
+            <button id="loadBtn" class="btn ghost small headline">Load Snapshot</button>
             <input id="loadSnap" type="file" accept=".json" style="display:none">
-            <button id="wake" class="btn ghost small">Wake the Engine</button>
-            <button id="reset" class="btn ghost small">Reset Progress</button>
-            <button id="switchMode" class="btn ghost small">Switch to Demo / Sign Out</button>
-            <button id="unlock" class="btn primary small">I have a license key</button>
-            <button id="buy" class="btn primary small">Buy</button>
+            <button id="wake" class="btn ghost small headline">Wake the Engine</button>
+            <button id="reset" class="btn ghost small headline">Reset Progress</button>
+            <button id="switchMode" class="btn ghost small headline">Switch to Demo / Sign Out</button>
+            <button id="unlock" class="btn primary small headline">I have a license key</button>
+            <button id="buy" class="btn primary small headline">Buy</button>
           </div>
         </div>
       </div>
@@ -221,7 +230,7 @@ textarea.readable{min-height:98px;resize:vertical;border-radius:12px;border:1px 
 
     <!-- DEMO CTA -->
     <div id="demoCta" class="cta">
-      <button class="cta-btn" id="demoBuy">Unlock Full Engine — $29</button>
+      <button class="cta-btn headline" id="demoBuy">Unlock Full Engine — $29</button>
       <div class="cta-sub readable">Keep your progress across devices. Premium modules included.</div>
     </div>
   </aside>
@@ -237,7 +246,7 @@ textarea.readable{min-height:98px;resize:vertical;border-radius:12px;border:1px 
 <div class="footer glass">
   <div class="composer">
     <textarea id="input" class="readable" placeholder="Answer here. Press Enter to send." disabled></textarea>
-    <button id="send" class="btn primary" disabled>Send</button>
+    <button id="send" class="btn primary headline" disabled>Send</button>
   </div>
 </div>
 
@@ -245,22 +254,35 @@ textarea.readable{min-height:98px;resize:vertical;border-radius:12px;border:1px 
 <div class="modal" id="modulesModal" aria-hidden="true">
   <div class="sheet">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <h3>Modules</h3>
-      <button id="closeModules" class="btn ghost small">Close</button>
+      <h3 class="headline">Modules</h3>
+      <button id="closeModules" class="btn ghost small headline">Close</button>
     </div>
     <div class="modules-grid" id="modulesGrid"></div>
   </div>
 </div>
 
 <script type="module">
-/* ==== tiny helpers ==== */
+/* ====== helpers ====== */
 const $=id=>document.getElementById(id);
 const on=(el,ev,fn)=>el&&el.addEventListener(ev,fn);
 const show=(el,v=true)=>{ if(el) el.style.display=v?'':'none'; };
 const text=(el,t)=>{ if(el) el.textContent=t; };
 const esc=s=>(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
 
-/* ==== endpoints & curriculum ==== */
+/* ====== font loader: only flip when truly loaded ====== */
+(async()=>{
+  try{
+    if(document.fonts && 'load' in document.fonts){
+      await document.fonts.load('16px "Techfont Italica"');
+      document.body.classList.add('has-techfont');
+    }else{
+      // best-effort: still flip to keep visual consistency
+      document.body.classList.add('has-techfont');
+    }
+  }catch{}
+})();
+
+/* ====== endpoints & prompts ====== */
 const CLOUD_ENDPOINT="https://freedom-engine-worker.intelligentlyartificialsystems.workers.dev";
 const GUMROAD_URL="https://intellartsystems.gumroad.com/l/the-freedom-engine";
 const STAGES=["profile","offers","selection","plan","optimize"];
@@ -278,7 +300,7 @@ If you’re blank, say “help me choose” and I’ll pitch options.`,
   optimize:`Objection patch, hooks, and tiny upsell. Then we ship.`
 };
 
-/* ==== refs ==== */
+/* ====== refs ====== */
 const chatEl=$('chat'), inputEl=$('input'), sendBtn=$('send'), aiStatus=$('aiStatus');
 const stageLabel=$('stageLabel'), stageText=$('stageText'), barFill=$('barFill'), modeTag=$('modeTag');
 const demoCta=$('demoCta'), demoBuy=$('demoBuy'), buyBtn=$('buy'), unlockBtn=$('unlock');
@@ -286,7 +308,7 @@ const menuRoot=$('menu'), menuBtn=$('menuBtn'), menuPanel=$('menuPanel');
 const modulesBtn=$('modulesBtn'), modulesModal=$('modulesModal'), modulesGrid=$('modulesGrid'), closeModules=$('closeModules');
 const errorEl=$('error'), footerEl=document.querySelector('.footer');
 
-/* ==== state ==== */
+/* ====== state ====== */
 let history=JSON.parse(localStorage.getItem('fe_history')||'[]');
 let unlocked=localStorage.getItem('fe_unlocked')==='1';
 let licenseKey=localStorage.getItem('fe_license')||"";
@@ -294,9 +316,9 @@ let currentStage=localStorage.getItem('fe_stage')||"profile";
 let agentMemory=JSON.parse(localStorage.getItem('fe_memory')||'{"skills":"","audience":"","offer":"","price":"","style":"coach","blocked_by":""}');
 let modules=JSON.parse(localStorage.getItem('fe_modules')||'[]');
 
-function showErr(msg){console.error(msg); if(errorEl){ errorEl.textContent=(msg?.message||String(msg)); errorEl.style.display='block'; setTimeout(()=>errorEl.style.display='none',3500);}}
+function showErr(msg){ console.error(msg); if(errorEl){ errorEl.textContent=(msg?.message||String(msg)); errorEl.style.display='block'; setTimeout(()=>errorEl.style.display='none',3500);} }
 
-/* ==== logo load (cover-only rotation) ==== */
+/* ====== logo ====== */
 (function loadLogo(){
   const logo=$('iasLogo'); const fallback=document.querySelector('.logo-fallback');
   if(!logo) return;
@@ -307,7 +329,7 @@ function showErr(msg){console.error(msg); if(errorEl){ errorEl.textContent=(msg?
   logo.src=primary;
 })();
 
-/* ==== tone ==== */
+/* ====== tone ====== */
 function detectStyleFrom(t=""){t=t.toLowerCase();
   if(/stuck|overwhelmed|help|lost/.test(t))return"coach";
   if(/how|steps|plan|framework/.test(t))return"engineer";
@@ -331,7 +353,7 @@ Return STRICT JSON ONLY:
 "say" <= 140 words.`;
 }
 
-/* ==== rendering ==== */
+/* ====== rendering ====== */
 const bubble=(role,content)=>`<div class="msg ${role==='user'?'me':'ai'}">
   <div class="avatar ${role==='user'?'me':'ai'}">${role==='user'?'💬':'⚙️'}</div>
   <div class="bubble readable">${esc(content)}</div></div>`;
@@ -340,7 +362,7 @@ function setProgressUI(idx){ text(stageLabel,`${idx+1}/${STAGES.length}`); stage
 function stageIndex(n){return Math.max(0,STAGES.indexOf(n));}
 function updateProgressUI(){ setProgressUI(stageIndex(currentStage)); }
 
-/* Chat height: bulletproof */
+/* Chat height fits to footer (no clipping) */
 function sizeChat(){
   const rect = chatEl.getBoundingClientRect();
   const footerH = footerEl.getBoundingClientRect().height || 120;
@@ -352,18 +374,19 @@ function sizeChat(){
 ['resize','orientationchange','load'].forEach(ev=>window.addEventListener(ev,()=>setTimeout(sizeChat,50)));
 new ResizeObserver(()=>setTimeout(sizeChat,10)).observe(footerEl);
 
-/* ==== UI state funnel ==== */
+/* ====== UI state ====== */
 function bodyClassSync(){ document.body.classList.toggle('is-premium', !!unlocked); document.body.classList.toggle('is-demo', !unlocked); }
 function enforceUIState(){
   bodyClassSync();
-  show(unlockBtn,!unlocked);
-  show(buyBtn,!unlocked);
-  show(demoCta,!unlocked);
+  // demo CTA is visible only in demo
+  show(demoCta, !unlocked);
+  show(unlockBtn, !unlocked);
+  show(buyBtn, !unlocked);
   modeTag.textContent=unlocked?'Premium':'Demo';
   modeTag.className='pill '+(unlocked?'full':'demo')+' readable';
 }
 
-/* ==== persistence ==== */
+/* ====== persistence ====== */
 function persistLocal(){
   localStorage.setItem('fe_history',JSON.stringify(history));
   localStorage.setItem('fe_memory',JSON.stringify(agentMemory));
@@ -374,7 +397,7 @@ function persistLocal(){
   enforceUIState();
 }
 
-/* ==== cloud save/load with backoff ==== */
+/* ====== cloud save/load with backoff ====== */
 let saveTimer=null; function autoSaveSoon(){ if(saveTimer)clearTimeout(saveTimer); saveTimer=setTimeout(()=>cloudSaveWithBackoff(),600); }
 
 async function cloudSave(){
@@ -401,7 +424,7 @@ async function cloudLoad(){
   }catch{return false;}
 }
 
-/* ==== API + parsing ==== */
+/* ====== API + parsing ====== */
 async function callCloud(messages, strict=false){
   const body={messages}; if(strict) body.strict_json=true;
   const r=await fetch(`${CLOUD_ENDPOINT}/chat`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
@@ -424,8 +447,9 @@ function parseAgent(out){
   return { say: cleaned || "Pick a lane (design / writing / coaching / dev / other), or say “help me choose”.", stage: currentStage, memory_delta:{}, confidence:.6 };
 }
 
-/* ==== chat engine ==== */
-function push(role,content){history.push({role,content}); persistLocal(); render(); updateProgressUI(); autoSaveSoon(); requestAnimationFrame(sizeChat);}
+/* ====== chat engine ====== */
+const chat=$('chat');
+const push=(role,content)=>{history.push({role,content}); persistLocal(); render(); updateProgressUI(); autoSaveSoon(); requestAnimationFrame(sizeChat);};
 function activeStyle(){ const lastUser=[...history].reverse().find(m=>m.role==='user')?.content||""; const s=detectStyleFrom(lastUser)||agentMemory.style||"coach"; agentMemory.style=s; localStorage.setItem('fe_memory',JSON.stringify(agentMemory)); return s; }
 function advanceStageMaybe(next){ if(!STAGES.includes(next))return; const cur=stageIndex(currentStage), nx=stageIndex(next); if(nx===cur+1) currentStage=next; }
 
@@ -451,33 +475,32 @@ async function agentRespond(){
   push('assistant', p.say);
 }
 
-/* ==== boot ==== */
+/* ====== boot ====== */
 function greetIfEmpty(){ if(history.length===0){ push('assistant', PROMPTS.opener); } }
 async function boot(){
   enforceUIState(); updateProgressUI();
-  inputEl.disabled=false; sendBtn.disabled=false;
-  // premium → load first; else greet
+  $('input').disabled=false; $('send').disabled=false;
   if(unlocked && licenseKey){
     const ok=await cloudLoad();
     if(!ok){ showErr("Cloud load failed. Using local progress (still saving in background)."); }
   }
   render(); greetIfEmpty();
-  text(aiStatus,"Ready."); sizeChat();
+  $('aiStatus').textContent="Ready."; sizeChat();
 }
 document.addEventListener('DOMContentLoaded',boot);
 
-/* ==== composer ==== */
-on(sendBtn,'click',async()=>{
-  const raw=inputEl.value; const t=normalizeUser(raw);
+/* ====== composer ====== */
+on($('send'),'click',async()=>{
+  const raw=$('input').value; const t=normalizeUser(raw);
   if(!t) return;
-  inputEl.value=""; push('user',t);
-  text(aiStatus,"Thinking…");
+  $('input').value=""; push('user',t);
+  $('aiStatus').textContent="Thinking…";
   try{ await agentRespond(); }catch(e){ showErr(e); push('assistant',"Cloud hiccup. Give me your next answer; I’ll keep us moving."); }
-  text(aiStatus,"Ready."); setTimeout(sizeChat,60);
+  $('aiStatus').textContent="Ready."; setTimeout(sizeChat,60);
 });
-on(inputEl,'keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendBtn.click(); } });
+on($('input'),'keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); $('send').click(); } });
 
-/* ==== export (HTML brief) ==== */
+/* ====== export (HTML brief) ====== */
 on($('export'),'click', async ()=>{
   try{
     const briefTask=`User memory: ${JSON.stringify(agentMemory)}
@@ -501,7 +524,7 @@ pre{white-space:pre-wrap;background:#0d1117;border:1px solid #232c40;border-radi
   }catch(e){ showErr(e); alert("Couldn’t generate export—cloud hiccup."); }
 });
 
-/* ==== menu/auth ==== */
+/* ====== menu/auth ====== */
 on($('saveSnap'),'click',()=>{
   const snap={when:new Date().toISOString(),memory:agentMemory,stage:currentStage,history,modules,unlocked};
   downloadBlob(JSON.stringify(snap,null,2),'application/json',`freedom-snapshot-${Date.now()}.json`);
@@ -533,16 +556,15 @@ on($('switchMode'),'click',()=>{
     }finally{ persistLocal(); location.replace(location.pathname); }
   }
 });
-on(buyBtn,'click',()=>window.open(GUMROAD_URL,'_blank'));
-on(demoBuy,'click',()=>window.open(GUMROAD_URL,'_blank'));
-on(unlockBtn,'click',async()=>{
+on($('buy'),'click',()=>window.open(GUMROAD_URL,'_blank'));
+on($('demoBuy'),'click',()=>window.open(GUMROAD_URL,'_blank'));
+on($('unlock'),'click',async()=>{
   const key=prompt("Paste your license key:"); if(!key) return;
   try{
     const r=await fetch(`${CLOUD_ENDPOINT}/verify`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({license_key:key.trim()})}).then(r=>r.json());
     if(r.ok){
       unlocked=true; licenseKey=key.trim(); persistLocal();
-      // immediately save then load to ensure server owns the truth
-      await cloudSaveWithBackoff();
+      await cloudSaveWithBackoff(); // seed server
       const loaded=await cloudLoad();
       enforceUIState();
       if(loaded){ render(); push('assistant',"Premium engaged. Pulled your progress from the vault. Back to work."); }
@@ -552,14 +574,14 @@ on(unlockBtn,'click',async()=>{
   }catch(e){ showErr(e); alert("Verification failed—network/endpoint."); }
 });
 
-/* ==== modules (unchanged) ==== */
+/* ====== modules ====== */
 const MODULES=[{id:"ads",name:"Ad Creative Booster",product_id:"MOD_ADS_ID",price:"$12",desc:"Generate ad images + angles."},
   {id:"email",name:"Email Launch Booster",product_id:"MOD_EMAIL_ID",price:"$9",desc:"Auto-draft 3-day launch emails."},
   {id:"planner",name:"Content Planner",product_id:"MOD_PLAN_ID",price:"$12",desc:"7-day content seed plan."},
   {id:"proof",name:"Proof Builder",product_id:"MOD_PROOF_ID",price:"$7",desc:"Extract proof from past wins."}];
-on(modulesBtn,'click',()=>{ renderModules(); modulesModal.classList.add('open'); });
-on(closeModules,'click',()=>modulesModal.classList.remove('open'));
-on(modulesGrid,'click', async (e)=>{
+on($('modulesBtn'),'click',()=>{ renderModules(); $('modulesModal').classList.add('open'); });
+on($('closeModules'),'click',()=>$('modulesModal').classList.remove('open'));
+on($('modulesGrid'),'click', async (e)=>{
   const btn=e.target.closest('button'); if(!btn) return;
   const id=btn.dataset.id; const act=btn.dataset.act; const mod=MODULES.find(x=>x.id===id); if(!mod) return;
   if(act==='preview'){ push('assistant', `Preview: **${mod.name}** — ${mod.desc}\nSay “apply ${mod.id}” to weave it into the next steps.`); }
@@ -574,32 +596,32 @@ on(modulesGrid,'click', async (e)=>{
   }
 });
 function renderModules(){
-  modulesGrid.innerHTML = MODULES.map(m=>{
+  $('modulesGrid').innerHTML = MODULES.map(m=>{
     const active = modules.some(x=>x.id===m.id);
     return `<div class="module">
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <h4>${m.name}</h4>
-        <span class="badge" style="border-color:${active?'#1f4b3c':'#4a2a47'};background:${active?'rgba(61,220,151,.12)':'rgba(255,124,186,.12)'}">${active?'Active':'Locked'}</span>
+        <h4 class="headline">${m.name}</h4>
+        <span class="badge ${active?'':'headline'}" style="border-color:${active?'#1f4b3c':'#4a2a47'};background:${active?'rgba(61,220,151,.12)':'rgba(255,124,186,.12)'}">${active?'Active':'Locked'}</span>
       </div>
       <div style="color:#cfd6ff;font-size:13px;margin-bottom:8px" class="readable">${m.desc}</div>
       <div class="row">
-        ${active?`<button class="btn ok small" data-act="deactivate" data-id="${m.id}">Deactivate</button>`:
-          `<button class="btn primary small" data-act="unlock" data-id="${m.id}">Unlock ${m.price}</button>`}
-        <button class="btn ghost small" data-act="preview" data-id="${m.id}">Preview</button>
+        ${active?`<button class="btn ok small headline" data-act="deactivate" data-id="${m.id}">Deactivate</button>`:
+          `<button class="btn primary small headline" data-act="unlock" data-id="${m.id}">Unlock ${m.price}</button>`}
+        <button class="btn ghost small headline" data-act="preview" data-id="${m.id}">Preview</button>
       </div>
     </div>`;
   }).join('');
 }
 
-/* ==== utilities ==== */
+/* ====== utilities ====== */
 function downloadBlob(content,type,name){const blob=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();}
 
-/* ==== wake + menu ==== */
+/* ====== wake + menu ====== */
 on($('wake'),'click',()=>{ push('assistant',"Engine awake. No incense required."); });
-on(menuBtn,'click',()=>{ menuRoot.classList.toggle('open'); });
-document.addEventListener('click',e=>{ if(!menuRoot.contains(e.target)) menuRoot.classList.remove('open'); });
+on($('menuBtn'),'click',()=>{ $('menu').classList.toggle('open'); });
+document.addEventListener('click',e=>{ if(!$('menu').contains(e.target)) $('menu').classList.remove('open'); });
 
-/* ==== reinforcement loop ==== */
+/* ====== reinforcement loop ====== */
 function refreshEverything(){ updateProgressUI(); enforceUIState(); render(); sizeChat(); }
 document.addEventListener('DOMContentLoaded',refreshEverything);
 setInterval(enforceUIState, 3000); // safety net
