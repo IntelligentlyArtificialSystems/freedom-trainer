@@ -82,12 +82,12 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
 .title{
   font-family:"Techfont Italica",Inter,system-ui;
   font-weight:800;
-  font-size:clamp(20px,2.6vw,34px);
+  font-size:clamp(22px,2.6vw,38px);
   line-height:1.06;
   letter-spacing:1.1px;
   white-space:normal;
-  word-break:keep-all;         /* no splitting inside words */
-  overflow-wrap:anywhere;      /* wrap between words only */
+  word-break:keep-all;
+  overflow-wrap:anywhere;
 }
 .meta-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px}
 .pill{padding:6px 10px;border-radius:999px;background:#0d1222;border:1px solid #293357;font-size:12px}
@@ -122,10 +122,9 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,
 /* Main / Chat */
 .panel{padding:12px}
 .chat{
-  /* JS sets height to meet composer */
   overflow:auto;padding:8px 6px;border:1px solid var(--line);border-radius:14px;
   background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01));
-  position:relative;z-index:1;scroll-behavior:smooth
+  position:relative;z-index:1;scroll-behavior:smooth;min-height:260px;
 }
 .msg{display:grid;grid-template-columns:34px 1fr;gap:10px;margin:10px 0;align-items:start}
 .avatar{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:14px;border:1px solid #2c3553;background:linear-gradient(135deg,#1b2135,#121628)}
@@ -197,7 +196,7 @@ textarea{min-height:98px;resize:vertical;border-radius:12px;border:1px solid #26
       </div>
     </div>
 
-    <!-- DEMO CTA — locked on in Demo -->
+    <!-- DEMO CTA -->
     <div id="demoCta" class="cta">
       <button class="cta-btn" id="demoBuy">Unlock Full Engine — $29</button>
       <div class="cta-sub">Keep your progress across devices. Premium modules included.</div>
@@ -245,7 +244,7 @@ const STAGES=["profile","offers","selection","plan","optimize"];
 const PROMPTS={
   opener:`Welcome to the Freedom Engine. I’m your personal trainer for tiny paid offers.
 
-Here’s the drill: I’ll handle strategy, templates, and deadlines; you do bite-size reps. We’ll ship one in ~72 hours. No monk retreat required.
+I’ll carry strategy, templates, and deadlines; you do bite-size reps. We’ll ship one in ~72 hours. No monk retreat required.
 
 Pick a lane and I’ll carry the heavy boxes:
 • design • writing • coaching • dev • other
@@ -292,7 +291,7 @@ function detectStyleFrom(t=""){t=t.toLowerCase();
   if(/stuck|overwhelmed|help|lost/.test(t))return"coach";
   if(/how|steps|plan|framework/.test(t))return"engineer";
   if(/write|headline|copy|hook|story/.test(t))return"ghostwriter";
-  if(/procrastinat|excuse|no time|scared/.test(t))return"dark";
+  if(/procrastinat|excuse|no time|scared|lazy/.test(t))return"dark";
   return"coach";
 }
 const STYLE_PRIME={
@@ -303,9 +302,10 @@ const STYLE_PRIME={
 };
 function systemPrime(style="coach",stage="profile",mods=[]){
   return `You are THE FREEDOM ENGINE — mentor for tiny profitable offers. Mission: ship in ~72 hours.
-Explain first, guide second, ask ONE small thing at a time. Keep it conversational, with dark witty asides.
-Tone: ${STYLE_PRIME[style]}. Stage: ${stage}. Advance the curriculum.
-Avoid interrogation lists. Prefer: suggest → confirm. Return STRICT JSON ONLY:
+Explain first, guide second, ask ONE small thing. Keep it conversational, with dark witty asides.
+Tone: ${STYLE_PRIME[style]}. Stage: ${stage}. Advance the curriculum from ${stage}.
+Avoid interrogation lists. Prefer: suggest → confirm. Handle short replies like "idk" by proposing options.
+Return STRICT JSON ONLY:
 {"say":"...","stage":"profile|offers|selection|plan|optimize","next_questions":["..."],"memory_delta":{"skills":"","audience":"","offer":"","price":"","style":"","blocked_by":""},"confidence":0.0}
 "say" <= 140 words.`;
 }
@@ -322,11 +322,14 @@ function updateProgressUI(){ setProgressUI(stageIndex(currentStage)); modeTag.te
 
 /* Chat height to meet composer */
 function sizeChat(){
-  const top=chatEl.getBoundingClientRect().top + window.scrollY;
-  const h=window.innerHeight - footerEl.offsetHeight - (top - window.scrollY) - 16;
-  chatEl.style.height = Math.max(260, h) + "px";
+  const rect = chatEl.getBoundingClientRect();
+  const footerH = footerEl.getBoundingClientRect().height || 120;
+  const topY = rect.top + window.scrollY;
+  const viewH = window.innerHeight;
+  const target = Math.max(260, viewH - footerH - (topY - window.scrollY) - 18);
+  chatEl.style.height = target + "px";
 }
-window.addEventListener('resize',()=>setTimeout(sizeChat,50));
+['resize','orientationchange','load'].forEach(ev=>window.addEventListener(ev,()=>setTimeout(sizeChat,50)));
 document.addEventListener('DOMContentLoaded',()=>setTimeout(sizeChat,50));
 
 /* ===== cloud save/load ===== */
@@ -363,18 +366,20 @@ function extractJSONBlock(s){
   }
   return null;
 }
+function cleanText(t=""){
+  return t.replace(/undefined[\w-]*/gi,'')
+          .replace(/\{[\s\S]*?\}/g,'')
+          .replace(/\s{3,}/g,'  ').trim();
+}
 function parseAgent(out){
   out=(out||"").trim();
   let parsed=null; try{ parsed=JSON.parse(out); }catch{}
   if(!parsed) parsed=extractJSONBlock(out);
   if(parsed && typeof parsed.say==="string"){
+    parsed.say = cleanText(parsed.say);
     return { say: parsed.say, stage: parsed.stage||currentStage, memory_delta: parsed.memory_delta||{}, confidence: parsed.confidence??.7 };
   }
-  // fallback: scrub braces & garbage tokens
-  const cleaned = out
-    .replace(/\{[\s\S]*?\}/g,'')
-    .replace(/undefined|confidence\s*:\s*[\d.]+/gi,'')
-    .replace(/,+/g,',').replace(/\n{3,}/g,'\n\n').trim();
+  const cleaned = cleanText(out);
   return { say: cleaned || "Pick a lane (design / writing / coaching / dev / other), or say “help me choose”.", stage: currentStage, memory_delta:{}, confidence:.6 };
 }
 
@@ -383,15 +388,21 @@ function push(role,content){history.push({role,content}); persistLocal(); render
 function activeStyle(){ const lastUser=[...history].reverse().find(m=>m.role==='user')?.content||""; const s=detectStyleFrom(lastUser)||agentMemory.style||"coach"; agentMemory.style=s; localStorage.setItem('fe_memory',JSON.stringify(agentMemory)); return s; }
 function advanceStageMaybe(next){ if(!STAGES.includes(next))return; const cur=stageIndex(currentStage), nx=stageIndex(next); if(nx===cur+1) currentStage=next; }
 
+function normalizeUser(t){
+  const s=t.trim().toLowerCase();
+  if(!s || /^(idk|no|none|no clue|not sure)$/.test(s)) return "help me choose";
+  return t;
+}
+
 async function agentRespond(){
   const style=activeStyle();
   const ctx=[{role:"system",content:systemPrime(style,currentStage,modules.map(m=>m.id))},
              {role:"system",content:`MEMORY:${JSON.stringify(agentMemory)}`},
              {role:"system",content:`CURRICULUM:${PROMPTS[currentStage]||""}`},
-             ...history.slice(-10)];
+             ...history.slice(-10).map(m=>({role:m.role==='assistant'?'assistant':'user',content:m.content}))];
   let raw=await callCloud(ctx);
   let p=parseAgent(raw);
-  if(!p.say || /undefined/.test(p.say)){ // strict retry once
+  if(!p.say){ // strict retry once
     raw=await callCloud([{role:"system",content:systemPrime(style,currentStage,modules.map(m=>m.id))+" Output STRICT JSON only."},...history.slice(-6)], true);
     p=parseAgent(raw);
   }
@@ -406,9 +417,8 @@ async function agentRespond(){
 /* ===== boot ===== */
 function greetIfEmpty(){ if(history.length===0){ push('assistant', PROMPTS.opener); } }
 async function boot(){
-  sizeChat();
   inputEl.disabled=false; sendBtn.disabled=false;
-  updateProgressUI();
+  updateProgressUI(); refreshCTA(); sizeChat();
   if(unlocked&&licenseKey){ const loaded=await cloudLoad(); if(loaded){ render(); } }
   render(); greetIfEmpty();
   text(aiStatus,"Ready.");
@@ -417,7 +427,8 @@ document.addEventListener('DOMContentLoaded',boot);
 
 /* ===== composer ===== */
 on(sendBtn,'click',async()=>{
-  const t=inputEl.value.trim(); if(!t) return;
+  const raw=inputEl.value; const t=normalizeUser(raw);
+  if(!t) return;
   inputEl.value=""; push('user',t);
   text(aiStatus,"Thinking…");
   try{ await agentRespond(); }catch(e){ showErr(e); push('assistant',"Cloud hiccup. Give me your next answer; I’ll keep us moving."); }
@@ -496,7 +507,7 @@ on(unlockBtn,'click',async()=>{
   }catch(e){ showErr(e); alert("Verification failed—network/endpoint."); }
 });
 
-/* ===== modules (UI only) ===== */
+/* ===== modules ===== */
 const MODULES=[{id:"ads",name:"Ad Creative Booster",product_id:"MOD_ADS_ID",price:"$12",desc:"Generate ad images + angles."},
   {id:"email",name:"Email Launch Booster",product_id:"MOD_EMAIL_ID",price:"$9",desc:"Auto-draft 3-day launch emails."},
   {id:"planner",name:"Content Planner",product_id:"MOD_PLAN_ID",price:"$12",desc:"7-day content seed plan."},
@@ -537,12 +548,14 @@ function renderModules(){
 
 /* ===== utilities ===== */
 function downloadBlob(content,type,name){const blob=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();}
-
-/* ===== greeting / wake ===== */
-const $wake=$('wake'); on($wake,'click',()=>{ push('assistant',"Engine awake. No incense required."); });
-
-/* ===== ensure Demo CTA honors mode always ===== */
 function refreshCTA(){ show(demoCta,!unlocked); }
+
+/* ===== greeting / wake / menu ===== */
+const $wake=$('wake'); on($wake,'click',()=>{ push('assistant',"Engine awake. No incense required."); });
+on(menuBtn,'click',()=>{ menuRoot.classList.toggle('open'); });
+document.addEventListener('click',e=>{ if(!menuRoot.contains(e.target)) menuRoot.classList.remove('open'); });
+
+/* ===== boot now ===== */
 refreshCTA();
 </script>
 </body>
