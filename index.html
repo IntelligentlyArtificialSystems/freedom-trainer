@@ -1,11 +1,11 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>The Freedom Engine — Personal AI Trainer</title>
 
-<!-- Fonts -->
+<!-- Headline font (kept from earlier), used across UI with lighter weights so it isn’t visually loud -->
 <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,400;0,600;1,600&display=swap" rel="stylesheet">
 
 <style>
@@ -20,130 +20,111 @@
   *{box-sizing:border-box}
   html,body{height:100%}
   body{
-    margin:0; color:var(--ink); font-family: "Kanit", system-ui, sans-serif;
+    margin:0; color:var(--ink); font-family:"Kanit",system-ui,sans-serif;
     background: radial-gradient(1200px 700px at 20% 20%, rgba(255,255,255,0.12), transparent 60%),
                 radial-gradient(900px 600px at 80% 30%, rgba(255,255,255,0.10), transparent 60%),
-                linear-gradient(140deg, #2b0f27 0%, #23173a 40%, #18324a 100%);
+                linear-gradient(140deg,#2b0f27 0%,#23173a 40%,#18324a 100%);
   }
 
   /* Layout */
-  .wrap{display:grid; grid-template-columns: 420px 1fr; gap:24px; padding:24px; height:100%;}
-  @media(max-width:900px){ .wrap{grid-template-columns: 1fr; height:auto; min-height:100%} }
+  .wrap{display:grid; grid-template-columns:420px 1fr; gap:24px; padding:24px; height:100dvh;}
+  @media(max-width:900px){ .wrap{grid-template-columns:1fr; height:auto; min-height:100dvh} }
 
   .card{
     background:var(--glass); border:1px solid var(--ring);
-    border-radius:22px; box-shadow: 0 10px 40px rgba(0,0,0,.35);
-    padding:18px; position:relative; overflow:hidden;
+    border-radius:22px; box-shadow:0 10px 40px rgba(0,0,0,.35);
+    padding:18px; position:relative; overflow:visible; /* FIX: let dropdown escape */
   }
   .card::before{
     content:""; position:absolute; inset:-40%;
-    background: conic-gradient(from 0deg, var(--neon-c), var(--neon-m), var(--neon-y), var(--neon-g), var(--neon-c));
-    opacity:.12; filter: blur(80px);
-    animation: swirl 16s linear infinite;
+    background:conic-gradient(from 0deg, var(--neon-c), var(--neon-m), var(--neon-y), var(--neon-g), var(--neon-c));
+    opacity:.12; filter:blur(80px); z-index:0; pointer-events:none;
+    animation:swirl 16s linear infinite;
   }
   @keyframes swirl{to{transform:rotate(360deg)}}
 
-  /* Left column (header) */
+  /* Header panel */
   .brand{
-    display:grid; grid-template-columns: 132px 1fr; gap:16px; align-items:center;
+    display:grid; grid-template-columns:132px 1fr; gap:16px; align-items:center;
     margin-bottom:16px; position:relative; z-index:1;
   }
   .logo-box{
     height:132px; border-radius:20px; background:var(--glass-2); border:1px solid var(--ring);
     overflow:hidden; display:grid; place-items:center;
   }
-  .logo{
-    width:320px; height:320px; /* 3x bigger but clipped by the box */
-    object-fit:contain; animation: spin 38s linear infinite;
-    filter: drop-shadow(0 0 12px rgba(255,255,255,.25));
-  }
-  @keyframes spin{to{ transform: rotate(360deg) }}
+  .logo{ width:320px; height:320px; object-fit:contain; animation:spin 38s linear infinite;
+         filter:drop-shadow(0 0 12px rgba(255,255,255,.25)); }
+  @keyframes spin{to{transform:rotate(360deg)}}
 
-  .titles h1{margin:0; line-height:1.02; font-weight:600; font-size:44px; letter-spacing:.5px}
-  .titles .sub{opacity:.8; margin-top:4px;}
+  .titles h1{margin:0; line-height:1.03; font-weight:600; font-size:44px; letter-spacing:.5px; word-break:break-word}
+  .titles .sub{opacity:.85; margin-top:4px; font-weight:400}
   .badge{display:inline-block; padding:5px 10px; border-radius:999px;
-    background:linear-gradient(90deg,var(--neon-m),var(--neon-c)); color:#151327; font-weight:700; margin-top:8px; font-size:13px}
+    background:linear-gradient(90deg,var(--neon-m),var(--neon-c)); color:#151327; font-weight:700; margin-left:8px; font-size:13px}
   .badge.demo{background:linear-gradient(90deg,#ff8ab5,#ffd86a);}
 
-  .road{
-    margin-top:18px; background:var(--glass-2); border:1px solid var(--ring); border-radius:16px; padding:14px;
-  }
+  .road{margin-top:18px; background:var(--glass-2); border:1px solid var(--ring); border-radius:16px; padding:14px; position:relative; z-index:1}
   .bar{height:12px; border-radius:999px; overflow:hidden; background:rgba(0,0,0,.35); border:1px solid var(--ring)}
-  .bar > span{display:block; height:100%; width:0%;
-    background:linear-gradient(90deg,var(--neon-c),var(--neon-m),var(--neon-y),var(--neon-g));
-    transition: width .35s ease;
-  }
+  .bar > span{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--neon-c),var(--neon-m),var(--neon-y),var(--neon-g)); transition:width .35s ease;}
   .bar-legend{display:flex; justify-content:space-between; margin-top:8px; font-size:13px; color:var(--ink-dim)}
-
-  .row{display:flex; gap:8px; margin-top:14px}
+  .row{display:flex; gap:8px; margin-top:14px; flex-wrap:wrap}
   .btn{
     appearance:none; border:none; cursor:pointer; font-weight:700; color:#0b0c14;
     background:linear-gradient(180deg,#fff,#e9eefc); border-radius:999px; padding:10px 14px;
-    box-shadow: 0 6px 18px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.35);
+    box-shadow:0 6px 18px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.35);
   }
-  .btn:active{transform:translateY(1px)}
-  .btn-ghost{
-    background:var(--glass); color:var(--ink); border:1px solid var(--ring);
-  }
-  .drop{position:relative}
+  .btn-ghost{ background:var(--glass); color:var(--ink); border:1px solid var(--ring) }
+  .btn:active{ transform:translateY(1px) }
+
+  /* Kebab: position with JS, render as fixed so it never clips */
+  .drop{ position:relative; }
   .drop-menu{
-    position:absolute; right:0; bottom:calc(100% + 8px); /* OPEN UPWARDS */
-    background:#0e1122ee; border:1px solid var(--ring); border-radius:16px; padding:8px;
-    min-width:260px; display:none; z-index:50; backdrop-filter: blur(8px);
+    position:fixed; inset:auto auto; /* JS sets top/left */
+    background:#0e1122f2; border:1px solid var(--ring); border-radius:16px; padding:8px;
+    min-width:260px; display:none; z-index:9999; backdrop-filter:blur(8px); max-height:60dvh; overflow:auto;
   }
-  .drop.open .drop-menu{display:block}
-  .drop-menu .item{padding:10px 12px; border-radius:10px; color:var(--ink); font-weight:600;}
-  .drop-menu .item:hover{background:#ffffff18}
-  .drop-menu .danger{background:#ff5b5b1a; border:1px solid #ff5b5b45}
-  .cta{
-    margin-top:14px; padding:16px; border-radius:16px; background:linear-gradient(180deg,#1a1031aa,#231b3daa);
-    border:1px solid var(--ring); text-align:center;
-  }
-  .cta .big{
-    width:100%; padding:14px 16px; border-radius:12px; font-size:18px; font-weight:900;
-    background:linear-gradient(90deg,#ff84f7,#ffd86a); color:#0b0c14;
-  }
-  .cta small{display:block; margin-top:8px; color:var(--ink-dim)}
+  .drop.open .drop-menu{ display:block }
+  .drop-menu .item{ padding:10px 12px; border-radius:10px; color:var(--ink); font-weight:600; }
+  .drop-menu .item:hover{ background:#ffffff18 }
+  .drop-menu .danger{ background:#ff5b5b1a; border:1px solid #ff5b5b45 }
 
-  /* Right column (chat) */
-  .chat-col{display:grid; grid-template-rows: 1fr auto; height:calc(100vh - 48px);}
-  @media(max-width:900px){ .chat-col{height: auto; min-height: 70vh} }
+  .cta{ margin-top:14px; padding:16px; border-radius:16px; background:linear-gradient(180deg,#1a1031aa,#231b3daa);
+        border:1px solid var(--ring); text-align:center; position:relative; z-index:1 }
+  .cta .big{ width:100%; padding:14px 16px; border-radius:12px; font-size:18px; font-weight:900;
+             background:linear-gradient(90deg,#ff84f7,#ffd86a); color:#0b0c14 }
+  .cta small{ display:block; margin-top:8px; color:var(--ink-dim) }
 
-  .chat{
-    overflow:auto; background:var(--glass); border:1px solid var(--ring);
-    border-radius:22px; padding:18px; scroll-behavior:smooth;
-  }
+  /* Chat */
+  .chat-col{ display:grid; grid-template-rows: 1fr auto; min-height:calc(100dvh - 48px); }
+  @media(max-width:900px){ .chat-col{ min-height:70dvh } }
+  .chat{ overflow:auto; background:var(--glass); border:1px solid var(--ring); border-radius:22px; padding:18px; scroll-behavior:smooth; }
   .bubble{
     background:linear-gradient(180deg, rgba(255,255,255,0.11), rgba(255,255,255,0.05));
-    border:1px solid var(--ring); border-radius:18px; padding:14px 16px; margin:10px 0;
-    position:relative;
+    border:1px solid var(--ring); border-radius:18px; padding:14px 16px; margin:10px 0; position:relative;
   }
-  .bubble .who{position:absolute; left:-38px; top:10px; width:28px; height:28px;
-    display:grid; place-items:center; border-radius:10px; background:#0e1122eb; border:1px solid var(--ring);}
-  .who.user{content:"💬"}
-  .dim{color:var(--ink-dim)}
-
-  .composer{
-    margin-top:12px; display:grid; grid-template-columns: 1fr 110px; gap:10px; align-items:end;
+  .bubble .who{
+    position:absolute; left:-38px; top:10px; width:28px; height:28px;
+    display:grid; place-items:center; border-radius:10px; background:#0e1122eb; border:1px solid var(--ring);
   }
+  .composer{ margin-top:12px; display:grid; grid-template-columns:1fr 110px; gap:10px; align-items:end }
   textarea{
     width:100%; min-height:54px; max-height:180px; resize:vertical;
     padding:14px 16px; color:var(--ink); background:#0b0f1f; border:1px solid var(--ring); border-radius:16px;
   }
-  .send{height:54px; border-radius:16px; font-weight:900; background:linear-gradient(130deg,#ff7bf1,#82f3ff); color:#0b0c14}
+  .send{ height:54px; border-radius:16px; font-weight:900; background:linear-gradient(130deg,#ff7bf1,#82f3ff); color:#0b0c14 }
+  .dim{ color:var(--ink-dim) }
 </style>
 </head>
 <body>
 
 <div class="wrap">
 
-  <!-- LEFT / HEADER -->
+  <!-- LEFT -->
   <section class="card" id="left">
     <div class="brand">
       <div class="logo-box"><img class="logo" src="ias-logo.png" alt="IAS Logo"></div>
       <div class="titles">
         <h1>The Freedom Engine</h1>
-        <div class="sub"><span id="planLabel">Personal AI Trainer</span> <span class="badge demo" id="tierBadge">Demo</span></div>
+        <div class="sub">Personal AI Trainer <span class="badge demo" id="tierBadge">Demo</span></div>
       </div>
     </div>
 
@@ -153,9 +134,11 @@
       <div class="row">
         <button class="btn btn-ghost" id="exportBtn">Export</button>
         <button class="btn btn-ghost" id="modulesBtn">Modules</button>
+
         <div class="drop" id="kebab">
-          <button class="btn btn-ghost">…</button>
-          <div class="drop-menu">
+          <button class="btn btn-ghost" id="kebabBtn">…</button>
+          <!-- fixed-position menu (no more clipping) -->
+          <div class="drop-menu" id="kebabMenu">
             <div class="item" id="saveSnap">Save Snapshot</div>
             <div class="item" id="loadSnap">Load Snapshot</div>
             <div class="item" id="wake">Wake the Engine</div>
@@ -175,7 +158,7 @@
     </div>
   </section>
 
-  <!-- RIGHT / CHAT -->
+  <!-- RIGHT -->
   <section class="chat-col">
     <div class="chat" id="chat"></div>
     <div class="composer">
@@ -188,15 +171,20 @@
 
 <script>
 /* =========================
-   CONFIG & STATE
+   CONFIG
 ========================= */
 const WORKER_BASE = "https://freedom-engine-worker.intelligentlyartificialsystems.workers.dev";
 const STAGES = 5;
+
+/* =========================
+   STATE
+========================= */
 const state = {
-  tier: localStorage.getItem("fe_tier") || "demo",     // "demo" | "premium"
+  tier: localStorage.getItem("fe_tier") || "demo",
   license: localStorage.getItem("fe_license") || "",
   roadmap: 1,
-  messages: [] // {who:'ai'|'user', text}
+  messages: [],
+  showedCloudHiccup: false
 };
 
 const el = {
@@ -206,6 +194,8 @@ const el = {
   input: document.getElementById("input"),
   send: document.getElementById("sendBtn"),
   kebab: document.getElementById("kebab"),
+  kebabBtn: document.getElementById("kebabBtn"),
+  kebabMenu: document.getElementById("kebabMenu"),
   demoCTA: document.getElementById("demoCTA"),
   tierBadge: document.getElementById("tierBadge"),
   enterKey: document.getElementById("enterKey"),
@@ -214,40 +204,36 @@ const el = {
   switchMode: document.getElementById("switchMode"),
   reset: document.getElementById("reset"),
   saveSnap: document.getElementById("saveSnap"),
-  loadSnap: document.getElementById("loadSnap"),
+  loadSnap: document.getElementById("loadSnap")
 };
 
 /* =========================
-   UTIL
+   UI HELPERS
 ========================= */
 function setTier(t){
   state.tier = t;
   localStorage.setItem("fe_tier", t);
-  // Show/Hide monetization controls
-  const showDemo = t === "demo";
-  el.demoCTA.style.display = showDemo ? "block" : "none";
-  el.enterKey.parentElement.style.display = showDemo ? "block" : "none";
-  el.buy.parentElement.style.display = showDemo ? "block" : "none";
-  el.tierBadge.textContent = showDemo ? "Demo" : "Premium";
-  el.tierBadge.classList.toggle("demo", showDemo);
+  const isDemo = t === "demo";
+  el.demoCTA.style.display = isDemo ? "block" : "none";
+  el.enterKey.style.display = isDemo ? "block" : "none";
+  el.buy.style.display = isDemo ? "block" : "none";
+  el.tierBadge.textContent = isDemo ? "Demo" : "Premium";
+  el.tierBadge.classList.toggle("demo", isDemo);
 }
-
 function updateBar(){
   const pct = Math.max(1, Math.min(STAGES, state.roadmap)) / STAGES * 100;
   el.bar.style.width = pct + "%";
   el.barText.textContent = `${Math.max(1,state.roadmap)}/${STAGES}`;
 }
-
 function pushBubble(who, text){
-  if(!text || typeof text !== 'string') return;
+  if(!text || typeof text !== "string") return;
   const b = document.createElement("div");
   b.className = "bubble";
-  b.innerHTML = `<div class="who">${who === "user" ? "💬" : "⚙️"}</div>${text}`;
+  b.innerHTML = `<div class="who">${who==="user"?"💬":"⚙️"}</div>${text}`;
   el.chat.appendChild(b);
   state.messages.push({who,text});
   requestAnimationFrame(()=> el.chat.scrollTop = el.chat.scrollHeight);
 }
-
 function onceBootGreeting(){
   if(sessionStorage.getItem("fe_booted")) return false;
   sessionStorage.setItem("fe_booted","1");
@@ -262,6 +248,20 @@ function onceBootGreeting(){
 }
 
 /* =========================
+   KEBAB (fixed-position)
+========================= */
+function positionKebab(){
+  const r = el.kebabBtn.getBoundingClientRect();
+  // Prefer opening upward; clamp inside viewport
+  const pad = 8;
+  const menu = el.kebabMenu;
+  menu.style.left = Math.max(pad, Math.min(window.innerWidth - menu.offsetWidth - pad, r.right - menu.offsetWidth)) + "px";
+  const desiredTop = r.top - menu.offsetHeight - 8;
+  const fallbackTop = r.bottom + 8;
+  menu.style.top = (desiredTop > pad ? desiredTop : fallbackTop) + "px";
+}
+
+/* =========================
    CLOUD SAVE / LOAD (D1)
 ========================= */
 async function cloudSave(){
@@ -273,9 +273,13 @@ async function cloudSave(){
       headers:{"Content-Type":"application/json"},
       body: JSON.stringify({ license_key: state.license, data: JSON.stringify(payload) })
     });
-  }catch(e){ /* ignore but don’t crash UI */ }
+  }catch(e){
+    if(!state.showedCloudHiccup){
+      state.showedCloudHiccup = true;
+      pushBubble("ai","Cloud hiccup. Keep going — I’m saving locally and I’ll sync when the tubes behave.");
+    }
+  }
 }
-
 async function cloudLoad(){
   if(state.tier !== "premium" || !state.license) return false;
   try{
@@ -283,30 +287,33 @@ async function cloudLoad(){
     const j = await r.json();
     if(j.ok && j.found && j.data){
       const data = JSON.parse(j.data);
-      if(data.roadmap) state.roadmap = data.roadmap;
-      if(Array.isArray(data.messages)) {
-        state.messages = data.messages.slice(-80); // cap
-        el.chat.innerHTML = "";
-        for(const m of state.messages) pushBubble(m.who, m.text);
-      }
+      state.roadmap = Math.max(1, Math.min(STAGES, Number(data.roadmap)||1));
+      state.messages = Array.isArray(data.messages) ? data.messages.slice(-80) : [];
+      el.chat.innerHTML = "";
+      for(const m of state.messages){ pushBubble(m.who, m.text) }
       updateBar();
       return true;
     }
-  }catch(e){ /* noop */ }
+  }catch(e){ /* stay quiet */ }
   return false;
 }
 
 /* =========================
-   AI BRAIN (simple router)
+   AI (simple but tougher)
 ========================= */
 function aiReply(userText){
-  const t = (userText||"").trim().toLowerCase();
+  const t = (userText||"").trim();
+  const low = t.toLowerCase();
 
-  // Friendly handling for “help me choose”
-  if(/help me choose|no clue|idk|i don.?t know/.test(t)){
+  if(!t){
+    pushBubble("ai","Words, champ. Throw me something. Or say <em>help me choose</em>.");
+    return;
+  }
+
+  if(/help me choose|no clue|idk|i don.?t know/.test(low)){
     state.roadmap = Math.max(1, state.roadmap);
     pushBubble("ai",
-      `No problem. Here are five lanes — reply with a number:<br>
+      `Cool. Choose a lane — reply with a number:<br>
        1) <b>Design</b> — logos, graphics, visual packs<br>
        2) <b>Writing</b> — copy, guides, micro-ebooks<br>
        3) <b>Coaching</b> — 1:1 accelerators, audits<br>
@@ -316,84 +323,111 @@ function aiReply(userText){
     return;
   }
 
-  // Map numeric choice
-  const m = t.match(/^\s*([1-5])\s*$/);
+  const m = low.match(/^\s*([1-5])\s*$/);
   if(m){
-    const n = Number(m[1]);
-    const lane = ["","Design","Writing","Coaching","Dev","Other"][n];
+    const idx = Number(m[1]);
+    const lane = ["","Design","Writing","Coaching","Dev","Other"][idx];
     state.roadmap = 2;
     pushBubble("ai",
-      `Great — <b>${lane}</b> it is. We’ll ship a tiny paid offer.<br>
-       Hit me with one of these to move fast:<br>
-       • one thing you can deliver in &lt;48h<br>
-       • one real person who needs it<br>
-       • any proof/screens you already have`
+      `Locked in: <b>${lane}</b>.<br>
+       Give me one fast answer: <b>what can you deliver in the next 48 hours</b> that a real human would pay for?
+       Keep it tiny. One deliverable.`
     );
-    cloudSave();
-    updateBar();
-    return;
+    cloudSave(); updateBar(); return;
   }
 
-  // Default mentor-y response (keeps tone tight, no undefineds)
+  // Default: accept any text and progress
   state.roadmap = Math.min(STAGES, state.roadmap + 1);
   pushBubble("ai",
-    `Good — noted. I’ll turn that into a shippable step. Next, give me the <b>constraint</b>:
-     time you can invest in 3 days, any tools you refuse to use, and your absolute “nope” line.
-     Constraints make good products brutal and real.`
+    `Good — I’ve got enough to move. I’ll turn that into a concrete micro-offer and a 3-step launch plan next.
+     Quick: list one constraint (time, tools, or absolute “nope”). Constraints make this real.`
   );
-  cloudSave();
-  updateBar();
+  cloudSave(); updateBar();
 }
 
 /* =========================
-   HOOKS
+   BOOT
 ========================= */
 document.addEventListener("DOMContentLoaded", async () => {
-  // Kebab drop-up
-  el.kebab.querySelector("button").addEventListener("click", () => {
+  // Kebab open/close + positioning
+  el.kebabBtn.addEventListener("click", () => {
     el.kebab.classList.toggle("open");
+    if(el.kebab.classList.contains("open")){
+      el.kebabMenu.style.display = "block";
+      positionKebab();
+    }else{
+      el.kebabMenu.style.display = "none";
+    }
   });
-  document.addEventListener("click",(e)=>{
-    if(!el.kebab.contains(e.target)) el.kebab.classList.remove("open");
-  });
+  window.addEventListener("resize", () => { if(el.kebab.classList.contains("open")) positionKebab(); });
+  document.addEventListener("click",(e)=>{ if(!el.kebab.contains(e.target)) { el.kebab.classList.remove("open"); el.kebabMenu.style.display="none"; }});
 
   // Buttons
-  el.buy.addEventListener("click",()=> window.open("https://intellartsystems.gumroad.com/l/the-freedom-engine","_blank"));
-  el.ctaBuy.addEventListener("click",()=> window.open("https://intellartsystems.gumroad.com/l/the-freedom-engine","_blank"));
+  const gumroad = "https://intellartsystems.gumroad.com/l/the-freedom-engine";
+  el.buy.addEventListener("click", ()=> window.open(gumroad,"_blank"));
+  el.ctaBuy.addEventListener("click", ()=> window.open(gumroad,"_blank"));
 
   el.enterKey.addEventListener("click", async ()=>{
     const key = prompt("Enter license key:");
     if(!key) return;
-    // (Optional) verify endpoint already exists in your worker
     state.license = key.trim();
     localStorage.setItem("fe_license", state.license);
     setTier("premium");
     const ok = await cloudLoad();
-    if(!ok){ el.chat.innerHTML=""; pushBubble("ai","Premium engaged. Clean slate. Tell me where you want to start — or say “help me choose.”"); }
+    if(!ok){ el.chat.innerHTML=""; pushBubble("ai","Premium engaged. Clean slate. Say “help me choose” or name your lane (design / writing / coaching / dev / other)."); }
     updateBar();
   });
 
   el.switchMode.addEventListener("click", ()=>{
-    // sign out
     localStorage.removeItem("fe_license");
     setTier("demo");
     state.license = "";
     state.roadmap = 1;
     state.messages = [];
+    state.showedCloudHiccup = false;
     sessionStorage.removeItem("fe_booted");
-    el.chat.innerHTML="";
+    el.chat.innerHTML = "";
     onceBootGreeting();
     updateBar();
   });
 
   el.reset.addEventListener("click", ()=>{
-    state.roadmap = 1;
-    state.messages = [];
-    sessionStorage.removeItem("fe_booted");
-    el.chat.innerHTML = "";
-    onceBootGreeting();
-    cloudSave();
-    updateBar();
+    state.roadmap = 1; state.messages = []; state.showedCloudHiccup=false;
+    sessionStorage.removeItem("fe_booted"); el.chat.innerHTML=""; onceBootGreeting(); cloudSave(); updateBar();
+  });
+
+  // Export snapshot (pretty JSON)
+  document.getElementById("exportBtn").addEventListener("click", ()=>{
+    const data = { roadmap: state.roadmap, messages: state.messages, tier: state.tier };
+    const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = "freedom-engine-snapshot.json"; a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  // Save/Load snapshot to local disk
+  el.saveSnap.addEventListener("click", ()=>{
+    const data = { roadmap: state.roadmap, messages: state.messages };
+    const blob = new Blob([JSON.stringify(data)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = "fe-local-snapshot.json"; a.click();
+    URL.revokeObjectURL(a.href);
+  });
+  el.loadSnap.addEventListener("click", ()=>{
+    const inp = document.createElement("input");
+    inp.type="file"; inp.accept="application/json";
+    inp.onchange = async () => {
+      const file = inp.files[0]; if(!file) return;
+      const text = await file.text();
+      try{
+        const data = JSON.parse(text);
+        state.roadmap = Math.max(1, Math.min(STAGES, Number(data.roadmap)||1));
+        state.messages = Array.isArray(data.messages) ? data.messages.slice(-80) : [];
+        el.chat.innerHTML = ""; state.messages.forEach(m=>pushBubble(m.who,m.text));
+        updateBar(); cloudSave();
+      }catch(e){ alert("Bad snapshot file."); }
+    };
+    inp.click();
   });
 
   // Send
@@ -405,14 +439,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     aiReply(v);
   }
   el.send.addEventListener("click", sendNow);
-  el.input.addEventListener("keydown",(e)=>{
-    if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); sendNow(); }
-  });
+  el.input.addEventListener("keydown", (e)=>{ if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); sendNow(); } });
 
-  // Tier on boot
+  // Init tier and try cloud
   setTier(state.tier);
-
-  // Try cloud load if premium
   let greeted = false;
   if(state.tier==="premium" && state.license){
     const ok = await cloudLoad();
@@ -420,19 +450,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   } else {
     greeted = onceBootGreeting();
   }
-
   updateBar();
   if(!greeted && state.messages.length===0) onceBootGreeting();
 });
 
-/* Prevent duplicate opener on hard reload */
+/* opener de-dupe on bfcache */
 window.addEventListener("pageshow",()=>{
-  // Keep only the last opener bubble if multiples snuck in
-  const bubbles = [...document.querySelectorAll(".bubble")];
-  const openerIdx = bubbles.filter(b => b.innerText.includes("Freedom Engine")).map(b => b);
-  if(openerIdx.length > 1){
-    openerIdx.slice(0, -1).forEach(b=> b.remove());
-  }
+  const list = [...document.querySelectorAll(".bubble")];
+  const openers = list.filter(b => b.innerText.toLowerCase().includes("welcome to the freedom engine"));
+  if(openers.length>1){ openers.slice(0,-1).forEach(b=>b.remove()); }
 });
 </script>
 </body>
