@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>The Freedom Engine — Personal AI Trainer</title>
 
-<!-- Your headline font -->
+<!-- Brand display font -->
 <style>
 @font-face{
   font-family:"TechfontItalica";
@@ -13,23 +13,16 @@
   font-display:swap;
 }
 
+/* ===== Root + Background ===== */
 :root{
-  /* neon set (no blue bias) */
-  --mag:#ff7bf1;   /* magenta */
-  --vio:#b07aff;   /* violet */
-  --pur:#7a5cff;   /* purple */
-  --hot:#ff4f88;   /* hot pink */
-  --yel:#ffd86a;   /* yellow */
-  --sun:#ffb84d;   /* sun orange */
-  --lime:#8dff6a;  /* lime */
-  --mint:#6dffa8;  /* mint */
-  --scar:#ff6a6a;  /* scarlet */
-
-  --ink:#f5f7ff;
-  --ink-dim:#c8cffc;
+  --ink:#f6f7ff;
+  --ink-dim:#cbd1ff;
   --ring:rgba(255,255,255,.22);
-  --glass1:rgba(255,255,255,.12);
+  --glass1:rgba(255,255,255,.13);
   --glass2:rgba(255,255,255,.08);
+
+  --mag:#ff7bf1; --vio:#b07aff; --pur:#7a5cff; --hot:#ff4f88;
+  --yel:#ffd86a; --sun:#ffb84d; --lime:#8dff6a; --scar:#ff6a6a;
 }
 
 *{box-sizing:border-box}
@@ -37,71 +30,76 @@ html,body{height:100%}
 body{
   margin:0; color:var(--ink);
   font-family:"Kanit",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-  /* Colorful layered background (no blue primary) */
+  background:#0e0a1f;
+}
+/* full-screen background image, blurred under glass */
+body::before{
+  content:"";
+  position:fixed; inset:0;
+  background:url("./bg-warp.png") center/cover no-repeat;
+  filter:blur(18px) saturate(125%) brightness(0.9);
+  z-index:-2;
+}
+/* subtle neon aura layer (muted) */
+body::after{
+  content:""; position:fixed; inset:-20%;
   background:
-    radial-gradient(1200px 700px at 0% 10%, rgba(255,123,241,.18), transparent 60%),
-    radial-gradient(900px 700px at 95% 0%, rgba(255,184,77,.22), transparent 60%),
-    radial-gradient(1000px 800px at 50% 100%, rgba(141,255,106,.18), transparent 60%),
-    conic-gradient(from 0deg, var(--mag), var(--vio), var(--pur), var(--hot), var(--yel), var(--sun), var(--lime), var(--scar), var(--mag));
-  filter:saturate(120%);
+    radial-gradient(800px 500px at 10% 10%, rgba(255,123,241,.18), transparent 60%),
+    radial-gradient(900px 700px at 90% 0%, rgba(255,216,106,.18), transparent 60%),
+    radial-gradient(900px 700px at 15% 95%, rgba(141,255,106,.14), transparent 65%);
+  filter:blur(80px) saturate(130%);
+  z-index:-1; opacity:.35;
 }
 
-.wrap{display:grid;grid-template-columns:440px 1fr;gap:24px;padding:24px;height:100dvh}
-@media(max-width:980px){.wrap{grid-template-columns:1fr;min-height:100dvh;height:auto}}
+.wrap{display:grid;grid-template-columns:440px 1fr;gap:24px;padding:24px;min-height:100dvh}
+@media(max-width:980px){.wrap{grid-template-columns:1fr;height:auto}}
 
+/* Glass cards */
 .card{
-  position:relative;
-  border-radius:24px;padding:18px;border:1px solid var(--ring);
+  position:relative;border-radius:24px;padding:18px;border:1px solid var(--ring);
   background:linear-gradient(180deg,var(--glass1),var(--glass2));
   box-shadow:0 20px 60px rgba(0,0,0,.45);
-  overflow:visible;
 }
-.card::before{
-  content:"";position:absolute;inset:-35%;
-  background:
-    radial-gradient(800px 600px at 20% 20%, rgba(255,123,241,.25), transparent 60%),
-    radial-gradient(900px 700px at 80% 10%, rgba(255,216,106,.20), transparent 65%),
-    radial-gradient(900px 800px at 20% 90%, rgba(141,255,106,.18), transparent 65%);
-  filter:blur(90px) saturate(140%);opacity:.22;z-index:-1;animation:halo 24s linear infinite;
-}
-@keyframes halo{to{transform:rotate(360deg)}}
 
-/* BRAND */
+/* ===== Brand header ===== */
 .brand{display:grid;grid-template-columns:148px 1fr;gap:18px;align-items:center;margin-bottom:16px}
 .logo-box{
   height:148px;border-radius:24px;border:1px solid var(--ring);
-  background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.07));
+  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.06));
   overflow:hidden;display:grid;place-items:center;
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 12px 40px rgba(0,0,0,.35)
 }
-/* 3x bigger logo, masked by the box, reverse spin = “inward” feel */
+/* 3x logo, flipped vertically, masked by box, “inward” spin */
 .logo{
-  width:420px;height:420px;object-fit:contain;transform-origin:50% 50%;
-  animation:spinIn 36s linear infinite reverse; /* reverse = inward vibe */
+  width:420px;height:420px;object-fit:contain;
+  transform-origin:50% 50%;
+  transform:scaleY(-1); /* flip on up/down axis */
+  animation:spinIn 36s linear infinite reverse; /* reverse for inward feel */
   filter:drop-shadow(0 0 14px rgba(255,255,255,.28));
 }
-@keyframes spinIn{to{transform:rotateZ(360deg)}}
+@keyframes spinIn{to{transform:scaleY(-1) rotateZ(360deg)}}
 
 .titles h1{
-  margin:0;line-height:1.02;letter-spacing:.6px;
-  font-size:46px;font-weight:700;
+  margin:0; line-height:1.04; letter-spacing:.6px;
+  font-size:46px; font-weight:700;
   font-family:"TechfontItalica","Kanit",system-ui,sans-serif;
-  text-shadow:0 2px 0 rgba(0,0,0,.25)
+  text-shadow:0 2px 0 rgba(0,0,0,.28);
 }
-.titles .sub{margin-top:6px;opacity:.9;font-weight:600}
-.badge{display:inline-block;margin-left:8px;padding:5px 10px;border-radius:999px;color:#0b0c14;font-weight:900;font-size:13px;background:linear-gradient(90deg,var(--mag),var(--yel))}
-.badge.demo{background:linear-gradient(90deg,var(--scar),var(--yel))}
+.titles .sub{margin-top:6px;opacity:.92;font-weight:600}
+.badge{display:inline-block;margin-left:8px;padding:5px 10px;border-radius:999px;color:#0b0c14;font-weight:900;font-size:13px;background:linear-gradient(90deg,#ff7bf1,#ffd86a)}
+.badge.demo{background:linear-gradient(90deg,#ff6a6a,#ffd86a)}
 
-/* ROADMAP */
+/* ===== Roadmap ===== */
 .road{margin-top:18px;border:1px solid var(--ring);border-radius:18px;padding:16px;background:rgba(255,255,255,.10)}
 .bar{height:12px;border-radius:999px;background:rgba(14,10,25,.6);border:1px solid var(--ring);overflow:hidden}
-.bar>span{display:block;height:100%;width:0%;transition:width .35s ease;background:linear-gradient(90deg,var(--mag),var(--hot),var(--yel),var(--lime),var(--scar))}
+.bar>span{display:block;height:100%;width:0%;transition:width .35s ease;background:linear-gradient(90deg,#ff7bf1,#ffb84d,#8dff6a,#ff6a6a)}
 .bar-legend{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:var(--ink-dim)}
 .row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
 .btn{appearance:none;border:none;cursor:pointer;font-weight:900;color:#0b0c14;background:linear-gradient(180deg,#fff,#e9eefc);border-radius:999px;padding:10px 14px;box-shadow:0 8px 20px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.4)}
 .btn-ghost{background:rgba(255,255,255,.08);color:var(--ink);border:1px solid var(--ring)}
 .btn:active{transform:translateY(1px)}
 
+/* Kebab with viewport clamp */
 .drop{position:relative}
 .drop-menu{
   position:fixed;display:none;min-width:280px;max-height:60dvh;overflow:auto;
@@ -112,17 +110,21 @@ body{
 .drop-menu .item:hover{background:#ffffff18}
 .drop-menu .danger{background:#ff5b5b1a;border:1px solid #ff5b5b45}
 
+/* Demo CTA */
 .cta{margin-top:14px;padding:16px;border-radius:16px;border:1px solid var(--ring);background:linear-gradient(180deg,rgba(50,10,35,.92),rgba(45,15,40,.88));text-align:center}
-.cta .big{width:100%;padding:14px 16px;border-radius:12px;font-size:18px;font-weight:900;background:linear-gradient(90deg,var(--mag),var(--yel));color:#0b0c14}
+.cta .big{width:100%;padding:14px 16px;border-radius:12px;font-size:18px;font-weight:900;background:linear-gradient(90deg,#ff7bf1,#ffd86a);color:#0b0c14}
 .cta small{display:block;margin-top:8px;color:var(--ink-dim)}
 
-/* CHAT */
+/* ===== Chat ===== */
 .chat-col{display:grid;grid-template-rows:1fr auto;min-height:calc(100dvh - 48px)}
 @media(max-width:980px){.chat-col{min-height:72dvh}}
 .chat{
   overflow:auto;padding:18px;background:linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.06));
   border:1px solid var(--ring);border-radius:24px;scroll-behavior:smooth
 }
+/* hide visual scrollbars but keep scrollability */
+.chat{scrollbar-width:none}
+.chat::-webkit-scrollbar{width:0;height:0}
 .bubble{
   position:relative;margin:14px 0;padding:14px 16px 14px 56px;border-radius:18px;border:1px solid var(--ring);
   background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.05));box-shadow:0 10px 30px rgba(0,0,0,.25)
@@ -133,8 +135,22 @@ body{
 }
 .composer{margin-top:12px;display:grid;grid-template-columns:1fr 110px;gap:10px;align-items:end}
 textarea{width:100%;min-height:54px;max-height:180px;resize:vertical;padding:14px 16px;color:var(--ink);background:#120d20;border:1px solid var(--ring);border-radius:16px}
-.send{height:54px;border-radius:16px;font-weight:900;background:linear-gradient(130deg,var(--mag),var(--yel));color:#0b0c14}
+.send{height:54px;border-radius:16px;font-weight:900;background:linear-gradient(130deg,#ff7bf1,#ffd86a);color:#0b0c14}
 .dim{color:var(--ink-dim)}
+
+/* ===== Modules modal ===== */
+.modal{
+  position:fixed;inset:0;background:rgba(8,6,18,.65);backdrop-filter:blur(8px);display:none;place-items:center;z-index:9998
+}
+.modal.open{display:grid}
+.modal .panel{
+  width:min(680px,92vw);border-radius:18px;border:1px solid var(--ring);
+  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.06));
+  box-shadow:0 30px 80px rgba(0,0,0,.55); padding:18px 18px 12px;
+}
+.modlist{display:grid;gap:10px;margin-top:10px}
+.mod{display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid var(--ring);border-radius:12px;background:rgba(255,255,255,.08)}
+.lock{opacity:.6}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
@@ -193,8 +209,19 @@ textarea{width:100%;min-height:54px;max-height:180px;resize:vertical;padding:14p
 
 </div>
 
+<!-- Modules modal -->
+<div class="modal" id="modModal" aria-hidden="true">
+  <div class="panel">
+    <h3 style="margin:6px 6px 10px 6px;font-family:TechfontItalica">Modules</h3>
+    <div class="modlist" id="modList"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:12px">
+      <button class="btn btn-ghost" id="modClose">Close</button>
+    </div>
+  </div>
+</div>
+
 <script>
-/* ============== CONFIG/STATE ============== */
+/* ======= Config / State ======= */
 const WORKER_BASE = "https://freedom-engine-worker.intelligentlyartificialsystems.workers.dev";
 const STAGES = 5;
 const state = {
@@ -221,10 +248,15 @@ const el = {
   switchMode:document.getElementById("switchMode"),
   reset:document.getElementById("reset"),
   saveSnap:document.getElementById("saveSnap"),
-  loadSnap:document.getElementById("loadSnap")
+  loadSnap:document.getElementById("loadSnap"),
+  modulesBtn:document.getElementById("modulesBtn"),
+  modModal:document.getElementById("modModal"),
+  modList:document.getElementById("modList"),
+  modClose:document.getElementById("modClose"),
+  wake:document.getElementById("wake")
 };
 
-/* ============== UI HELPERS ============== */
+/* ======= UI ======= */
 function setTier(t){
   state.tier=t; localStorage.setItem("fe_tier",t);
   const isDemo = t==="demo";
@@ -249,7 +281,7 @@ function pushBubble(who,text){
   requestAnimationFrame(()=> el.chat.scrollTop=el.chat.scrollHeight);
 }
 
-/* ============== KEBAB POS (CLAMP TO VIEWPORT) ============== */
+/* ======= Kebab placement (clamped) ======= */
 function openKebab(){
   el.kebab.classList.add("open");
   const m = el.kebabMenu;
@@ -257,11 +289,9 @@ function openKebab(){
   m.style.display="block";
   const mw = m.offsetWidth, mh = m.offsetHeight;
   const margin=8;
-  // prefer above if not enough room below
   const roomBelow = window.innerHeight - btnRect.bottom;
   let top = roomBelow > mh + margin ? (btnRect.bottom + 8) : (btnRect.top - mh - 8);
   let left = btnRect.right - mw;
-  // clamp
   top  = Math.max(margin, Math.min(window.innerHeight - mh - margin, top));
   left = Math.max(margin, Math.min(window.innerWidth  - mw - margin, left));
   m.style.top  = `${top}px`;
@@ -269,14 +299,14 @@ function openKebab(){
 }
 function closeKebab(){ el.kebab.classList.remove("open"); el.kebabMenu.style.display="none"; }
 
-/* ============== CLOUD (D1) ============== */
+/* ======= Cloud (D1) ======= */
 async function cloudSave(){
   if(state.tier!=="premium" || !state.license) return;
   const payload = { roadmap:state.roadmap, messages:state.messages };
   try{
     await fetch(WORKER_BASE+"/progress",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({license_key:state.license,data:JSON.stringify(payload)})});
-  }catch(e){/* silent; local keeps going */}
+  }catch(e){}
 }
 async function cloudLoad(){
   if(state.tier!=="premium" || !state.license) return false;
@@ -294,7 +324,7 @@ async function cloudLoad(){
   return false;
 }
 
-/* ============== AI FLOW (lightweight, resilient) ============== */
+/* ======= AI flow (light, resilient) ======= */
 function aiReply(userText){
   const t=(userText||"").trim().toLowerCase();
   if(!t){ pushBubble("ai","Give me a crumb. Or say <em>help me choose</em>."); return; }
@@ -324,12 +354,47 @@ function aiReply(userText){
   cloudSave();
 }
 
-/* ============== BOOT ============== */
+/* ======= Greeting (no duplicates) ======= */
+function greet(){
+  if(state.greeted) return; state.greeted=true;
+  [...document.querySelectorAll(".bubble")].forEach(b=>{
+    if(b.dataset.greet==="1") b.remove();
+  });
+  const text = `
+    Welcome to the Freedom Engine. I’m your personal trainer for tiny paid offers.<br><br>
+    I’ll handle strategy, templates, and deadlines; you’ll do bite-size reps. We’ll ship one in ~72 hours.<br><br>
+    To get moving, pick a lane or say <em>“help me choose”</em>:<br>
+    • design • writing • coaching • dev • other
+  `;
+  const b=document.createElement("div");
+  b.className="bubble"; b.dataset.greet="1";
+  b.innerHTML=`<div class="who">⚙️</div>${text}`;
+  el.chat.appendChild(b); requestAnimationFrame(()=> el.chat.scrollTop=el.chat.scrollHeight);
+}
+
+/* ======= Modules modal ======= */
+function renderModules(){
+  const isDemo = state.tier==="demo";
+  el.modList.innerHTML="";
+  const rows = [
+    {name:"Offer Sprint", desc:"Guided 72-hour micro-offer builder", locked:isDemo},
+    {name:"Copy Booster", desc:"Emails, posts, and landing copy blocks", locked:isDemo},
+    {name:"Launch Maps", desc:"Prebuilt checklists + timelines", locked:isDemo},
+  ];
+  rows.forEach(r=>{
+    const div=document.createElement("div");
+    div.className="mod"+(r.locked?" lock":"");
+    div.innerHTML=`<div><b>${r.name}</b><br><span class="dim">${r.desc}</span></div>
+                   <div>${r.locked? "🔒" : "<button class='btn btn-ghost'>Enable</button>"}</div>`;
+    el.modList.appendChild(div);
+  });
+}
+
+/* ======= Boot ======= */
 document.addEventListener("DOMContentLoaded", async ()=>{
   // kebab
   el.kebabBtn.addEventListener("click", (e)=>{
-    e.stopPropagation();
-    if(el.kebab.classList.contains("open")) closeKebab(); else openKebab();
+    e.stopPropagation(); if(el.kebab.classList.contains("open")) closeKebab(); else openKebab();
   });
   window.addEventListener("resize", ()=>{ if(el.kebab.classList.contains("open")) openKebab(); });
   document.addEventListener("click", (e)=>{ if(!el.kebab.contains(e.target)) closeKebab(); });
@@ -377,6 +442,16 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     }; inp.click();
   });
 
+  // modules
+  el.modulesBtn.addEventListener("click", ()=>{ renderModules(); el.modModal.classList.add("open"); });
+  el.modClose.addEventListener("click", ()=> el.modModal.classList.remove("open"));
+  el.modModal.addEventListener("click",(e)=>{ if(e.target===el.modModal) el.modModal.classList.remove("open"); });
+
+  // wake
+  el.wake.addEventListener("click", ()=>{
+    pushBubble("ai","Engine’s awake. I’ve got caffeine and poor judgment. Where were we?");
+  });
+
   // send
   function send(){const v=el.input.value.trim(); if(!v) return; pushBubble("user",v); el.input.value=""; aiReply(v);}
   el.send.addEventListener("click", send);
@@ -389,28 +464,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   if(!loaded || state.messages.length===0) greet();
   updateBar();
 });
-
-/* opener (no duplicates) */
-function greet(){
-  if(state.greeted) return;
-  state.greeted=true;
-  // remove any duplicate greets left from bfcache
-  [...document.querySelectorAll(".bubble")].forEach(b=>{
-    if(b.dataset.greet==="1") b.remove();
-  });
-  const text = `
-    Welcome to the Freedom Engine. I’m your personal trainer for tiny paid offers.<br><br>
-    I’ll handle strategy, templates, and deadlines; you’ll do bite-size reps. We’ll ship one in ~72 hours.<br><br>
-    To get moving, pick a lane or say <em>“help me choose”</em>:<br>
-    • design • writing • coaching • dev • other
-  `;
-  const b=document.createElement("div");
-  b.className="bubble"; b.dataset.greet="1";
-  b.innerHTML=`<div class="who">⚙️</div>${text}`;
-  el.chat.appendChild(b); requestAnimationFrame(()=> el.chat.scrollTop=el.chat.scrollHeight);
-}
 </script>
-<!-- Body font -->
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap" rel="stylesheet">
 </body>
 </html>
