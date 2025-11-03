@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>The Freedom Engine — Personal AI Trainer</title>
 
-<!-- Brand font -->
 <style>
+/* ---------- Brand font ---------- */
 @font-face{
   font-family:"TechfontItalica";
   src:url("./Techfont-Italica.ttf") format("truetype");
@@ -25,7 +25,7 @@
   /* Logo tuning */
   --logo-x:50%;
   --logo-y:52%;
-  --logo-scale:.95;   /* ≈ half of 1.9 */
+  --logo-scale:.95;            /* logo size (you asked: about half of the big one) */
   --logo-speed:36s;
 }
 
@@ -37,38 +37,48 @@ body{
   background:#0f0a1c;
 }
 
-/* Old neon background */
+/* Old neon, muted behind glass */
 .bg{
-  position:fixed; inset:0; z-index:-3;
+  position:fixed; inset:0; z-index:-4;
   background:
     radial-gradient(1200px 700px at 15% 15%, rgba(255,123,241,.32), transparent 60%),
     radial-gradient(1200px 900px at 85% 10%, rgba(255,184,77,.28), transparent 65%),
     radial-gradient(1000px 800px at 20% 85%, rgba(141,255,106,.22), transparent 65%),
     linear-gradient(180deg, #1b1032 0%, #2a184a 50%, #25143f 100%);
-  filter:saturate(125%);
-}
-.aura{
-  position:fixed; inset:-20%; z-index:-2; pointer-events:none;
-  background:
-    radial-gradient(900px 600px at 70% 40%, rgba(255,118,181,.20), transparent 60%),
-    radial-gradient(800px 500px at 30% 70%, rgba(174,139,255,.18), transparent 60%),
-    radial-gradient(700px 600px at 90% 90%, rgba(255,106,106,.14), transparent 65%);
-  filter:blur(80px) saturate(130%); opacity:.45;
+  filter:saturate(125%) blur(0.2px);
 }
 
-/* Premium sacred-geometry overlay (subtle) */
+/* Premium: subtle sacred geometry (existing layer) */
 .prem-geo{
-  position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:.14;
-  display:none;
+  position:fixed; inset:0; z-index:-2; pointer-events:none; opacity:.14; display:none;
 }
 body.is-premium .prem-geo{ display:block; }
 .prem-geo svg{ width:100%; height:100%; }
 .prem-geo .spin path{ transform-origin:50% 50%; animation:geoSpin 60s linear infinite; }
 @keyframes geoSpin{ to{ transform:rotate(360deg) } }
 
+/* Premium: NEW iridescent wallpaper under everything (half opacity of the above) */
+.prem-geo-bg{
+  position:fixed; inset:-10%; z-index:-3; pointer-events:none; display:none; opacity:.07; filter:saturate(140%);
+}
+body.is-premium .prem-geo-bg{ display:block; }
+.prem-geo-bg .field{
+  width:100%; height:100%;
+  background:
+    radial-gradient(600px 600px at 25% 30%, #ff7bf150, transparent 60%),
+    radial-gradient(800px 800px at 75% 70%, #8dff6a50, transparent 65%),
+    radial-gradient(700px 700px at 50% 50%, #ffd86a50, transparent 55%);
+  animation:iris 30s linear infinite;
+}
+@keyframes iris{
+  0%{ filter:hue-rotate(0deg) blur(0.5px); transform:scale(1); }
+  50%{ filter:hue-rotate(120deg) blur(0.7px); transform:scale(1.02); }
+  100%{ filter:hue-rotate(360deg) blur(0.5px); transform:scale(1); }
+}
+
 /* Layout */
 .wrap{display:grid;grid-template-columns:440px 1fr;gap:24px;padding:24px;min-height:100dvh}
-@media(max-width:980px){.wrap{grid-template-columns:1fr;height:auto}}
+@media(max-width:980px){.wrap{grid-template-columns:1fr}}
 
 .card{
   position:relative;border-radius:24px;padding:18px;border:1px solid var(--ring);
@@ -88,18 +98,30 @@ body.is-premium .prem-geo{ display:block; }
   position:absolute; left:var(--logo-x); top:var(--logo-y);
   width:520px;height:520px; object-fit:contain; pointer-events:none;
   transform-origin:center center;
+  /* flip Y so it spins “inwards” as requested */
   transform:translate(-50%,-50%) scale(var(--logo-scale)) scaleY(-1);
   animation:spinIn var(--logo-speed) linear infinite reverse;
-  filter:drop-shadow(0 0 14px rgba(255,255,255,.28));
+  /* multicolor glow (stacked drop-shadows) */
+  filter:
+    drop-shadow(0 0 12px rgba(255,255,255,.22))
+    drop-shadow(0 0 18px rgba(255,123,241,.35))
+    drop-shadow(0 0 22px rgba(255,216,106,.28))
+    drop-shadow(0 0 26px rgba(141,255,106,.28))
+    drop-shadow(0 0 32px rgba(174,139,255,.25));
 }
 @keyframes spinIn{to{transform:translate(-50%,-50%) scale(var(--logo-scale)) scaleY(-1) rotateZ(360deg)}}
 
 .titles h1{
   margin:0; line-height:1.02; letter-spacing:.4px;
   font-size:46px; font-weight:800;
-  text-shadow:0 2px 0 rgba(0,0,0,.28);
+  text-shadow:
+    0 2px 0 rgba(0,0,0,.28),
+    0 12px 30px rgba(0,0,0,.45);       /* stronger pop */
 }
-.titles .sub{margin-top:6px;opacity:.92;font-weight:800}
+.titles .sub{
+  margin-top:6px;opacity:.92;font-weight:800;
+  text-shadow:0 8px 20px rgba(0,0,0,.35);
+}
 .badge{display:inline-block;margin-left:8px;padding:5px 10px;border-radius:999px;color:#0b0c14;font-weight:900;font-size:13px;background:linear-gradient(90deg,#ff7bf1,#ffd86a)}
 .badge.demo{background:linear-gradient(90deg,#ff6a6a,#ffd86a)}
 
@@ -137,19 +159,22 @@ body.is-premium .prem-geo{ display:block; }
 .cta .big{width:100%;padding:14px 16px;border-radius:12px;font-size:18px;font-weight:900;background:linear-gradient(90deg,#ff7bf1,#ffd86a);color:#0b0c14;font-family:"TechfontItalica",system-ui}
 .cta small{display:block;margin-top:8px;color:var(--ink-dim)}
 
-/* ---------- Chat ---------- */
-.chat-col{display:grid;grid-template-rows:1fr auto;min-height:calc(100dvh - 48px)}
-@media(max-width:980px){.chat-col{min-height:72dvh}}
-.chat{
-  overflow:auto;padding:18px;background:linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.06));
-  border:1px solid var(--ring);border-radius:24px;scroll-behavior:smooth
+/* ---------- Chat (ANCHOR composer & chat) ---------- */
+.chat-col{
+  position:relative; height:calc(100dvh - 48px);   /* fixed column height */
+  display:flex; flex-direction:column;
 }
-/* hide visual scrollbars, keep scroll */
-.chat{scrollbar-width:none}
-.chat::-webkit-scrollbar{width:0;height:0}
+@media(max-width:980px){ .chat-col{ height:calc(100dvh - 48px); } }
 
-/* Chat typography = regular/system font */
-.chat, .bubble, textarea{ font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif !important; }
+.chat{
+  flex:1; min-height:0; overflow:auto;              /* scroll instead of expand */
+  padding:18px 18px 96px;                           /* bottom space for composer */
+  background:linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.06));
+  border:1px solid var(--ring);border-radius:24px;scroll-behavior:smooth;
+  /* hide scrollbars visually */
+  scrollbar-width:none;
+}
+.chat::-webkit-scrollbar{width:0;height:0}
 
 .bubble{
   position:relative;margin:14px 0;padding:14px 16px 14px 56px;border-radius:18px;border:1px solid var(--ring);
@@ -159,8 +184,15 @@ body.is-premium .prem-geo{ display:block; }
   position:absolute;left:12px;top:12px;width:32px;height:32px;display:grid;place-items:center;border-radius:10px;
   background:#0e0a1fe6;border:1px solid var(--ring)
 }
-.composer{margin-top:12px;display:grid;grid-template-columns:1fr 110px;gap:10px;align-items:end}
-textarea{width:100%;min-height:54px;max-height:180px;resize:vertical;padding:14px 16px;color:var(--ink);background:#120d20;border:1px solid var(--ring);border-radius:16px}
+
+/* Composer is ANCHORED */
+.composer{
+  position:absolute; left:0; right:0; bottom:0;
+  display:grid;grid-template-columns:1fr 110px;gap:10px;align-items:end;
+  padding-top:10px;
+}
+textarea{width:100%;min-height:54px;max-height:180px;resize:vertical;padding:14px 16px;color:var(--ink);background:#120d20;border:1px solid var(--ring);border-radius:16px;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif !important}
 .send{height:54px;border-radius:16px;font-weight:900;background:linear-gradient(130deg,#ff7bf1,#ffd86a);color:#0b0c14;font-family:"TechfontItalica",system-ui}
 
 /* ---------- Modal (Modules) ---------- */
@@ -173,18 +205,17 @@ textarea{width:100%;min-height:54px;max-height:180px;resize:vertical;padding:14p
   border:1px solid var(--ring); border-radius:20px; padding:16px;
   box-shadow:0 30px 80px rgba(0,0,0,.55);
 }
-.modlist .mod{
-  display:flex; align-items:center; justify-content:space-between;
-  gap:16px; padding:12px; border:1px solid var(--ring); border-radius:14px; margin:10px 0;
-}
+.modlist .mod{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px; border:1px solid var(--ring); border-radius:14px; margin:10px 0; }
 .modlist .lock{ opacity:.6 }
 </style>
 </head>
 <body>
 <div class="bg"></div>
-<div class="aura"></div>
 
-<!-- Premium sacred geometry overlay (hidden until premium) -->
+<!-- Premium iridescent wallpaper (new, behind existing) -->
+<div class="prem-geo-bg" aria-hidden="true"><div class="field"></div></div>
+
+<!-- Premium sacred geometry overlay (existing) -->
 <div class="prem-geo" aria-hidden="true">
   <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
     <g class="spin" fill="none" stroke="url(#g)" stroke-width="0.4" opacity="0.85">
@@ -193,7 +224,6 @@ textarea{width:100%;min-height:54px;max-height:180px;resize:vertical;padding:14p
           <stop offset="0%"  stop-color="#ff7bf1"/><stop offset="50%" stop-color="#ffd86a"/><stop offset="100%" stop-color="#8dff6a"/>
         </linearGradient>
       </defs>
-      <!-- lightweight sacred geometry: circles + triangles + flower rings -->
       <circle cx="50" cy="50" r="30"/>
       <circle cx="50" cy="50" r="20"/>
       <path d="M50 18 L68 62 L32 62 Z"/>
@@ -316,6 +346,8 @@ function setTier(t){
   el.demoCTA.style.display = isDemo ? "block":"none";
   el.enterKey.style.display = isDemo ? "block":"none";
   el.buy.style.display      = isDemo ? "block":"none";
+  /* hide “switch to demo / sign out” while already in demo */
+  el.switchMode.style.display = isDemo ? "none":"block";
   el.tierBadge.textContent  = isDemo ? "Demo":"Premium";
   el.tierBadge.classList.toggle("demo", isDemo);
 }
@@ -335,7 +367,7 @@ function pushBubble(who,text){
   requestAnimationFrame(autoscroll);
 }
 
-/* ======= Kebab placement (clamped) ======= */
+/* ======= Kebab placement (clamped to viewport) ======= */
 function openKebab(){
   el.kebab.classList.add("open");
   const m = el.kebabMenu;
@@ -378,12 +410,11 @@ async function cloudLoad(){
   return false;
 }
 
-/* ======= Conversational flow (ChatGPT-ish guidance) ======= */
+/* ======= Conversational flow ======= */
 function normalize(t=""){ return t.trim().toLowerCase(); }
 function aiReply(userText){
   const t = normalize(userText);
 
-  // Safety net: simple intents
   if(!t){ pushBubble("ai","Give me a crumb or say <em>help me choose</em>."); return; }
   if(/(help me choose|idk|no clue|stuck)/.test(t)){
     pushBubble("ai",
@@ -395,7 +426,6 @@ function aiReply(userText){
        5) <b>Other</b> • pitch me your chaos`);
     return;
   }
-
   const m=t.match(/^\s*([1-5])\s*$/);
   if(m){
     const lane=["","Design","Writing","Coaching","Dev","Other"][Number(m[1])];
@@ -405,8 +435,6 @@ function aiReply(userText){
       `Locked: <b>${lane}</b>.<br>Now: what’s a <b>tiny deliverable in 48h</b> someone would pay for? One sentence.`);
     cloudSave(); return;
   }
-
-  // Generic understanding → reflect + next micro-step
   pushBubble("ai",
     `Got it. I’ll translate that into a tiny paid offer.<br>
      Quick confirm: who’s the <b>one real human</b> you’d ship this to first? (Name or describe them.)`);
@@ -504,7 +532,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   el.modClose.addEventListener("click", ()=> el.modModal.classList.remove("open"));
   el.modModal.addEventListener("click",(e)=>{ if(e.target===el.modModal) el.modModal.classList.remove("open"); });
 
-  // wake (debounced to avoid repeats)
+  // wake (debounced)
   el.wake.addEventListener("click", ()=>{
     const now=Date.now(); if(now-state.lastWake<2000) return; state.lastWake=now;
     pushBubble("ai","Engine’s awake. I’ve got caffeine and poor judgment. Where were we?");
@@ -517,7 +545,6 @@ document.addEventListener("DOMContentLoaded", async ()=>{
 
   // init
   setTier(state.tier);
-  if(state.tier==="premium") document.body.classList.add("is-premium");
   let loaded=false;
   if(state.tier==="premium" && state.license){ loaded=await cloudLoad(); }
   if(!loaded || state.messages.length===0) greet();
