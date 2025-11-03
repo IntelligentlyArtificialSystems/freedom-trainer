@@ -5,120 +5,158 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>The Freedom Engine — Personal AI Trainer</title>
 
-<!-- Headline font (kept from earlier), used across UI with lighter weights so it isn’t visually loud -->
-<link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,400;0,600;1,600&display=swap" rel="stylesheet">
-
+<!-- Headline font: your file. Place Techfont-Italica.ttf in the same folder as this file -->
 <style>
-  :root{
-    --glass: rgba(255,255,255,0.08);
-    --glass-2: rgba(255,255,255,0.14);
-    --ring: rgba(255,255,255,0.22);
-    --ink: #e8ecff;
-    --ink-dim:#bfc7f9;
-    --neon-c:#82f3ff; --neon-m:#ff7bf1; --neon-y:#ffd86a; --neon-g:#77ffb0;
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0; color:var(--ink); font-family:"Kanit",system-ui,sans-serif;
-    background: radial-gradient(1200px 700px at 20% 20%, rgba(255,255,255,0.12), transparent 60%),
-                radial-gradient(900px 600px at 80% 30%, rgba(255,255,255,0.10), transparent 60%),
-                linear-gradient(140deg,#2b0f27 0%,#23173a 40%,#18324a 100%);
-  }
+@font-face{
+  font-family: "TechfontItalica";
+  src: url("./Techfont-Italica.ttf") format("truetype");
+  font-display: swap;
+}
+:root{
+  /* neon core */
+  --c: #82f3ff; --m:#ff7bf1; --y:#ffd86a; --g:#6dffa8; --b:#6ea1ff;
+  --ink:#eef1ff; --ink-dim:#bdc6ff;
+  --glass: rgba(255,255,255,.10);
+  --glass-2: rgba(255,255,255,.16);
+  --ring: rgba(255,255,255,.22);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; color:var(--ink);
+  font-family: "Kanit", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  /* COLORFUL background (richer than last pass) */
+  background:
+    radial-gradient(1200px 800px at 10% 10%, rgba(255,255,255,.16), transparent 60%),
+    radial-gradient(900px 700px at 80% 20%, rgba(255,255,255,.12), transparent 60%),
+    linear-gradient(135deg,#230b3a 0%, #2b164b 28%, #102e57 60%, #0a2040 100%);
+}
 
-  /* Layout */
-  .wrap{display:grid; grid-template-columns:420px 1fr; gap:24px; padding:24px; height:100dvh;}
-  @media(max-width:900px){ .wrap{grid-template-columns:1fr; height:auto; min-height:100dvh} }
+.wrap{display:grid; grid-template-columns:440px 1fr; gap:24px; padding:24px; height:100dvh;}
+@media (max-width:980px){ .wrap{grid-template-columns:1fr; height:auto; min-height:100dvh} }
 
-  .card{
-    background:var(--glass); border:1px solid var(--ring);
-    border-radius:22px; box-shadow:0 10px 40px rgba(0,0,0,.35);
-    padding:18px; position:relative; overflow:visible; /* FIX: let dropdown escape */
-  }
-  .card::before{
-    content:""; position:absolute; inset:-40%;
-    background:conic-gradient(from 0deg, var(--neon-c), var(--neon-m), var(--neon-y), var(--neon-g), var(--neon-c));
-    opacity:.12; filter:blur(80px); z-index:0; pointer-events:none;
-    animation:swirl 16s linear infinite;
-  }
-  @keyframes swirl{to{transform:rotate(360deg)}}
+.card{
+  position:relative; z-index:0;
+  border-radius:24px; padding:18px;
+  background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+  border:1px solid var(--ring);
+  box-shadow: 0 18px 60px rgba(0,0,0,.45);
+  overflow:visible; /* so dropdowns can escape */
+}
+.card::before{
+  content:""; position:absolute; inset:-40%;
+  background:
+    radial-gradient(800px 600px at 20% 20%, rgba(130,243,255,.25), transparent 60%),
+    radial-gradient(900px 700px at 80% 10%, rgba(255,123,241,.22), transparent 65%),
+    conic-gradient(from 0deg, var(--c), var(--m), var(--y), var(--g), var(--b), var(--c));
+  filter: blur(100px) saturate(140%);
+  opacity:.18; z-index:-1; animation: swirl 22s linear infinite;
+}
+@keyframes swirl{to{transform:rotate(360deg)}}
 
-  /* Header panel */
-  .brand{
-    display:grid; grid-template-columns:132px 1fr; gap:16px; align-items:center;
-    margin-bottom:16px; position:relative; z-index:1;
-  }
-  .logo-box{
-    height:132px; border-radius:20px; background:var(--glass-2); border:1px solid var(--ring);
-    overflow:hidden; display:grid; place-items:center;
-  }
-  .logo{ width:320px; height:320px; object-fit:contain; animation:spin 38s linear infinite;
-         filter:drop-shadow(0 0 12px rgba(255,255,255,.25)); }
-  @keyframes spin{to{transform:rotate(360deg)}}
+/* BRAND */
+.brand{
+  display:grid; grid-template-columns:148px 1fr; gap:18px; align-items:center;
+  margin-bottom:16px; position:relative;
+}
+.logo-box{
+  height:148px; border-radius:24px; border:1px solid var(--ring);
+  background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.08));
+  /* mask the spinning logo strictly to the box */
+  overflow:hidden; display:grid; place-items:center;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 10px 40px rgba(0,0,0,.35);
+}
+.logo{
+  width: 420px; height: 420px; /* 3x bigger, cropped by the box */
+  object-fit: contain;
+  transform-origin: 50% 50%;
+  animation: spinLogo 36s linear infinite; /* pure Z-rotation */
+  filter: drop-shadow(0 0 14px rgba(255,255,255,.28));
+}
+@keyframes spinLogo{
+  to { transform: rotateZ(360deg); }
+}
 
-  .titles h1{margin:0; line-height:1.03; font-weight:600; font-size:44px; letter-spacing:.5px; word-break:break-word}
-  .titles .sub{opacity:.85; margin-top:4px; font-weight:400}
-  .badge{display:inline-block; padding:5px 10px; border-radius:999px;
-    background:linear-gradient(90deg,var(--neon-m),var(--neon-c)); color:#151327; font-weight:700; margin-left:8px; font-size:13px}
-  .badge.demo{background:linear-gradient(90deg,#ff8ab5,#ffd86a);}
+.titles h1{
+  margin:0; line-height:1.02; letter-spacing:.6px;
+  font-size:46px; font-weight:700;
+  font-family:"TechfontItalica","Kanit",system-ui,sans-serif; /* use your font for the headline */
+  text-shadow: 0 2px 0 rgba(0,0,0,.25);
+}
+.titles .sub{margin-top:6px; opacity:.9; font-weight:500}
+.badge{display:inline-block; margin-left:8px; padding:5px 10px; border-radius:999px; color:#0c0f1a; font-weight:800; font-size:13px;
+  background:linear-gradient(90deg,#ff7bf1,#82f3ff);}
+.badge.demo{ background:linear-gradient(90deg,#ff9cc2,#ffd86a); }
 
-  .road{margin-top:18px; background:var(--glass-2); border:1px solid var(--ring); border-radius:16px; padding:14px; position:relative; z-index:1}
-  .bar{height:12px; border-radius:999px; overflow:hidden; background:rgba(0,0,0,.35); border:1px solid var(--ring)}
-  .bar > span{display:block; height:100%; width:0%; background:linear-gradient(90deg,var(--neon-c),var(--neon-m),var(--neon-y),var(--neon-g)); transition:width .35s ease;}
-  .bar-legend{display:flex; justify-content:space-between; margin-top:8px; font-size:13px; color:var(--ink-dim)}
-  .row{display:flex; gap:8px; margin-top:14px; flex-wrap:wrap}
-  .btn{
-    appearance:none; border:none; cursor:pointer; font-weight:700; color:#0b0c14;
-    background:linear-gradient(180deg,#fff,#e9eefc); border-radius:999px; padding:10px 14px;
-    box-shadow:0 6px 18px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.35);
-  }
-  .btn-ghost{ background:var(--glass); color:var(--ink); border:1px solid var(--ring) }
-  .btn:active{ transform:translateY(1px) }
+/* ROADMAP */
+.road{margin-top:18px; border:1px solid var(--ring); border-radius:18px; padding:16px; background:var(--glass-2)}
+.bar{height:12px; border-radius:999px; background:rgba(10,15,35,.6); border:1px solid var(--ring); overflow:hidden}
+.bar>span{display:block; height:100%; width:0%; transition: width .35s ease;
+  background: linear-gradient(90deg, var(--c), var(--m), var(--y), var(--g), var(--b));}
+.bar-legend{display:flex; justify-content:space-between; margin-top:8px; font-size:13px; color:var(--ink-dim)}
+.row{display:flex; gap:10px; margin-top:16px; flex-wrap:wrap}
+.btn{appearance:none; border:none; cursor:pointer; font-weight:800; color:#0d0f17;
+  background:linear-gradient(180deg,#ffffff,#e9eefc); border-radius:999px; padding:10px 14px;
+  box-shadow:0 8px 20px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.4);}
+.btn-ghost{ background:rgba(255,255,255,.08); color:var(--ink); border:1px solid var(--ring) }
+.btn:active{transform:translateY(1px)}
 
-  /* Kebab: position with JS, render as fixed so it never clips */
-  .drop{ position:relative; }
-  .drop-menu{
-    position:fixed; inset:auto auto; /* JS sets top/left */
-    background:#0e1122f2; border:1px solid var(--ring); border-radius:16px; padding:8px;
-    min-width:260px; display:none; z-index:9999; backdrop-filter:blur(8px); max-height:60dvh; overflow:auto;
-  }
-  .drop.open .drop-menu{ display:block }
-  .drop-menu .item{ padding:10px 12px; border-radius:10px; color:var(--ink); font-weight:600; }
-  .drop-menu .item:hover{ background:#ffffff18 }
-  .drop-menu .danger{ background:#ff5b5b1a; border:1px solid #ff5b5b45 }
+.drop{ position:relative; }
+.drop-menu{
+  position:fixed; display:none; min-width:280px; max-height:60dvh; overflow:auto;
+  background:#0d1127f2; backdrop-filter: blur(10px);
+  border:1px solid var(--ring); border-radius:16px; padding:8px; z-index:9999;
+}
+.drop.open .drop-menu{ display:block }
+.drop-menu .item{ padding:10px 12px; border-radius:10px; font-weight:700; color:var(--ink); }
+.drop-menu .item:hover{ background:#ffffff18 }
+.drop-menu .danger{ background:#ff5b5b1a; border:1px solid #ff5b5b45 }
 
-  .cta{ margin-top:14px; padding:16px; border-radius:16px; background:linear-gradient(180deg,#1a1031aa,#231b3daa);
-        border:1px solid var(--ring); text-align:center; position:relative; z-index:1 }
-  .cta .big{ width:100%; padding:14px 16px; border-radius:12px; font-size:18px; font-weight:900;
-             background:linear-gradient(90deg,#ff84f7,#ffd86a); color:#0b0c14 }
-  .cta small{ display:block; margin-top:8px; color:var(--ink-dim) }
+.cta{margin-top:14px; padding:16px; border-radius:16px; border:1px solid var(--ring);
+  background:linear-gradient(180deg, rgba(30,15,55,.9), rgba(26,20,52,.85)); text-align:center}
+.cta .big{width:100%; padding:14px 16px; border-radius:12px; font-size:18px; font-weight:900;
+  background:linear-gradient(90deg,#ff7bf1,#ffd86a); color:#0b0c14}
+.cta small{display:block; margin-top:8px; color:var(--ink-dim)}
 
-  /* Chat */
-  .chat-col{ display:grid; grid-template-rows: 1fr auto; min-height:calc(100dvh - 48px); }
-  @media(max-width:900px){ .chat-col{ min-height:70dvh } }
-  .chat{ overflow:auto; background:var(--glass); border:1px solid var(--ring); border-radius:22px; padding:18px; scroll-behavior:smooth; }
-  .bubble{
-    background:linear-gradient(180deg, rgba(255,255,255,0.11), rgba(255,255,255,0.05));
-    border:1px solid var(--ring); border-radius:18px; padding:14px 16px; margin:10px 0; position:relative;
-  }
-  .bubble .who{
-    position:absolute; left:-38px; top:10px; width:28px; height:28px;
-    display:grid; place-items:center; border-radius:10px; background:#0e1122eb; border:1px solid var(--ring);
-  }
-  .composer{ margin-top:12px; display:grid; grid-template-columns:1fr 110px; gap:10px; align-items:end }
-  textarea{
-    width:100%; min-height:54px; max-height:180px; resize:vertical;
-    padding:14px 16px; color:var(--ink); background:#0b0f1f; border:1px solid var(--ring); border-radius:16px;
-  }
-  .send{ height:54px; border-radius:16px; font-weight:900; background:linear-gradient(130deg,#ff7bf1,#82f3ff); color:#0b0c14 }
-  .dim{ color:var(--ink-dim) }
+/* CHAT LAYOUT — fix avatar clipping */
+.chat-col{ display:grid; grid-template-rows: 1fr auto; min-height:calc(100dvh - 48px); }
+@media(max-width:980px){ .chat-col{ min-height:72dvh } }
+
+.chat{
+  overflow:auto; padding:18px 18px 18px 18px; /* equal padding */
+  background: linear-gradient(180deg, rgba(255,255,255,.11), rgba(255,255,255,.06));
+  border:1px solid var(--ring); border-radius:24px;
+  scroll-behavior:smooth;
+}
+.bubble{
+  position:relative; margin:14px 0; padding:14px 16px 14px 56px; /* give room for avatar inside bubble */
+  border-radius:18px; border:1px solid var(--ring);
+  background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.05));
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+}
+.bubble .who{
+  position:absolute; left:12px; top:12px; width:32px; height:32px;
+  display:grid; place-items:center; border-radius:10px;
+  background:#0e1122eb; border:1px solid var(--ring);
+}
+
+.composer{ margin-top:12px; display:grid; grid-template-columns:1fr 110px; gap:10px; align-items:end }
+textarea{
+  width:100%; min-height:54px; max-height:180px; resize:vertical;
+  padding:14px 16px; color:var(--ink);
+  background:#0b0f1f; border:1px solid var(--ring); border-radius:16px;}
+.send{ height:54px; border-radius:16px; font-weight:900; background:linear-gradient(130deg,#ff7bf1,#82f3ff); color:#0b0c14 }
+.dim{ color:var(--ink-dim) }
 </style>
+
+<!-- Body font (fallbacks) -->
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
 <div class="wrap">
 
-  <!-- LEFT -->
+  <!-- LEFT PANEL -->
   <section class="card" id="left">
     <div class="brand">
       <div class="logo-box"><img class="logo" src="ias-logo.png" alt="IAS Logo"></div>
@@ -137,7 +175,6 @@
 
         <div class="drop" id="kebab">
           <button class="btn btn-ghost" id="kebabBtn">…</button>
-          <!-- fixed-position menu (no more clipping) -->
           <div class="drop-menu" id="kebabMenu">
             <div class="item" id="saveSnap">Save Snapshot</div>
             <div class="item" id="loadSnap">Load Snapshot</div>
@@ -158,9 +195,9 @@
     </div>
   </section>
 
-  <!-- RIGHT -->
+  <!-- RIGHT: CHAT -->
   <section class="chat-col">
-    <div class="chat" id="chat"></div>
+    <div class="card chat" id="chat"></div>
     <div class="composer">
       <textarea id="input" placeholder="Answer here. Press Enter to send."></textarea>
       <button class="send" id="sendBtn">Send</button>
@@ -170,21 +207,17 @@
 </div>
 
 <script>
-/* =========================
-   CONFIG
-========================= */
+/* ============== CONFIG ============== */
 const WORKER_BASE = "https://freedom-engine-worker.intelligentlyartificialsystems.workers.dev";
 const STAGES = 5;
 
-/* =========================
-   STATE
-========================= */
+/* ============== STATE ============== */
 const state = {
   tier: localStorage.getItem("fe_tier") || "demo",
   license: localStorage.getItem("fe_license") || "",
   roadmap: 1,
   messages: [],
-  showedCloudHiccup: false
+  showedCloudHiccup:false
 };
 
 const el = {
@@ -207,9 +240,7 @@ const el = {
   loadSnap: document.getElementById("loadSnap")
 };
 
-/* =========================
-   UI HELPERS
-========================= */
+/* ============== UI ============== */
 function setTier(t){
   state.tier = t;
   localStorage.setItem("fe_tier", t);
@@ -238,34 +269,33 @@ function onceBootGreeting(){
   if(sessionStorage.getItem("fe_booted")) return false;
   sessionStorage.setItem("fe_booted","1");
   pushBubble("ai",
-    `Welcome to the Freedom Engine. I’ll carry strategy, templates, and deadlines; you do bite-size reps.
-     We’ll ship one in ~72 hours. No monk retreat required.<br><br>
-     Pick a lane and I’ll carry the heavy boxes:<br>
-     • design • writing • coaching • dev • other<br><br>
-     If you’re blank, say <em>“help me choose”</em> and I’ll pitch options.`
+   `Welcome to the Freedom Engine. I’ll carry strategy, templates, and deadlines; you do bite-size reps.<br><br>
+    We’ll ship one in ~72 hours. No monk retreat required.<br><br>
+    Pick a lane and I’ll carry the heavy boxes:<br>
+    • design • writing • coaching • dev • other<br><br>
+    If you’re blank, say <em>“help me choose”</em> and I’ll pitch options.`
   );
   return true;
 }
 
-/* =========================
-   KEBAB (fixed-position)
-========================= */
+/* ============== KEBAB ============== */
 function positionKebab(){
   const r = el.kebabBtn.getBoundingClientRect();
-  // Prefer opening upward; clamp inside viewport
-  const pad = 8;
-  const menu = el.kebabMenu;
-  menu.style.left = Math.max(pad, Math.min(window.innerWidth - menu.offsetWidth - pad, r.right - menu.offsetWidth)) + "px";
-  const desiredTop = r.top - menu.offsetHeight - 8;
-  const fallbackTop = r.bottom + 8;
-  menu.style.top = (desiredTop > pad ? desiredTop : fallbackTop) + "px";
+  const pad = 8, menu = el.kebabMenu;
+  // open upward when possible
+  menu.style.display = "block";
+  const mw = menu.offsetWidth, mh = menu.offsetHeight;
+  const left = Math.max(pad, Math.min(window.innerWidth - mw - pad, r.right - mw));
+  const topUp = r.top - mh - 8;
+  const top = topUp > pad ? topUp : r.bottom + 8;
+  menu.style.left = `${left}px`;
+  menu.style.top = `${top}px`;
 }
+function closeKebab(){ el.kebab.classList.remove("open"); el.kebabMenu.style.display="none"; }
 
-/* =========================
-   CLOUD SAVE / LOAD (D1)
-========================= */
+/* ============== CLOUD SAVE / LOAD (D1) ============== */
 async function cloudSave(){
-  if(state.tier !== "premium" || !state.license) return;
+  if(state.tier!=="premium" || !state.license) return;
   const payload = { roadmap: state.roadmap, messages: state.messages };
   try{
     await fetch(WORKER_BASE + "/progress",{
@@ -276,12 +306,12 @@ async function cloudSave(){
   }catch(e){
     if(!state.showedCloudHiccup){
       state.showedCloudHiccup = true;
-      pushBubble("ai","Cloud hiccup. Keep going — I’m saving locally and I’ll sync when the tubes behave.");
+      pushBubble("ai","Cloud hiccup. Keep rolling — I’m saving locally and I’ll sync when the tubes behave.");
     }
   }
 }
 async function cloudLoad(){
-  if(state.tier !== "premium" || !state.license) return false;
+  if(state.tier!=="premium" || !state.license) return false;
   try{
     const r = await fetch(WORKER_BASE + "/progress?license_key=" + encodeURIComponent(state.license));
     const j = await r.json();
@@ -294,79 +324,60 @@ async function cloudLoad(){
       updateBar();
       return true;
     }
-  }catch(e){ /* stay quiet */ }
+  }catch(e){}
   return false;
 }
 
-/* =========================
-   AI (simple but tougher)
-========================= */
+/* ============== AI ============== */
 function aiReply(userText){
-  const t = (userText||"").trim();
-  const low = t.toLowerCase();
+  const t = (userText||"").trim(), low = t.toLowerCase();
 
-  if(!t){
-    pushBubble("ai","Words, champ. Throw me something. Or say <em>help me choose</em>.");
-    return;
-  }
+  if(!t){ pushBubble("ai","Words, champ. Toss me *something*. Or say <em>help me choose</em>."); return; }
 
   if(/help me choose|no clue|idk|i don.?t know/.test(low)){
-    state.roadmap = Math.max(1, state.roadmap);
+    state.roadmap = Math.max(1,state.roadmap);
     pushBubble("ai",
       `Cool. Choose a lane — reply with a number:<br>
        1) <b>Design</b> — logos, graphics, visual packs<br>
        2) <b>Writing</b> — copy, guides, micro-ebooks<br>
-       3) <b>Coaching</b> — 1:1 accelerators, audits<br>
+       3) <b>Coaching</b> — audits, accelerators<br>
        4) <b>Dev</b> — tiny tools, setups, automations<br>
-       5) <b>Other</b> — pitch your weird idea`
-    );
+       5) <b>Other</b> — pitch your weird idea`);
     return;
   }
-
   const m = low.match(/^\s*([1-5])\s*$/);
   if(m){
-    const idx = Number(m[1]);
-    const lane = ["","Design","Writing","Coaching","Dev","Other"][idx];
+    const lane = ["","Design","Writing","Coaching","Dev","Other"][Number(m[1])];
     state.roadmap = 2;
     pushBubble("ai",
       `Locked in: <b>${lane}</b>.<br>
        Give me one fast answer: <b>what can you deliver in the next 48 hours</b> that a real human would pay for?
-       Keep it tiny. One deliverable.`
-    );
-    cloudSave(); updateBar(); return;
+       Keep it tiny. One deliverable.`);
+    updateBar(); cloudSave(); return;
   }
 
-  // Default: accept any text and progress
-  state.roadmap = Math.min(STAGES, state.roadmap + 1);
+  state.roadmap = Math.min(STAGES, state.roadmap+1);
   pushBubble("ai",
     `Good — I’ve got enough to move. I’ll turn that into a concrete micro-offer and a 3-step launch plan next.
-     Quick: list one constraint (time, tools, or absolute “nope”). Constraints make this real.`
-  );
-  cloudSave(); updateBar();
+     Quick: list one constraint (time, tools, or a hard “nope”). Constraints keep this real.`);
+  updateBar(); cloudSave();
 }
 
-/* =========================
-   BOOT
-========================= */
-document.addEventListener("DOMContentLoaded", async () => {
-  // Kebab open/close + positioning
-  el.kebabBtn.addEventListener("click", () => {
+/* ============== BOOT ============== */
+document.addEventListener("DOMContentLoaded", async ()=>{
+  // kebab
+  el.kebabBtn.addEventListener("click", ()=>{
     el.kebab.classList.toggle("open");
-    if(el.kebab.classList.contains("open")){
-      el.kebabMenu.style.display = "block";
-      positionKebab();
-    }else{
-      el.kebabMenu.style.display = "none";
-    }
+    if(el.kebab.classList.contains("open")){ positionKebab(); }
+    else closeKebab();
   });
-  window.addEventListener("resize", () => { if(el.kebab.classList.contains("open")) positionKebab(); });
-  document.addEventListener("click",(e)=>{ if(!el.kebab.contains(e.target)) { el.kebab.classList.remove("open"); el.kebabMenu.style.display="none"; }});
+  window.addEventListener("resize", ()=>{ if(el.kebab.classList.contains("open")) positionKebab(); });
+  document.addEventListener("click",(e)=>{ if(!el.kebab.contains(e.target)) closeKebab(); });
 
-  // Buttons
+  // demo/premium toggles
   const gumroad = "https://intellartsystems.gumroad.com/l/the-freedom-engine";
   el.buy.addEventListener("click", ()=> window.open(gumroad,"_blank"));
-  el.ctaBuy.addEventListener("click", ()=> window.open(gumroad,"_blank"));
-
+  el.ctaBuy?.addEventListener("click", ()=> window.open(gumroad,"_blank"));
   el.enterKey.addEventListener("click", async ()=>{
     const key = prompt("Enter license key:");
     if(!key) return;
@@ -377,26 +388,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     if(!ok){ el.chat.innerHTML=""; pushBubble("ai","Premium engaged. Clean slate. Say “help me choose” or name your lane (design / writing / coaching / dev / other)."); }
     updateBar();
   });
-
   el.switchMode.addEventListener("click", ()=>{
     localStorage.removeItem("fe_license");
-    setTier("demo");
-    state.license = "";
-    state.roadmap = 1;
-    state.messages = [];
-    state.showedCloudHiccup = false;
+    setTier("demo"); state.license=""; state.roadmap=1; state.messages=[]; state.showedCloudHiccup=false;
     sessionStorage.removeItem("fe_booted");
-    el.chat.innerHTML = "";
-    onceBootGreeting();
-    updateBar();
+    el.chat.innerHTML=""; onceBootGreeting(); updateBar();
   });
-
   el.reset.addEventListener("click", ()=>{
-    state.roadmap = 1; state.messages = []; state.showedCloudHiccup=false;
-    sessionStorage.removeItem("fe_booted"); el.chat.innerHTML=""; onceBootGreeting(); cloudSave(); updateBar();
+    state.roadmap=1; state.messages=[]; state.showedCloudHiccup=false;
+    sessionStorage.removeItem("fe_booted"); el.chat.innerHTML=""; onceBootGreeting(); updateBar(); cloudSave();
   });
 
-  // Export snapshot (pretty JSON)
+  // export snapshot
   document.getElementById("exportBtn").addEventListener("click", ()=>{
     const data = { roadmap: state.roadmap, messages: state.messages, tier: state.tier };
     const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
@@ -404,8 +407,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     a.href = URL.createObjectURL(blob); a.download = "freedom-engine-snapshot.json"; a.click();
     URL.revokeObjectURL(a.href);
   });
-
-  // Save/Load snapshot to local disk
+  // save/load to file
   el.saveSnap.addEventListener("click", ()=>{
     const data = { roadmap: state.roadmap, messages: state.messages };
     const blob = new Blob([JSON.stringify(data)], {type:"application/json"});
@@ -416,49 +418,45 @@ document.addEventListener("DOMContentLoaded", async () => {
   el.loadSnap.addEventListener("click", ()=>{
     const inp = document.createElement("input");
     inp.type="file"; inp.accept="application/json";
-    inp.onchange = async () => {
-      const file = inp.files[0]; if(!file) return;
-      const text = await file.text();
+    inp.onchange=async()=>{
+      const f = inp.files[0]; if(!f) return;
       try{
-        const data = JSON.parse(text);
+        const data = JSON.parse(await f.text());
         state.roadmap = Math.max(1, Math.min(STAGES, Number(data.roadmap)||1));
-        state.messages = Array.isArray(data.messages) ? data.messages.slice(-80) : [];
-        el.chat.innerHTML = ""; state.messages.forEach(m=>pushBubble(m.who,m.text));
+        state.messages = Array.isArray(data.messages)? data.messages.slice(-80):[];
+        el.chat.innerHTML=""; state.messages.forEach(m=>pushBubble(m.who,m.text));
         updateBar(); cloudSave();
-      }catch(e){ alert("Bad snapshot file."); }
+      }catch(_){ alert("Bad snapshot file."); }
     };
     inp.click();
   });
 
-  // Send
+  // send
   function sendNow(){
-    const v = el.input.value.trim();
-    if(!v) return;
-    pushBubble("user", v);
-    el.input.value="";
-    aiReply(v);
+    const v = el.input.value.trim(); if(!v) return;
+    pushBubble("user", v); el.input.value=""; aiReply(v);
   }
   el.send.addEventListener("click", sendNow);
-  el.input.addEventListener("keydown", (e)=>{ if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); sendNow(); } });
+  el.input.addEventListener("keydown", e=>{ if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); sendNow(); } });
 
-  // Init tier and try cloud
+  // init
   setTier(state.tier);
-  let greeted = false;
+  let greeted=false;
   if(state.tier==="premium" && state.license){
     const ok = await cloudLoad();
     if(!ok) greeted = onceBootGreeting();
-  } else {
+  }else{
     greeted = onceBootGreeting();
   }
   updateBar();
   if(!greeted && state.messages.length===0) onceBootGreeting();
 });
 
-/* opener de-dupe on bfcache */
+/* de-dupe opener on bfcache */
 window.addEventListener("pageshow",()=>{
-  const list = [...document.querySelectorAll(".bubble")];
-  const openers = list.filter(b => b.innerText.toLowerCase().includes("welcome to the freedom engine"));
-  if(openers.length>1){ openers.slice(0,-1).forEach(b=>b.remove()); }
+  const opens = [...document.querySelectorAll(".bubble")]
+    .filter(b=>b.innerText.toLowerCase().includes("welcome to the freedom engine"));
+  if(opens.length>1) opens.slice(0,-1).forEach(b=>b.remove());
 });
 </script>
 </body>
