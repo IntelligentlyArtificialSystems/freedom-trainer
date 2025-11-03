@@ -15,36 +15,31 @@
 
 /* ---------- Theme ---------- */
 :root{
-  /* Global color system (old UI vibe) */
-  --ink:#f7f8ff;
-  --ink-dim:#cfd4ff;
+  --ink:#f7f8ff; --ink-dim:#cfd4ff;
   --ring:rgba(255,255,255,.22);
   --glass1:rgba(255,255,255,.14);
   --glass2:rgba(255,255,255,.08);
 
-  --mag:#ff7bf1; --pink:#ff76b5; --hot:#ff4f88;
-  --sun:#ffb84d; --gold:#ffd86a; --lime:#8dff6a;
-  --scar:#ff6a6a; --vio:#ae8bff;
+  --mag:#ff7bf1; --pink:#ff76b5; --sun:#ffb84d; --gold:#ffd86a; --lime:#8dff6a; --vio:#ae8bff; --scar:#ff6a6a;
 
-  /* Logo tuning knobs */
-  --logo-x:50%;        /* move 0–100% horizontally inside the box */
-  --logo-y:52%;        /* move 0–100% vertically inside the box (52% keeps more “inside”) */
-  --logo-scale:1.9;    /* 1.5–2.2 is a nice range for “big but contained” */
-  --logo-speed:36s;    /* rotation duration */
+  /* Logo tuning */
+  --logo-x:50%;
+  --logo-y:52%;
+  --logo-scale:.95;   /* ≈ half of 1.9 */
+  --logo-speed:36s;
 }
 
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
   margin:0;color:var(--ink);
-  /* Use brand font **everywhere** */
-  font-family:"TechfontItalica", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  font-family:"TechfontItalica",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
   background:#0f0a1c;
 }
 
-/* Old-site neon gradient background (no image) */
+/* Old neon background */
 .bg{
-  position:fixed; inset:0; z-index:-2;
+  position:fixed; inset:0; z-index:-3;
   background:
     radial-gradient(1200px 700px at 15% 15%, rgba(255,123,241,.32), transparent 60%),
     radial-gradient(1200px 900px at 85% 10%, rgba(255,184,77,.28), transparent 65%),
@@ -53,13 +48,23 @@ body{
   filter:saturate(125%);
 }
 .aura{
-  position:fixed; inset:-20%; z-index:-1; pointer-events:none;
+  position:fixed; inset:-20%; z-index:-2; pointer-events:none;
   background:
     radial-gradient(900px 600px at 70% 40%, rgba(255,118,181,.20), transparent 60%),
     radial-gradient(800px 500px at 30% 70%, rgba(174,139,255,.18), transparent 60%),
     radial-gradient(700px 600px at 90% 90%, rgba(255,106,106,.14), transparent 65%);
   filter:blur(80px) saturate(130%); opacity:.45;
 }
+
+/* Premium sacred-geometry overlay (subtle) */
+.prem-geo{
+  position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:.14;
+  display:none;
+}
+body.is-premium .prem-geo{ display:block; }
+.prem-geo svg{ width:100%; height:100%; }
+.prem-geo .spin path{ transform-origin:50% 50%; animation:geoSpin 60s linear infinite; }
+@keyframes geoSpin{ to{ transform:rotate(360deg) } }
 
 /* Layout */
 .wrap{display:grid;grid-template-columns:440px 1fr;gap:24px;padding:24px;min-height:100dvh}
@@ -79,7 +84,6 @@ body{
   overflow:hidden;position:relative;isolation:isolate;
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 12px 40px rgba(0,0,0,.35)
 }
-/* Spin “inward”, masked, centered by CSS variables so we can nudge the center easily */
 .logo{
   position:absolute; left:var(--logo-x); top:var(--logo-y);
   width:520px;height:520px; object-fit:contain; pointer-events:none;
@@ -106,7 +110,7 @@ body{
 .bar-legend{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:var(--ink-dim)}
 .row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
 
-/* Buttons use brand font too */
+/* Buttons keep brand font */
 .btn{
   appearance:none;border:none;cursor:pointer;font-weight:900;
   color:#0b0c14;background:linear-gradient(180deg,#fff,#e9eefc);
@@ -143,6 +147,10 @@ body{
 /* hide visual scrollbars, keep scroll */
 .chat{scrollbar-width:none}
 .chat::-webkit-scrollbar{width:0;height:0}
+
+/* Chat typography = regular/system font */
+.chat, .bubble, textarea{ font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif !important; }
+
 .bubble{
   position:relative;margin:14px 0;padding:14px 16px 14px 56px;border-radius:18px;border:1px solid var(--ring);
   background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.05));box-shadow:0 10px 30px rgba(0,0,0,.25)
@@ -152,15 +160,51 @@ body{
   background:#0e0a1fe6;border:1px solid var(--ring)
 }
 .composer{margin-top:12px;display:grid;grid-template-columns:1fr 110px;gap:10px;align-items:end}
-textarea{width:100%;min-height:54px;max-height:180px;resize:vertical;padding:14px 16px;color:var(--ink);background:#120d20;border:1px solid var(--ring);border-radius:16px;font-family:"TechfontItalica",system-ui}
+textarea{width:100%;min-height:54px;max-height:180px;resize:vertical;padding:14px 16px;color:var(--ink);background:#120d20;border:1px solid var(--ring);border-radius:16px}
 .send{height:54px;border-radius:16px;font-weight:900;background:linear-gradient(130deg,#ff7bf1,#ffd86a);color:#0b0c14;font-family:"TechfontItalica",system-ui}
-.dim{color:var(--ink-dim)}
+
+/* ---------- Modal (Modules) ---------- */
+.modal{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:10000; }
+.modal.open{ display:flex; }
+.modal::before{ content:""; position:absolute; inset:0; background:rgba(6,4,12,.6); backdrop-filter:blur(4px); }
+.panel{
+  position:relative; z-index:1; width:min(720px,92vw);
+  background:linear-gradient(180deg,var(--glass1),var(--glass2));
+  border:1px solid var(--ring); border-radius:20px; padding:16px;
+  box-shadow:0 30px 80px rgba(0,0,0,.55);
+}
+.modlist .mod{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:16px; padding:12px; border:1px solid var(--ring); border-radius:14px; margin:10px 0;
+}
+.modlist .lock{ opacity:.6 }
 </style>
-<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 <div class="bg"></div>
 <div class="aura"></div>
+
+<!-- Premium sacred geometry overlay (hidden until premium) -->
+<div class="prem-geo" aria-hidden="true">
+  <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+    <g class="spin" fill="none" stroke="url(#g)" stroke-width="0.4" opacity="0.85">
+      <defs>
+        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%"  stop-color="#ff7bf1"/><stop offset="50%" stop-color="#ffd86a"/><stop offset="100%" stop-color="#8dff6a"/>
+        </linearGradient>
+      </defs>
+      <!-- lightweight sacred geometry: circles + triangles + flower rings -->
+      <circle cx="50" cy="50" r="30"/>
+      <circle cx="50" cy="50" r="20"/>
+      <path d="M50 18 L68 62 L32 62 Z"/>
+      <g opacity="0.45">
+        <circle cx="50" cy="35" r="10"/>
+        <circle cx="65" cy="58" r="10"/>
+        <circle cx="35" cy="58" r="10"/>
+      </g>
+    </g>
+  </svg>
+</div>
 
 <div class="wrap">
 
@@ -236,7 +280,8 @@ const state = {
   license: localStorage.getItem("fe_license") || "",
   roadmap: 1,
   messages: [],
-  greeted:false
+  greeted:false,
+  lastWake:0
 };
 const el = {
   bar:document.getElementById("bar"),
@@ -267,6 +312,7 @@ const el = {
 function setTier(t){
   state.tier=t; localStorage.setItem("fe_tier",t);
   const isDemo = t==="demo";
+  document.body.classList.toggle("is-premium", !isDemo); // toggle sacred geometry
   el.demoCTA.style.display = isDemo ? "block":"none";
   el.enterKey.style.display = isDemo ? "block":"none";
   el.buy.style.display      = isDemo ? "block":"none";
@@ -278,6 +324,7 @@ function updateBar(){
   el.bar.style.width = pct+"%";
   el.barText.textContent = `${Math.max(1,state.roadmap)}/${STAGES}`;
 }
+function autoscroll(){ el.chat.scrollTop = el.chat.scrollHeight; }
 function pushBubble(who,text){
   if(!text)return;
   const b=document.createElement("div");
@@ -285,7 +332,7 @@ function pushBubble(who,text){
   b.innerHTML=`<div class="who">${who==="user"?"💬":"⚙️"}</div>${text}`;
   el.chat.appendChild(b);
   state.messages.push({who,text});
-  requestAnimationFrame(()=> el.chat.scrollTop=el.chat.scrollHeight);
+  requestAnimationFrame(autoscroll);
 }
 
 /* ======= Kebab placement (clamped) ======= */
@@ -306,7 +353,7 @@ function openKebab(){
 }
 function closeKebab(){ el.kebab.classList.remove("open"); el.kebabMenu.style.display="none"; }
 
-/* ======= Cloud (D1) stubs safe to keep ======= */
+/* ======= Cloud (D1) ======= */
 async function cloudSave(){
   if(state.tier!=="premium" || !state.license) return;
   const payload = { roadmap:state.roadmap, messages:state.messages };
@@ -331,34 +378,39 @@ async function cloudLoad(){
   return false;
 }
 
-/* ======= AI flow (tight mentor tone) ======= */
+/* ======= Conversational flow (ChatGPT-ish guidance) ======= */
+function normalize(t=""){ return t.trim().toLowerCase(); }
 function aiReply(userText){
-  const t=(userText||"").trim().toLowerCase();
-  if(!t){ pushBubble("ai","Give me a crumb. Or say <em>help me choose</em>."); return; }
+  const t = normalize(userText);
 
-  if(/help me choose|idk|no clue|i don.?t know/.test(t)){
+  // Safety net: simple intents
+  if(!t){ pushBubble("ai","Give me a crumb or say <em>help me choose</em>."); return; }
+  if(/(help me choose|idk|no clue|stuck)/.test(t)){
     pushBubble("ai",
-      `Pick your lane (reply 1–5):<br>
-       1) <b>Design</b> • logos, graphics, visual packs<br>
-       2) <b>Writing</b> • copy, guides, micro-ebooks<br>
-       3) <b>Coaching</b> • audits, accelerators<br>
-       4) <b>Dev</b> • tiny tools, setups, automations<br>
-       5) <b>Other</b> • pitch your weird idea`);
+      `Okay, options time. Reply 1–5:<br>
+       1) <b>Design</b> • logos/graphics<br>
+       2) <b>Writing</b> • copy/guides<br>
+       3) <b>Coaching</b> • audits/accelerators<br>
+       4) <b>Dev</b> • tiny tools/setups<br>
+       5) <b>Other</b> • pitch me your chaos`);
     return;
   }
+
   const m=t.match(/^\s*([1-5])\s*$/);
   if(m){
     const lane=["","Design","Writing","Coaching","Dev","Other"][Number(m[1])];
-    state.roadmap=2; updateBar();
+    state.roadmap=Math.max(2,state.roadmap);
+    updateBar();
     pushBubble("ai",
-      `Locked: <b>${lane}</b>.<br>
-       What can you ship in the next 48 hours that a real human would pay for? One tiny deliverable. Go.`);
+      `Locked: <b>${lane}</b>.<br>Now: what’s a <b>tiny deliverable in 48h</b> someone would pay for? One sentence.`);
     cloudSave(); return;
   }
-  state.roadmap=Math.min(5,state.roadmap+1); updateBar();
+
+  // Generic understanding → reflect + next micro-step
   pushBubble("ai",
-    `Good. I’ll shape this into a micro-offer and a 3-step launch. Name one constraint you refuse (time/tools/scope).`);
-  cloudSave();
+    `Got it. I’ll translate that into a tiny paid offer.<br>
+     Quick confirm: who’s the <b>one real human</b> you’d ship this to first? (Name or describe them.)`);
+  state.roadmap=Math.min(5,state.roadmap+1); updateBar(); cloudSave();
 }
 
 /* ======= Greeting once ======= */
@@ -374,7 +426,7 @@ function greet(){
   const b=document.createElement("div");
   b.className="bubble"; b.dataset.greet="1";
   b.innerHTML=`<div class="who">⚙️</div>${text}`;
-  el.chat.appendChild(b); requestAnimationFrame(()=> el.chat.scrollTop=el.chat.scrollHeight);
+  el.chat.appendChild(b); requestAnimationFrame(autoscroll);
 }
 
 /* ======= Modules modal ======= */
@@ -452,8 +504,9 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   el.modClose.addEventListener("click", ()=> el.modModal.classList.remove("open"));
   el.modModal.addEventListener("click",(e)=>{ if(e.target===el.modModal) el.modModal.classList.remove("open"); });
 
-  // wake
+  // wake (debounced to avoid repeats)
   el.wake.addEventListener("click", ()=>{
+    const now=Date.now(); if(now-state.lastWake<2000) return; state.lastWake=now;
     pushBubble("ai","Engine’s awake. I’ve got caffeine and poor judgment. Where were we?");
   });
 
@@ -464,10 +517,12 @@ document.addEventListener("DOMContentLoaded", async ()=>{
 
   // init
   setTier(state.tier);
+  if(state.tier==="premium") document.body.classList.add("is-premium");
   let loaded=false;
   if(state.tier==="premium" && state.license){ loaded=await cloudLoad(); }
   if(!loaded || state.messages.length===0) greet();
   updateBar();
+  autoscroll();
 });
 </script>
 </body>
