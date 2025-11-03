@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>The Freedom Engine — Personal AI Trainer</title>
 
-<!-- Brand display font -->
+<!-- Brand font -->
 <style>
 @font-face{
   font-family:"TechfontItalica";
@@ -13,116 +13,134 @@
   font-display:swap;
 }
 
-/* ===== Root + Background ===== */
+/* ---------- Theme ---------- */
 :root{
-  --ink:#f6f7ff;
-  --ink-dim:#cbd1ff;
+  /* Global color system (old UI vibe) */
+  --ink:#f7f8ff;
+  --ink-dim:#cfd4ff;
   --ring:rgba(255,255,255,.22);
-  --glass1:rgba(255,255,255,.13);
+  --glass1:rgba(255,255,255,.14);
   --glass2:rgba(255,255,255,.08);
 
-  --mag:#ff7bf1; --vio:#b07aff; --pur:#7a5cff; --hot:#ff4f88;
-  --yel:#ffd86a; --sun:#ffb84d; --lime:#8dff6a; --scar:#ff6a6a;
+  --mag:#ff7bf1; --pink:#ff76b5; --hot:#ff4f88;
+  --sun:#ffb84d; --gold:#ffd86a; --lime:#8dff6a;
+  --scar:#ff6a6a; --vio:#ae8bff;
+
+  /* Logo tuning knobs */
+  --logo-x:50%;        /* move 0–100% horizontally inside the box */
+  --logo-y:52%;        /* move 0–100% vertically inside the box (52% keeps more “inside”) */
+  --logo-scale:1.9;    /* 1.5–2.2 is a nice range for “big but contained” */
+  --logo-speed:36s;    /* rotation duration */
 }
 
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
-  margin:0; color:var(--ink);
-  font-family:"Kanit",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-  background:#0e0a1f;
-}
-/* full-screen background image, blurred under glass */
-body::before{
-  content:"";
-  position:fixed; inset:0;
-  background:url("./bg-warp.png") center/cover no-repeat;
-  filter:blur(18px) saturate(125%) brightness(0.9);
-  z-index:-2;
-}
-/* subtle neon aura layer (muted) */
-body::after{
-  content:""; position:fixed; inset:-20%;
-  background:
-    radial-gradient(800px 500px at 10% 10%, rgba(255,123,241,.18), transparent 60%),
-    radial-gradient(900px 700px at 90% 0%, rgba(255,216,106,.18), transparent 60%),
-    radial-gradient(900px 700px at 15% 95%, rgba(141,255,106,.14), transparent 65%);
-  filter:blur(80px) saturate(130%);
-  z-index:-1; opacity:.35;
+  margin:0;color:var(--ink);
+  /* Use brand font **everywhere** */
+  font-family:"TechfontItalica", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background:#0f0a1c;
 }
 
+/* Old-site neon gradient background (no image) */
+.bg{
+  position:fixed; inset:0; z-index:-2;
+  background:
+    radial-gradient(1200px 700px at 15% 15%, rgba(255,123,241,.32), transparent 60%),
+    radial-gradient(1200px 900px at 85% 10%, rgba(255,184,77,.28), transparent 65%),
+    radial-gradient(1000px 800px at 20% 85%, rgba(141,255,106,.22), transparent 65%),
+    linear-gradient(180deg, #1b1032 0%, #2a184a 50%, #25143f 100%);
+  filter:saturate(125%);
+}
+.aura{
+  position:fixed; inset:-20%; z-index:-1; pointer-events:none;
+  background:
+    radial-gradient(900px 600px at 70% 40%, rgba(255,118,181,.20), transparent 60%),
+    radial-gradient(800px 500px at 30% 70%, rgba(174,139,255,.18), transparent 60%),
+    radial-gradient(700px 600px at 90% 90%, rgba(255,106,106,.14), transparent 65%);
+  filter:blur(80px) saturate(130%); opacity:.45;
+}
+
+/* Layout */
 .wrap{display:grid;grid-template-columns:440px 1fr;gap:24px;padding:24px;min-height:100dvh}
 @media(max-width:980px){.wrap{grid-template-columns:1fr;height:auto}}
 
-/* Glass cards */
 .card{
   position:relative;border-radius:24px;padding:18px;border:1px solid var(--ring);
   background:linear-gradient(180deg,var(--glass1),var(--glass2));
   box-shadow:0 20px 60px rgba(0,0,0,.45);
 }
 
-/* ===== Brand header ===== */
+/* ---------- Brand header ---------- */
 .brand{display:grid;grid-template-columns:148px 1fr;gap:18px;align-items:center;margin-bottom:16px}
 .logo-box{
   height:148px;border-radius:24px;border:1px solid var(--ring);
   background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.06));
-  overflow:hidden;display:grid;place-items:center;
+  overflow:hidden;position:relative;isolation:isolate;
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 12px 40px rgba(0,0,0,.35)
 }
-/* 3x logo, flipped vertically, masked by box, “inward” spin */
+/* Spin “inward”, masked, centered by CSS variables so we can nudge the center easily */
 .logo{
-  width:420px;height:420px;object-fit:contain;
-  transform-origin:50% 50%;
-  transform:scaleY(-1); /* flip on up/down axis */
-  animation:spinIn 36s linear infinite reverse; /* reverse for inward feel */
+  position:absolute; left:var(--logo-x); top:var(--logo-y);
+  width:520px;height:520px; object-fit:contain; pointer-events:none;
+  transform-origin:center center;
+  transform:translate(-50%,-50%) scale(var(--logo-scale)) scaleY(-1);
+  animation:spinIn var(--logo-speed) linear infinite reverse;
   filter:drop-shadow(0 0 14px rgba(255,255,255,.28));
 }
-@keyframes spinIn{to{transform:scaleY(-1) rotateZ(360deg)}}
+@keyframes spinIn{to{transform:translate(-50%,-50%) scale(var(--logo-scale)) scaleY(-1) rotateZ(360deg)}}
 
 .titles h1{
-  margin:0; line-height:1.04; letter-spacing:.6px;
-  font-size:46px; font-weight:700;
-  font-family:"TechfontItalica","Kanit",system-ui,sans-serif;
+  margin:0; line-height:1.02; letter-spacing:.4px;
+  font-size:46px; font-weight:800;
   text-shadow:0 2px 0 rgba(0,0,0,.28);
 }
-.titles .sub{margin-top:6px;opacity:.92;font-weight:600}
+.titles .sub{margin-top:6px;opacity:.92;font-weight:800}
 .badge{display:inline-block;margin-left:8px;padding:5px 10px;border-radius:999px;color:#0b0c14;font-weight:900;font-size:13px;background:linear-gradient(90deg,#ff7bf1,#ffd86a)}
 .badge.demo{background:linear-gradient(90deg,#ff6a6a,#ffd86a)}
 
-/* ===== Roadmap ===== */
+/* ---------- Roadmap ---------- */
 .road{margin-top:18px;border:1px solid var(--ring);border-radius:18px;padding:16px;background:rgba(255,255,255,.10)}
 .bar{height:12px;border-radius:999px;background:rgba(14,10,25,.6);border:1px solid var(--ring);overflow:hidden}
 .bar>span{display:block;height:100%;width:0%;transition:width .35s ease;background:linear-gradient(90deg,#ff7bf1,#ffb84d,#8dff6a,#ff6a6a)}
 .bar-legend{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:var(--ink-dim)}
 .row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
-.btn{appearance:none;border:none;cursor:pointer;font-weight:900;color:#0b0c14;background:linear-gradient(180deg,#fff,#e9eefc);border-radius:999px;padding:10px 14px;box-shadow:0 8px 20px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.4)}
+
+/* Buttons use brand font too */
+.btn{
+  appearance:none;border:none;cursor:pointer;font-weight:900;
+  color:#0b0c14;background:linear-gradient(180deg,#fff,#e9eefc);
+  border-radius:999px;padding:10px 14px;
+  box-shadow:0 8px 20px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.4);
+  font-family:"TechfontItalica", system-ui, sans-serif;
+}
 .btn-ghost{background:rgba(255,255,255,.08);color:var(--ink);border:1px solid var(--ring)}
 .btn:active{transform:translateY(1px)}
 
-/* Kebab with viewport clamp */
+/* Kebab */
 .drop{position:relative}
 .drop-menu{
   position:fixed;display:none;min-width:280px;max-height:60dvh;overflow:auto;
   background:#0e0a1fe6;backdrop-filter:blur(10px);border:1px solid var(--ring);border-radius:16px;padding:8px;z-index:9999
 }
 .drop.open .drop-menu{display:block}
-.drop-menu .item{padding:10px 12px;border-radius:10px;font-weight:700;color:var(--ink)}
+.drop-menu .item{padding:10px 12px;border-radius:10px;font-weight:800;color:var(--ink);font-family:"TechfontItalica",system-ui}
 .drop-menu .item:hover{background:#ffffff18}
 .drop-menu .danger{background:#ff5b5b1a;border:1px solid #ff5b5b45}
 
 /* Demo CTA */
 .cta{margin-top:14px;padding:16px;border-radius:16px;border:1px solid var(--ring);background:linear-gradient(180deg,rgba(50,10,35,.92),rgba(45,15,40,.88));text-align:center}
-.cta .big{width:100%;padding:14px 16px;border-radius:12px;font-size:18px;font-weight:900;background:linear-gradient(90deg,#ff7bf1,#ffd86a);color:#0b0c14}
+.cta .big{width:100%;padding:14px 16px;border-radius:12px;font-size:18px;font-weight:900;background:linear-gradient(90deg,#ff7bf1,#ffd86a);color:#0b0c14;font-family:"TechfontItalica",system-ui}
 .cta small{display:block;margin-top:8px;color:var(--ink-dim)}
 
-/* ===== Chat ===== */
+/* ---------- Chat ---------- */
 .chat-col{display:grid;grid-template-rows:1fr auto;min-height:calc(100dvh - 48px)}
 @media(max-width:980px){.chat-col{min-height:72dvh}}
 .chat{
   overflow:auto;padding:18px;background:linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.06));
   border:1px solid var(--ring);border-radius:24px;scroll-behavior:smooth
 }
-/* hide visual scrollbars but keep scrollability */
+/* hide visual scrollbars, keep scroll */
 .chat{scrollbar-width:none}
 .chat::-webkit-scrollbar{width:0;height:0}
 .bubble{
@@ -134,27 +152,16 @@ body::after{
   background:#0e0a1fe6;border:1px solid var(--ring)
 }
 .composer{margin-top:12px;display:grid;grid-template-columns:1fr 110px;gap:10px;align-items:end}
-textarea{width:100%;min-height:54px;max-height:180px;resize:vertical;padding:14px 16px;color:var(--ink);background:#120d20;border:1px solid var(--ring);border-radius:16px}
-.send{height:54px;border-radius:16px;font-weight:900;background:linear-gradient(130deg,#ff7bf1,#ffd86a);color:#0b0c14}
+textarea{width:100%;min-height:54px;max-height:180px;resize:vertical;padding:14px 16px;color:var(--ink);background:#120d20;border:1px solid var(--ring);border-radius:16px;font-family:"TechfontItalica",system-ui}
+.send{height:54px;border-radius:16px;font-weight:900;background:linear-gradient(130deg,#ff7bf1,#ffd86a);color:#0b0c14;font-family:"TechfontItalica",system-ui}
 .dim{color:var(--ink-dim)}
-
-/* ===== Modules modal ===== */
-.modal{
-  position:fixed;inset:0;background:rgba(8,6,18,.65);backdrop-filter:blur(8px);display:none;place-items:center;z-index:9998
-}
-.modal.open{display:grid}
-.modal .panel{
-  width:min(680px,92vw);border-radius:18px;border:1px solid var(--ring);
-  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.06));
-  box-shadow:0 30px 80px rgba(0,0,0,.55); padding:18px 18px 12px;
-}
-.modlist{display:grid;gap:10px;margin-top:10px}
-.mod{display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid var(--ring);border-radius:12px;background:rgba(255,255,255,.08)}
-.lock{opacity:.6}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+<div class="bg"></div>
+<div class="aura"></div>
+
 <div class="wrap">
 
   <!-- LEFT -->
@@ -212,7 +219,7 @@ textarea{width:100%;min-height:54px;max-height:180px;resize:vertical;padding:14p
 <!-- Modules modal -->
 <div class="modal" id="modModal" aria-hidden="true">
   <div class="panel">
-    <h3 style="margin:6px 6px 10px 6px;font-family:TechfontItalica">Modules</h3>
+    <h3 style="margin:6px 6px 10px 6px">Modules</h3>
     <div class="modlist" id="modList"></div>
     <div style="display:flex;justify-content:flex-end;margin-top:12px">
       <button class="btn btn-ghost" id="modClose">Close</button>
@@ -299,7 +306,7 @@ function openKebab(){
 }
 function closeKebab(){ el.kebab.classList.remove("open"); el.kebabMenu.style.display="none"; }
 
-/* ======= Cloud (D1) ======= */
+/* ======= Cloud (D1) stubs safe to keep ======= */
 async function cloudSave(){
   if(state.tier!=="premium" || !state.license) return;
   const payload = { roadmap:state.roadmap, messages:state.messages };
@@ -324,7 +331,7 @@ async function cloudLoad(){
   return false;
 }
 
-/* ======= AI flow (light, resilient) ======= */
+/* ======= AI flow (tight mentor tone) ======= */
 function aiReply(userText){
   const t=(userText||"").trim().toLowerCase();
   if(!t){ pushBubble("ai","Give me a crumb. Or say <em>help me choose</em>."); return; }
@@ -350,19 +357,17 @@ function aiReply(userText){
   }
   state.roadmap=Math.min(5,state.roadmap+1); updateBar();
   pushBubble("ai",
-    `Nice. I’ll turn this into a micro-offer and a 3-step launch plan. One constraint you refuse (time/tools/scope)? Keeping us honest.`);
+    `Good. I’ll shape this into a micro-offer and a 3-step launch. Name one constraint you refuse (time/tools/scope).`);
   cloudSave();
 }
 
-/* ======= Greeting (no duplicates) ======= */
+/* ======= Greeting once ======= */
 function greet(){
   if(state.greeted) return; state.greeted=true;
-  [...document.querySelectorAll(".bubble")].forEach(b=>{
-    if(b.dataset.greet==="1") b.remove();
-  });
+  [...document.querySelectorAll(".bubble")].forEach(b=>{ if(b.dataset.greet==="1") b.remove(); });
   const text = `
     Welcome to the Freedom Engine. I’m your personal trainer for tiny paid offers.<br><br>
-    I’ll handle strategy, templates, and deadlines; you’ll do bite-size reps. We’ll ship one in ~72 hours.<br><br>
+    I’ll carry strategy, templates, and deadlines; you’ll do bite-size reps. We’ll ship one in ~72 hours.<br><br>
     To get moving, pick a lane or say <em>“help me choose”</em>:<br>
     • design • writing • coaching • dev • other
   `;
@@ -379,7 +384,7 @@ function renderModules(){
   const rows = [
     {name:"Offer Sprint", desc:"Guided 72-hour micro-offer builder", locked:isDemo},
     {name:"Copy Booster", desc:"Emails, posts, and landing copy blocks", locked:isDemo},
-    {name:"Launch Maps", desc:"Prebuilt checklists + timelines", locked:isDemo},
+    {name:"Launch Maps", desc:"Checklists + timelines", locked:isDemo},
   ];
   rows.forEach(r=>{
     const div=document.createElement("div");
@@ -465,6 +470,5 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   updateBar();
 });
 </script>
-<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap" rel="stylesheet">
 </body>
 </html>
