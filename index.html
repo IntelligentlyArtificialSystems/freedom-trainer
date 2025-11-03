@@ -2,164 +2,151 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>The Freedom Engine — Personal AI Trainer</title>
 
-<!-- Headline font: your file. Place Techfont-Italica.ttf in the same folder as this file -->
+<!-- Your headline font -->
 <style>
 @font-face{
-  font-family: "TechfontItalica";
-  src: url("./Techfont-Italica.ttf") format("truetype");
-  font-display: swap;
+  font-family:"TechfontItalica";
+  src:url("./Techfont-Italica.ttf") format("truetype");
+  font-display:swap;
 }
+
 :root{
-  /* neon core */
-  --c: #82f3ff; --m:#ff7bf1; --y:#ffd86a; --g:#6dffa8; --b:#6ea1ff;
-  --ink:#eef1ff; --ink-dim:#bdc6ff;
-  --glass: rgba(255,255,255,.10);
-  --glass-2: rgba(255,255,255,.16);
-  --ring: rgba(255,255,255,.22);
+  /* neon set (no blue bias) */
+  --mag:#ff7bf1;   /* magenta */
+  --vio:#b07aff;   /* violet */
+  --pur:#7a5cff;   /* purple */
+  --hot:#ff4f88;   /* hot pink */
+  --yel:#ffd86a;   /* yellow */
+  --sun:#ffb84d;   /* sun orange */
+  --lime:#8dff6a;  /* lime */
+  --mint:#6dffa8;  /* mint */
+  --scar:#ff6a6a;  /* scarlet */
+
+  --ink:#f5f7ff;
+  --ink-dim:#c8cffc;
+  --ring:rgba(255,255,255,.22);
+  --glass1:rgba(255,255,255,.12);
+  --glass2:rgba(255,255,255,.08);
 }
+
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
   margin:0; color:var(--ink);
-  font-family: "Kanit", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  /* COLORFUL background (richer than last pass) */
+  font-family:"Kanit",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  /* Colorful layered background (no blue primary) */
   background:
-    radial-gradient(1200px 800px at 10% 10%, rgba(255,255,255,.16), transparent 60%),
-    radial-gradient(900px 700px at 80% 20%, rgba(255,255,255,.12), transparent 60%),
-    linear-gradient(135deg,#230b3a 0%, #2b164b 28%, #102e57 60%, #0a2040 100%);
+    radial-gradient(1200px 700px at 0% 10%, rgba(255,123,241,.18), transparent 60%),
+    radial-gradient(900px 700px at 95% 0%, rgba(255,184,77,.22), transparent 60%),
+    radial-gradient(1000px 800px at 50% 100%, rgba(141,255,106,.18), transparent 60%),
+    conic-gradient(from 0deg, var(--mag), var(--vio), var(--pur), var(--hot), var(--yel), var(--sun), var(--lime), var(--scar), var(--mag));
+  filter:saturate(120%);
 }
 
-.wrap{display:grid; grid-template-columns:440px 1fr; gap:24px; padding:24px; height:100dvh;}
-@media (max-width:980px){ .wrap{grid-template-columns:1fr; height:auto; min-height:100dvh} }
+.wrap{display:grid;grid-template-columns:440px 1fr;gap:24px;padding:24px;height:100dvh}
+@media(max-width:980px){.wrap{grid-template-columns:1fr;min-height:100dvh;height:auto}}
 
 .card{
-  position:relative; z-index:0;
-  border-radius:24px; padding:18px;
-  background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
-  border:1px solid var(--ring);
-  box-shadow: 0 18px 60px rgba(0,0,0,.45);
-  overflow:visible; /* so dropdowns can escape */
+  position:relative;
+  border-radius:24px;padding:18px;border:1px solid var(--ring);
+  background:linear-gradient(180deg,var(--glass1),var(--glass2));
+  box-shadow:0 20px 60px rgba(0,0,0,.45);
+  overflow:visible;
 }
 .card::before{
-  content:""; position:absolute; inset:-40%;
+  content:"";position:absolute;inset:-35%;
   background:
-    radial-gradient(800px 600px at 20% 20%, rgba(130,243,255,.25), transparent 60%),
-    radial-gradient(900px 700px at 80% 10%, rgba(255,123,241,.22), transparent 65%),
-    conic-gradient(from 0deg, var(--c), var(--m), var(--y), var(--g), var(--b), var(--c));
-  filter: blur(100px) saturate(140%);
-  opacity:.18; z-index:-1; animation: swirl 22s linear infinite;
+    radial-gradient(800px 600px at 20% 20%, rgba(255,123,241,.25), transparent 60%),
+    radial-gradient(900px 700px at 80% 10%, rgba(255,216,106,.20), transparent 65%),
+    radial-gradient(900px 800px at 20% 90%, rgba(141,255,106,.18), transparent 65%);
+  filter:blur(90px) saturate(140%);opacity:.22;z-index:-1;animation:halo 24s linear infinite;
 }
-@keyframes swirl{to{transform:rotate(360deg)}}
+@keyframes halo{to{transform:rotate(360deg)}}
 
 /* BRAND */
-.brand{
-  display:grid; grid-template-columns:148px 1fr; gap:18px; align-items:center;
-  margin-bottom:16px; position:relative;
-}
+.brand{display:grid;grid-template-columns:148px 1fr;gap:18px;align-items:center;margin-bottom:16px}
 .logo-box{
-  height:148px; border-radius:24px; border:1px solid var(--ring);
-  background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.08));
-  /* mask the spinning logo strictly to the box */
-  overflow:hidden; display:grid; place-items:center;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 10px 40px rgba(0,0,0,.35);
+  height:148px;border-radius:24px;border:1px solid var(--ring);
+  background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.07));
+  overflow:hidden;display:grid;place-items:center;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 12px 40px rgba(0,0,0,.35)
 }
+/* 3x bigger logo, masked by the box, reverse spin = “inward” feel */
 .logo{
-  width: 420px; height: 420px; /* 3x bigger, cropped by the box */
-  object-fit: contain;
-  transform-origin: 50% 50%;
-  animation: spinLogo 36s linear infinite; /* pure Z-rotation */
-  filter: drop-shadow(0 0 14px rgba(255,255,255,.28));
+  width:420px;height:420px;object-fit:contain;transform-origin:50% 50%;
+  animation:spinIn 36s linear infinite reverse; /* reverse = inward vibe */
+  filter:drop-shadow(0 0 14px rgba(255,255,255,.28));
 }
-@keyframes spinLogo{
-  to { transform: rotateZ(360deg); }
-}
+@keyframes spinIn{to{transform:rotateZ(360deg)}}
 
 .titles h1{
-  margin:0; line-height:1.02; letter-spacing:.6px;
-  font-size:46px; font-weight:700;
-  font-family:"TechfontItalica","Kanit",system-ui,sans-serif; /* use your font for the headline */
-  text-shadow: 0 2px 0 rgba(0,0,0,.25);
+  margin:0;line-height:1.02;letter-spacing:.6px;
+  font-size:46px;font-weight:700;
+  font-family:"TechfontItalica","Kanit",system-ui,sans-serif;
+  text-shadow:0 2px 0 rgba(0,0,0,.25)
 }
-.titles .sub{margin-top:6px; opacity:.9; font-weight:500}
-.badge{display:inline-block; margin-left:8px; padding:5px 10px; border-radius:999px; color:#0c0f1a; font-weight:800; font-size:13px;
-  background:linear-gradient(90deg,#ff7bf1,#82f3ff);}
-.badge.demo{ background:linear-gradient(90deg,#ff9cc2,#ffd86a); }
+.titles .sub{margin-top:6px;opacity:.9;font-weight:600}
+.badge{display:inline-block;margin-left:8px;padding:5px 10px;border-radius:999px;color:#0b0c14;font-weight:900;font-size:13px;background:linear-gradient(90deg,var(--mag),var(--yel))}
+.badge.demo{background:linear-gradient(90deg,var(--scar),var(--yel))}
 
 /* ROADMAP */
-.road{margin-top:18px; border:1px solid var(--ring); border-radius:18px; padding:16px; background:var(--glass-2)}
-.bar{height:12px; border-radius:999px; background:rgba(10,15,35,.6); border:1px solid var(--ring); overflow:hidden}
-.bar>span{display:block; height:100%; width:0%; transition: width .35s ease;
-  background: linear-gradient(90deg, var(--c), var(--m), var(--y), var(--g), var(--b));}
-.bar-legend{display:flex; justify-content:space-between; margin-top:8px; font-size:13px; color:var(--ink-dim)}
-.row{display:flex; gap:10px; margin-top:16px; flex-wrap:wrap}
-.btn{appearance:none; border:none; cursor:pointer; font-weight:800; color:#0d0f17;
-  background:linear-gradient(180deg,#ffffff,#e9eefc); border-radius:999px; padding:10px 14px;
-  box-shadow:0 8px 20px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.4);}
-.btn-ghost{ background:rgba(255,255,255,.08); color:var(--ink); border:1px solid var(--ring) }
+.road{margin-top:18px;border:1px solid var(--ring);border-radius:18px;padding:16px;background:rgba(255,255,255,.10)}
+.bar{height:12px;border-radius:999px;background:rgba(14,10,25,.6);border:1px solid var(--ring);overflow:hidden}
+.bar>span{display:block;height:100%;width:0%;transition:width .35s ease;background:linear-gradient(90deg,var(--mag),var(--hot),var(--yel),var(--lime),var(--scar))}
+.bar-legend{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:var(--ink-dim)}
+.row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.btn{appearance:none;border:none;cursor:pointer;font-weight:900;color:#0b0c14;background:linear-gradient(180deg,#fff,#e9eefc);border-radius:999px;padding:10px 14px;box-shadow:0 8px 20px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.4)}
+.btn-ghost{background:rgba(255,255,255,.08);color:var(--ink);border:1px solid var(--ring)}
 .btn:active{transform:translateY(1px)}
 
-.drop{ position:relative; }
+.drop{position:relative}
 .drop-menu{
-  position:fixed; display:none; min-width:280px; max-height:60dvh; overflow:auto;
-  background:#0d1127f2; backdrop-filter: blur(10px);
-  border:1px solid var(--ring); border-radius:16px; padding:8px; z-index:9999;
+  position:fixed;display:none;min-width:280px;max-height:60dvh;overflow:auto;
+  background:#0e0a1fe6;backdrop-filter:blur(10px);border:1px solid var(--ring);border-radius:16px;padding:8px;z-index:9999
 }
-.drop.open .drop-menu{ display:block }
-.drop-menu .item{ padding:10px 12px; border-radius:10px; font-weight:700; color:var(--ink); }
-.drop-menu .item:hover{ background:#ffffff18 }
-.drop-menu .danger{ background:#ff5b5b1a; border:1px solid #ff5b5b45 }
+.drop.open .drop-menu{display:block}
+.drop-menu .item{padding:10px 12px;border-radius:10px;font-weight:700;color:var(--ink)}
+.drop-menu .item:hover{background:#ffffff18}
+.drop-menu .danger{background:#ff5b5b1a;border:1px solid #ff5b5b45}
 
-.cta{margin-top:14px; padding:16px; border-radius:16px; border:1px solid var(--ring);
-  background:linear-gradient(180deg, rgba(30,15,55,.9), rgba(26,20,52,.85)); text-align:center}
-.cta .big{width:100%; padding:14px 16px; border-radius:12px; font-size:18px; font-weight:900;
-  background:linear-gradient(90deg,#ff7bf1,#ffd86a); color:#0b0c14}
-.cta small{display:block; margin-top:8px; color:var(--ink-dim)}
+.cta{margin-top:14px;padding:16px;border-radius:16px;border:1px solid var(--ring);background:linear-gradient(180deg,rgba(50,10,35,.92),rgba(45,15,40,.88));text-align:center}
+.cta .big{width:100%;padding:14px 16px;border-radius:12px;font-size:18px;font-weight:900;background:linear-gradient(90deg,var(--mag),var(--yel));color:#0b0c14}
+.cta small{display:block;margin-top:8px;color:var(--ink-dim)}
 
-/* CHAT LAYOUT — fix avatar clipping */
-.chat-col{ display:grid; grid-template-rows: 1fr auto; min-height:calc(100dvh - 48px); }
-@media(max-width:980px){ .chat-col{ min-height:72dvh } }
-
+/* CHAT */
+.chat-col{display:grid;grid-template-rows:1fr auto;min-height:calc(100dvh - 48px)}
+@media(max-width:980px){.chat-col{min-height:72dvh}}
 .chat{
-  overflow:auto; padding:18px 18px 18px 18px; /* equal padding */
-  background: linear-gradient(180deg, rgba(255,255,255,.11), rgba(255,255,255,.06));
-  border:1px solid var(--ring); border-radius:24px;
-  scroll-behavior:smooth;
+  overflow:auto;padding:18px;background:linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.06));
+  border:1px solid var(--ring);border-radius:24px;scroll-behavior:smooth
 }
 .bubble{
-  position:relative; margin:14px 0; padding:14px 16px 14px 56px; /* give room for avatar inside bubble */
-  border-radius:18px; border:1px solid var(--ring);
-  background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.05));
-  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  position:relative;margin:14px 0;padding:14px 16px 14px 56px;border-radius:18px;border:1px solid var(--ring);
+  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.05));box-shadow:0 10px 30px rgba(0,0,0,.25)
 }
 .bubble .who{
-  position:absolute; left:12px; top:12px; width:32px; height:32px;
-  display:grid; place-items:center; border-radius:10px;
-  background:#0e1122eb; border:1px solid var(--ring);
+  position:absolute;left:12px;top:12px;width:32px;height:32px;display:grid;place-items:center;border-radius:10px;
+  background:#0e0a1fe6;border:1px solid var(--ring)
 }
-
-.composer{ margin-top:12px; display:grid; grid-template-columns:1fr 110px; gap:10px; align-items:end }
-textarea{
-  width:100%; min-height:54px; max-height:180px; resize:vertical;
-  padding:14px 16px; color:var(--ink);
-  background:#0b0f1f; border:1px solid var(--ring); border-radius:16px;}
-.send{ height:54px; border-radius:16px; font-weight:900; background:linear-gradient(130deg,#ff7bf1,#82f3ff); color:#0b0c14 }
-.dim{ color:var(--ink-dim) }
+.composer{margin-top:12px;display:grid;grid-template-columns:1fr 110px;gap:10px;align-items:end}
+textarea{width:100%;min-height:54px;max-height:180px;resize:vertical;padding:14px 16px;color:var(--ink);background:#120d20;border:1px solid var(--ring);border-radius:16px}
+.send{height:54px;border-radius:16px;font-weight:900;background:linear-gradient(130deg,var(--mag),var(--yel));color:#0b0c14}
+.dim{color:var(--ink-dim)}
 </style>
-
-<!-- Body font (fallbacks) -->
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-
 <div class="wrap">
 
-  <!-- LEFT PANEL -->
+  <!-- LEFT -->
   <section class="card" id="left">
     <div class="brand">
-      <div class="logo-box"><img class="logo" src="ias-logo.png" alt="IAS Logo"></div>
+      <div class="logo-box">
+        <img class="logo" src="ias-logo.png" alt="IAS Logo">
+      </div>
       <div class="titles">
         <h1>The Freedom Engine</h1>
         <div class="sub">Personal AI Trainer <span class="badge demo" id="tierBadge">Demo</span></div>
@@ -195,7 +182,7 @@ textarea{
     </div>
   </section>
 
-  <!-- RIGHT: CHAT -->
+  <!-- RIGHT -->
   <section class="chat-col">
     <div class="card chat" id="chat"></div>
     <div class="composer">
@@ -207,257 +194,223 @@ textarea{
 </div>
 
 <script>
-/* ============== CONFIG ============== */
+/* ============== CONFIG/STATE ============== */
 const WORKER_BASE = "https://freedom-engine-worker.intelligentlyartificialsystems.workers.dev";
 const STAGES = 5;
-
-/* ============== STATE ============== */
 const state = {
   tier: localStorage.getItem("fe_tier") || "demo",
   license: localStorage.getItem("fe_license") || "",
   roadmap: 1,
   messages: [],
-  showedCloudHiccup:false
+  greeted:false
 };
-
 const el = {
-  bar: document.getElementById("bar"),
-  barText: document.getElementById("barText"),
-  chat: document.getElementById("chat"),
-  input: document.getElementById("input"),
-  send: document.getElementById("sendBtn"),
-  kebab: document.getElementById("kebab"),
-  kebabBtn: document.getElementById("kebabBtn"),
-  kebabMenu: document.getElementById("kebabMenu"),
-  demoCTA: document.getElementById("demoCTA"),
-  tierBadge: document.getElementById("tierBadge"),
-  enterKey: document.getElementById("enterKey"),
-  buy: document.getElementById("buy"),
-  ctaBuy: document.getElementById("ctaBuy"),
-  switchMode: document.getElementById("switchMode"),
-  reset: document.getElementById("reset"),
-  saveSnap: document.getElementById("saveSnap"),
-  loadSnap: document.getElementById("loadSnap")
+  bar:document.getElementById("bar"),
+  barText:document.getElementById("barText"),
+  chat:document.getElementById("chat"),
+  input:document.getElementById("input"),
+  send:document.getElementById("sendBtn"),
+  kebab:document.getElementById("kebab"),
+  kebabBtn:document.getElementById("kebabBtn"),
+  kebabMenu:document.getElementById("kebabMenu"),
+  demoCTA:document.getElementById("demoCTA"),
+  tierBadge:document.getElementById("tierBadge"),
+  enterKey:document.getElementById("enterKey"),
+  buy:document.getElementById("buy"),
+  ctaBuy:document.getElementById("ctaBuy"),
+  switchMode:document.getElementById("switchMode"),
+  reset:document.getElementById("reset"),
+  saveSnap:document.getElementById("saveSnap"),
+  loadSnap:document.getElementById("loadSnap")
 };
 
-/* ============== UI ============== */
+/* ============== UI HELPERS ============== */
 function setTier(t){
-  state.tier = t;
-  localStorage.setItem("fe_tier", t);
-  const isDemo = t === "demo";
-  el.demoCTA.style.display = isDemo ? "block" : "none";
-  el.enterKey.style.display = isDemo ? "block" : "none";
-  el.buy.style.display = isDemo ? "block" : "none";
-  el.tierBadge.textContent = isDemo ? "Demo" : "Premium";
+  state.tier=t; localStorage.setItem("fe_tier",t);
+  const isDemo = t==="demo";
+  el.demoCTA.style.display = isDemo ? "block":"none";
+  el.enterKey.style.display = isDemo ? "block":"none";
+  el.buy.style.display      = isDemo ? "block":"none";
+  el.tierBadge.textContent  = isDemo ? "Demo":"Premium";
   el.tierBadge.classList.toggle("demo", isDemo);
 }
 function updateBar(){
-  const pct = Math.max(1, Math.min(STAGES, state.roadmap)) / STAGES * 100;
-  el.bar.style.width = pct + "%";
+  const pct = Math.max(1,Math.min(STAGES,state.roadmap))/STAGES*100;
+  el.bar.style.width = pct+"%";
   el.barText.textContent = `${Math.max(1,state.roadmap)}/${STAGES}`;
 }
-function pushBubble(who, text){
-  if(!text || typeof text !== "string") return;
-  const b = document.createElement("div");
-  b.className = "bubble";
-  b.innerHTML = `<div class="who">${who==="user"?"💬":"⚙️"}</div>${text}`;
+function pushBubble(who,text){
+  if(!text)return;
+  const b=document.createElement("div");
+  b.className="bubble";
+  b.innerHTML=`<div class="who">${who==="user"?"💬":"⚙️"}</div>${text}`;
   el.chat.appendChild(b);
   state.messages.push({who,text});
-  requestAnimationFrame(()=> el.chat.scrollTop = el.chat.scrollHeight);
-}
-function onceBootGreeting(){
-  if(sessionStorage.getItem("fe_booted")) return false;
-  sessionStorage.setItem("fe_booted","1");
-  pushBubble("ai",
-   `Welcome to the Freedom Engine. I’ll carry strategy, templates, and deadlines; you do bite-size reps.<br><br>
-    We’ll ship one in ~72 hours. No monk retreat required.<br><br>
-    Pick a lane and I’ll carry the heavy boxes:<br>
-    • design • writing • coaching • dev • other<br><br>
-    If you’re blank, say <em>“help me choose”</em> and I’ll pitch options.`
-  );
-  return true;
+  requestAnimationFrame(()=> el.chat.scrollTop=el.chat.scrollHeight);
 }
 
-/* ============== KEBAB ============== */
-function positionKebab(){
-  const r = el.kebabBtn.getBoundingClientRect();
-  const pad = 8, menu = el.kebabMenu;
-  // open upward when possible
-  menu.style.display = "block";
-  const mw = menu.offsetWidth, mh = menu.offsetHeight;
-  const left = Math.max(pad, Math.min(window.innerWidth - mw - pad, r.right - mw));
-  const topUp = r.top - mh - 8;
-  const top = topUp > pad ? topUp : r.bottom + 8;
-  menu.style.left = `${left}px`;
-  menu.style.top = `${top}px`;
+/* ============== KEBAB POS (CLAMP TO VIEWPORT) ============== */
+function openKebab(){
+  el.kebab.classList.add("open");
+  const m = el.kebabMenu;
+  const btnRect = el.kebabBtn.getBoundingClientRect();
+  m.style.display="block";
+  const mw = m.offsetWidth, mh = m.offsetHeight;
+  const margin=8;
+  // prefer above if not enough room below
+  const roomBelow = window.innerHeight - btnRect.bottom;
+  let top = roomBelow > mh + margin ? (btnRect.bottom + 8) : (btnRect.top - mh - 8);
+  let left = btnRect.right - mw;
+  // clamp
+  top  = Math.max(margin, Math.min(window.innerHeight - mh - margin, top));
+  left = Math.max(margin, Math.min(window.innerWidth  - mw - margin, left));
+  m.style.top  = `${top}px`;
+  m.style.left = `${left}px`;
 }
 function closeKebab(){ el.kebab.classList.remove("open"); el.kebabMenu.style.display="none"; }
 
-/* ============== CLOUD SAVE / LOAD (D1) ============== */
+/* ============== CLOUD (D1) ============== */
 async function cloudSave(){
   if(state.tier!=="premium" || !state.license) return;
-  const payload = { roadmap: state.roadmap, messages: state.messages };
+  const payload = { roadmap:state.roadmap, messages:state.messages };
   try{
-    await fetch(WORKER_BASE + "/progress",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({ license_key: state.license, data: JSON.stringify(payload) })
-    });
-  }catch(e){
-    if(!state.showedCloudHiccup){
-      state.showedCloudHiccup = true;
-      pushBubble("ai","Cloud hiccup. Keep rolling — I’m saving locally and I’ll sync when the tubes behave.");
-    }
-  }
+    await fetch(WORKER_BASE+"/progress",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({license_key:state.license,data:JSON.stringify(payload)})});
+  }catch(e){/* silent; local keeps going */}
 }
 async function cloudLoad(){
   if(state.tier!=="premium" || !state.license) return false;
   try{
-    const r = await fetch(WORKER_BASE + "/progress?license_key=" + encodeURIComponent(state.license));
-    const j = await r.json();
+    const r=await fetch(WORKER_BASE+"/progress?license_key="+encodeURIComponent(state.license));
+    const j=await r.json();
     if(j.ok && j.found && j.data){
-      const data = JSON.parse(j.data);
-      state.roadmap = Math.max(1, Math.min(STAGES, Number(data.roadmap)||1));
-      state.messages = Array.isArray(data.messages) ? data.messages.slice(-80) : [];
-      el.chat.innerHTML = "";
-      for(const m of state.messages){ pushBubble(m.who, m.text) }
-      updateBar();
-      return true;
+      const data=JSON.parse(j.data);
+      state.roadmap = Number(data.roadmap)||1;
+      state.messages = Array.isArray(data.messages)? data.messages.slice(-100):[];
+      el.chat.innerHTML=""; state.messages.forEach(m=>pushBubble(m.who,m.text));
+      updateBar(); return true;
     }
   }catch(e){}
   return false;
 }
 
-/* ============== AI ============== */
+/* ============== AI FLOW (lightweight, resilient) ============== */
 function aiReply(userText){
-  const t = (userText||"").trim(), low = t.toLowerCase();
+  const t=(userText||"").trim().toLowerCase();
+  if(!t){ pushBubble("ai","Give me a crumb. Or say <em>help me choose</em>."); return; }
 
-  if(!t){ pushBubble("ai","Words, champ. Toss me *something*. Or say <em>help me choose</em>."); return; }
-
-  if(/help me choose|no clue|idk|i don.?t know/.test(low)){
-    state.roadmap = Math.max(1,state.roadmap);
+  if(/help me choose|idk|no clue|i don.?t know/.test(t)){
     pushBubble("ai",
-      `Cool. Choose a lane — reply with a number:<br>
-       1) <b>Design</b> — logos, graphics, visual packs<br>
-       2) <b>Writing</b> — copy, guides, micro-ebooks<br>
-       3) <b>Coaching</b> — audits, accelerators<br>
-       4) <b>Dev</b> — tiny tools, setups, automations<br>
-       5) <b>Other</b> — pitch your weird idea`);
+      `Pick your lane (reply 1–5):<br>
+       1) <b>Design</b> • logos, graphics, visual packs<br>
+       2) <b>Writing</b> • copy, guides, micro-ebooks<br>
+       3) <b>Coaching</b> • audits, accelerators<br>
+       4) <b>Dev</b> • tiny tools, setups, automations<br>
+       5) <b>Other</b> • pitch your weird idea`);
     return;
   }
-  const m = low.match(/^\s*([1-5])\s*$/);
+  const m=t.match(/^\s*([1-5])\s*$/);
   if(m){
-    const lane = ["","Design","Writing","Coaching","Dev","Other"][Number(m[1])];
-    state.roadmap = 2;
+    const lane=["","Design","Writing","Coaching","Dev","Other"][Number(m[1])];
+    state.roadmap=2; updateBar();
     pushBubble("ai",
-      `Locked in: <b>${lane}</b>.<br>
-       Give me one fast answer: <b>what can you deliver in the next 48 hours</b> that a real human would pay for?
-       Keep it tiny. One deliverable.`);
-    updateBar(); cloudSave(); return;
+      `Locked: <b>${lane}</b>.<br>
+       What can you ship in the next 48 hours that a real human would pay for? One tiny deliverable. Go.`);
+    cloudSave(); return;
   }
-
-  state.roadmap = Math.min(STAGES, state.roadmap+1);
+  state.roadmap=Math.min(5,state.roadmap+1); updateBar();
   pushBubble("ai",
-    `Good — I’ve got enough to move. I’ll turn that into a concrete micro-offer and a 3-step launch plan next.
-     Quick: list one constraint (time, tools, or a hard “nope”). Constraints keep this real.`);
-  updateBar(); cloudSave();
+    `Nice. I’ll turn this into a micro-offer and a 3-step launch plan. One constraint you refuse (time/tools/scope)? Keeping us honest.`);
+  cloudSave();
 }
 
 /* ============== BOOT ============== */
 document.addEventListener("DOMContentLoaded", async ()=>{
   // kebab
-  el.kebabBtn.addEventListener("click", ()=>{
-    el.kebab.classList.toggle("open");
-    if(el.kebab.classList.contains("open")){ positionKebab(); }
-    else closeKebab();
+  el.kebabBtn.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    if(el.kebab.classList.contains("open")) closeKebab(); else openKebab();
   });
-  window.addEventListener("resize", ()=>{ if(el.kebab.classList.contains("open")) positionKebab(); });
-  document.addEventListener("click",(e)=>{ if(!el.kebab.contains(e.target)) closeKebab(); });
+  window.addEventListener("resize", ()=>{ if(el.kebab.classList.contains("open")) openKebab(); });
+  document.addEventListener("click", (e)=>{ if(!el.kebab.contains(e.target)) closeKebab(); });
 
-  // demo/premium toggles
-  const gumroad = "https://intellartsystems.gumroad.com/l/the-freedom-engine";
-  el.buy.addEventListener("click", ()=> window.open(gumroad,"_blank"));
-  el.ctaBuy?.addEventListener("click", ()=> window.open(gumroad,"_blank"));
+  // demo/premium
+  const gumroad="https://intellartsystems.gumroad.com/l/the-freedom-engine";
+  el.buy.addEventListener("click", ()=>window.open(gumroad,"_blank"));
+  el.ctaBuy?.addEventListener("click", ()=>window.open(gumroad,"_blank"));
   el.enterKey.addEventListener("click", async ()=>{
-    const key = prompt("Enter license key:");
-    if(!key) return;
-    state.license = key.trim();
-    localStorage.setItem("fe_license", state.license);
-    setTier("premium");
-    const ok = await cloudLoad();
-    if(!ok){ el.chat.innerHTML=""; pushBubble("ai","Premium engaged. Clean slate. Say “help me choose” or name your lane (design / writing / coaching / dev / other)."); }
+    const key=prompt("Enter license key:"); if(!key) return;
+    state.license=key.trim(); localStorage.setItem("fe_license",state.license);
+    setTier("premium"); const ok = await cloudLoad();
+    if(!ok){ el.chat.innerHTML=""; greet(); }
     updateBar();
   });
   el.switchMode.addEventListener("click", ()=>{
-    localStorage.removeItem("fe_license");
-    setTier("demo"); state.license=""; state.roadmap=1; state.messages=[]; state.showedCloudHiccup=false;
-    sessionStorage.removeItem("fe_booted");
-    el.chat.innerHTML=""; onceBootGreeting(); updateBar();
+    localStorage.removeItem("fe_license"); setTier("demo");
+    state.license=""; state.roadmap=1; state.messages=[]; state.greeted=false;
+    el.chat.innerHTML=""; greet(); updateBar();
   });
   el.reset.addEventListener("click", ()=>{
-    state.roadmap=1; state.messages=[]; state.showedCloudHiccup=false;
-    sessionStorage.removeItem("fe_booted"); el.chat.innerHTML=""; onceBootGreeting(); updateBar(); cloudSave();
+    state.roadmap=1; state.messages=[]; state.greeted=false;
+    el.chat.innerHTML=""; greet(); updateBar(); cloudSave();
   });
 
-  // export snapshot
+  // export / snapshots
   document.getElementById("exportBtn").addEventListener("click", ()=>{
-    const data = { roadmap: state.roadmap, messages: state.messages, tier: state.tier };
-    const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob); a.download = "freedom-engine-snapshot.json"; a.click();
-    URL.revokeObjectURL(a.href);
+    const data={roadmap:state.roadmap,messages:state.messages,tier:state.tier};
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="freedom-engine-snapshot.json"; a.click(); URL.revokeObjectURL(a.href);
   });
-  // save/load to file
   el.saveSnap.addEventListener("click", ()=>{
-    const data = { roadmap: state.roadmap, messages: state.messages };
-    const blob = new Blob([JSON.stringify(data)], {type:"application/json"});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob); a.download = "fe-local-snapshot.json"; a.click();
-    URL.revokeObjectURL(a.href);
+    const data={roadmap:state.roadmap,messages:state.messages};
+    const blob=new Blob([JSON.stringify(data)],{type:"application/json"});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="fe-local-snapshot.json"; a.click(); URL.revokeObjectURL(a.href);
   });
   el.loadSnap.addEventListener("click", ()=>{
-    const inp = document.createElement("input");
-    inp.type="file"; inp.accept="application/json";
-    inp.onchange=async()=>{
-      const f = inp.files[0]; if(!f) return;
-      try{
-        const data = JSON.parse(await f.text());
-        state.roadmap = Math.max(1, Math.min(STAGES, Number(data.roadmap)||1));
-        state.messages = Array.isArray(data.messages)? data.messages.slice(-80):[];
-        el.chat.innerHTML=""; state.messages.forEach(m=>pushBubble(m.who,m.text));
-        updateBar(); cloudSave();
-      }catch(_){ alert("Bad snapshot file."); }
-    };
-    inp.click();
+    const inp=document.createElement("input"); inp.type="file"; inp.accept="application/json";
+    inp.onchange=async()=>{ const f=inp.files[0]; if(!f) return;
+      try{ const d=JSON.parse(await f.text());
+        state.roadmap=Math.max(1,Math.min(5,Number(d.roadmap)||1));
+        state.messages=Array.isArray(d.messages)?d.messages.slice(-100):[];
+        el.chat.innerHTML=""; state.messages.forEach(m=>pushBubble(m.who,m.text)); updateBar(); cloudSave();
+      }catch{ alert("Bad snapshot file."); }
+    }; inp.click();
   });
 
   // send
-  function sendNow(){
-    const v = el.input.value.trim(); if(!v) return;
-    pushBubble("user", v); el.input.value=""; aiReply(v);
-  }
-  el.send.addEventListener("click", sendNow);
-  el.input.addEventListener("keydown", e=>{ if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); sendNow(); } });
+  function send(){const v=el.input.value.trim(); if(!v) return; pushBubble("user",v); el.input.value=""; aiReply(v);}
+  el.send.addEventListener("click", send);
+  el.input.addEventListener("keydown", e=>{ if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}});
 
   // init
   setTier(state.tier);
-  let greeted=false;
-  if(state.tier==="premium" && state.license){
-    const ok = await cloudLoad();
-    if(!ok) greeted = onceBootGreeting();
-  }else{
-    greeted = onceBootGreeting();
-  }
+  let loaded=false;
+  if(state.tier==="premium" && state.license){ loaded=await cloudLoad(); }
+  if(!loaded || state.messages.length===0) greet();
   updateBar();
-  if(!greeted && state.messages.length===0) onceBootGreeting();
 });
 
-/* de-dupe opener on bfcache */
-window.addEventListener("pageshow",()=>{
-  const opens = [...document.querySelectorAll(".bubble")]
-    .filter(b=>b.innerText.toLowerCase().includes("welcome to the freedom engine"));
-  if(opens.length>1) opens.slice(0,-1).forEach(b=>b.remove());
-});
+/* opener (no duplicates) */
+function greet(){
+  if(state.greeted) return;
+  state.greeted=true;
+  // remove any duplicate greets left from bfcache
+  [...document.querySelectorAll(".bubble")].forEach(b=>{
+    if(b.dataset.greet==="1") b.remove();
+  });
+  const text = `
+    Welcome to the Freedom Engine. I’m your personal trainer for tiny paid offers.<br><br>
+    I’ll handle strategy, templates, and deadlines; you’ll do bite-size reps. We’ll ship one in ~72 hours.<br><br>
+    To get moving, pick a lane or say <em>“help me choose”</em>:<br>
+    • design • writing • coaching • dev • other
+  `;
+  const b=document.createElement("div");
+  b.className="bubble"; b.dataset.greet="1";
+  b.innerHTML=`<div class="who">⚙️</div>${text}`;
+  el.chat.appendChild(b); requestAnimationFrame(()=> el.chat.scrollTop=el.chat.scrollHeight);
+}
 </script>
+<!-- Body font -->
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap" rel="stylesheet">
 </body>
 </html>
