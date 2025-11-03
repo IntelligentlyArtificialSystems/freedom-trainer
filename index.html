@@ -17,64 +17,63 @@
 :root{
   --ink:#f7f8ff; --ink-dim:#cfd4ff;
   --ring:rgba(255,255,255,.22);
-  --glass1:rgba(255,255,255,.14);
-  --glass2:rgba(255,255,255,.08);
+  --glass1:rgba(255,255,255,.16);
+  --glass2:rgba(255,255,255,.10);
 
   --mag:#ff7bf1; --pink:#ff76b5; --sun:#ffb84d; --gold:#ffd86a; --lime:#8dff6a; --vio:#ae8bff; --scar:#ff6a6a;
 
   /* Logo tuning */
   --logo-x:50%;
   --logo-y:52%;
-  --logo-scale:.95;            /* logo size (you asked: about half of the big one) */
+  --logo-scale:.50;            /* ~half of the big version */
   --logo-speed:36s;
 }
 
 *{box-sizing:border-box}
-html,body{height:100%}
+html,body{height:100%;background:#0f0a1c}
 body{
   margin:0;color:var(--ink);
   font-family:"TechfontItalica",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-  background:#0f0a1c;
 }
 
 /* Old neon, muted behind glass */
 .bg{
   position:fixed; inset:0; z-index:-4;
   background:
-    radial-gradient(1200px 700px at 15% 15%, rgba(255,123,241,.32), transparent 60%),
-    radial-gradient(1200px 900px at 85% 10%, rgba(255,184,77,.28), transparent 65%),
-    radial-gradient(1000px 800px at 20% 85%, rgba(141,255,106,.22), transparent 65%),
+    radial-gradient(1200px 700px at 15% 15%, rgba(255,123,241,.34), transparent 60%),
+    radial-gradient(1200px 900px at 85% 10%, rgba(255,184,77,.30), transparent 65%),
+    radial-gradient(1000px 800px at 20% 85%, rgba(141,255,106,.24), transparent 65%),
     linear-gradient(180deg, #1b1032 0%, #2a184a 50%, #25143f 100%);
-  filter:saturate(125%) blur(0.2px);
+  filter:saturate(125%) blur(0.3px);
 }
 
-/* Premium: subtle sacred geometry (existing layer) */
-.prem-geo{
-  position:fixed; inset:0; z-index:-2; pointer-events:none; opacity:.14; display:none;
-}
-body.is-premium .prem-geo{ display:block; }
-.prem-geo svg{ width:100%; height:100%; }
-.prem-geo .spin path{ transform-origin:50% 50%; animation:geoSpin 60s linear infinite; }
-@keyframes geoSpin{ to{ transform:rotate(360deg) } }
-
-/* Premium: NEW iridescent wallpaper under everything (half opacity of the above) */
+/* Premium: NEW iridescent wallpaper (under existing sacred geo) */
 .prem-geo-bg{
-  position:fixed; inset:-10%; z-index:-3; pointer-events:none; display:none; opacity:.07; filter:saturate(140%);
+  position:fixed; inset:-10%; z-index:-3; pointer-events:none; display:none; opacity:.12; filter:saturate(140%);
 }
 body.is-premium .prem-geo-bg{ display:block; }
 .prem-geo-bg .field{
   width:100%; height:100%;
   background:
-    radial-gradient(600px 600px at 25% 30%, #ff7bf150, transparent 60%),
-    radial-gradient(800px 800px at 75% 70%, #8dff6a50, transparent 65%),
-    radial-gradient(700px 700px at 50% 50%, #ffd86a50, transparent 55%);
+    radial-gradient(650px 650px at 25% 30%, #ff7bf155, transparent 60%),
+    radial-gradient(850px 850px at 75% 70%, #8dff6a55, transparent 65%),
+    radial-gradient(700px 700px at 50% 50%, #ffd86a55, transparent 55%);
   animation:iris 30s linear infinite;
 }
 @keyframes iris{
-  0%{ filter:hue-rotate(0deg) blur(0.5px); transform:scale(1); }
-  50%{ filter:hue-rotate(120deg) blur(0.7px); transform:scale(1.02); }
-  100%{ filter:hue-rotate(360deg) blur(0.5px); transform:scale(1); }
+  0%{ filter:hue-rotate(0deg) blur(0.6px); transform:scale(1); }
+  50%{ filter:hue-rotate(120deg) blur(0.8px); transform:scale(1.02); }
+  100%{ filter:hue-rotate(360deg) blur(0.6px); transform:scale(1); }
 }
+
+/* Premium: sacred geometry overlay */
+.prem-geo{
+  position:fixed; inset:0; z-index:-2; pointer-events:none; opacity:.18; display:none;
+}
+body.is-premium .prem-geo{ display:block; }
+.prem-geo svg{ width:100%; height:100%; }
+.prem-geo .spin path{ transform-origin:50% 50%; animation:geoSpin 60s linear infinite; }
+@keyframes geoSpin{ to{ transform:rotate(360deg) } }
 
 /* Layout */
 .wrap{display:grid;grid-template-columns:440px 1fr;gap:24px;padding:24px;min-height:100dvh}
@@ -98,35 +97,33 @@ body.is-premium .prem-geo-bg{ display:block; }
   position:absolute; left:var(--logo-x); top:var(--logo-y);
   width:520px;height:520px; object-fit:contain; pointer-events:none;
   transform-origin:center center;
-  /* flip Y so it spins “inwards” as requested */
+  /* flip Y so it spins “inwards” */
   transform:translate(-50%,-50%) scale(var(--logo-scale)) scaleY(-1);
   animation:spinIn var(--logo-speed) linear infinite reverse;
-  /* multicolor glow (stacked drop-shadows) */
+  /* multicolor glow */
   filter:
-    drop-shadow(0 0 12px rgba(255,255,255,.22))
-    drop-shadow(0 0 18px rgba(255,123,241,.35))
-    drop-shadow(0 0 22px rgba(255,216,106,.28))
-    drop-shadow(0 0 26px rgba(141,255,106,.28))
-    drop-shadow(0 0 32px rgba(174,139,255,.25));
+    drop-shadow(0 0 10px rgba(255,255,255,.22))
+    drop-shadow(0 0 16px rgba(255,123,241,.35))
+    drop-shadow(0 0 20px rgba(255,216,106,.28))
+    drop-shadow(0 0 24px rgba(141,255,106,.28))
+    drop-shadow(0 0 28px rgba(174,139,255,.25));
 }
 @keyframes spinIn{to{transform:translate(-50%,-50%) scale(var(--logo-scale)) scaleY(-1) rotateZ(360deg)}}
 
 .titles h1{
   margin:0; line-height:1.02; letter-spacing:.4px;
   font-size:46px; font-weight:800;
-  text-shadow:
-    0 2px 0 rgba(0,0,0,.28),
-    0 12px 30px rgba(0,0,0,.45);       /* stronger pop */
+  text-shadow:0 2px 0 rgba(0,0,0,.28), 0 12px 30px rgba(0,0,0,.45);
 }
 .titles .sub{
-  margin-top:6px;opacity:.92;font-weight:800;
+  margin-top:6px;opacity:.95;font-weight:800;
   text-shadow:0 8px 20px rgba(0,0,0,.35);
 }
 .badge{display:inline-block;margin-left:8px;padding:5px 10px;border-radius:999px;color:#0b0c14;font-weight:900;font-size:13px;background:linear-gradient(90deg,#ff7bf1,#ffd86a)}
 .badge.demo{background:linear-gradient(90deg,#ff6a6a,#ffd86a)}
 
 /* ---------- Roadmap ---------- */
-.road{margin-top:18px;border:1px solid var(--ring);border-radius:18px;padding:16px;background:rgba(255,255,255,.10)}
+.road{margin-top:18px;border:1px solid var(--ring);border-radius:18px;padding:16px;background:rgba(255,255,255,.12)}
 .bar{height:12px;border-radius:999px;background:rgba(14,10,25,.6);border:1px solid var(--ring);overflow:hidden}
 .bar>span{display:block;height:100%;width:0%;transition:width .35s ease;background:linear-gradient(90deg,#ff7bf1,#ffb84d,#8dff6a,#ff6a6a)}
 .bar-legend{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:var(--ink-dim)}
@@ -140,17 +137,17 @@ body.is-premium .prem-geo-bg{ display:block; }
   box-shadow:0 8px 20px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.4);
   font-family:"TechfontItalica", system-ui, sans-serif;
 }
-.btn-ghost{background:rgba(255,255,255,.08);color:var(--ink);border:1px solid var(--ring)}
+.btn-ghost{background:rgba(255,255,255,.10);color:var(--ink);border:1px solid var(--ring)}
 .btn:active{transform:translateY(1px)}
 
 /* Kebab */
 .drop{position:relative}
 .drop-menu{
-  position:fixed;display:none;min-width:280px;max-height:60dvh;overflow:auto;
-  background:#0e0a1fe6;backdrop-filter:blur(10px);border:1px solid var(--ring);border-radius:16px;padding:8px;z-index:9999
+  position:fixed;display:none;min-width:300px;max-height:60dvh;overflow:auto;
+  background:#0e0a1feb;backdrop-filter:blur(10px);border:1px solid var(--ring);border-radius:16px;padding:10px;z-index:9999
 }
 .drop.open .drop-menu{display:block}
-.drop-menu .item{padding:10px 12px;border-radius:10px;font-weight:800;color:var(--ink);font-family:"TechfontItalica",system-ui}
+.drop-menu .item{padding:12px 14px;border-radius:10px;font-weight:800;color:var(--ink);font-family:"TechfontItalica",system-ui}
 .drop-menu .item:hover{background:#ffffff18}
 .drop-menu .danger{background:#ff5b5b1a;border:1px solid #ff5b5b45}
 
@@ -161,31 +158,32 @@ body.is-premium .prem-geo-bg{ display:block; }
 
 /* ---------- Chat (ANCHOR composer & chat) ---------- */
 .chat-col{
-  position:relative; height:calc(100dvh - 48px);   /* fixed column height */
+  position:relative; height:calc(100dvh - 48px);
   display:flex; flex-direction:column;
 }
 @media(max-width:980px){ .chat-col{ height:calc(100dvh - 48px); } }
 
 .chat{
-  flex:1; min-height:0; overflow:auto;              /* scroll instead of expand */
-  padding:18px 18px 96px;                           /* bottom space for composer */
-  background:linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.06));
+  flex:1; min-height:0; overflow:auto;
+  padding:18px 18px 120px;  /* extra bottom padding so bubbles never run under composer */
+  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.08));
   border:1px solid var(--ring);border-radius:24px;scroll-behavior:smooth;
-  /* hide scrollbars visually */
   scrollbar-width:none;
 }
 .chat::-webkit-scrollbar{width:0;height:0}
 
 .bubble{
   position:relative;margin:14px 0;padding:14px 16px 14px 56px;border-radius:18px;border:1px solid var(--ring);
-  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.05));box-shadow:0 10px 30px rgba(0,0,0,.25)
+  background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.07));box-shadow:0 10px 30px rgba(0,0,0,.25);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif !important; /* regular font INSIDE chat */
+  line-height:1.35;
 }
 .bubble .who{
   position:absolute;left:12px;top:12px;width:32px;height:32px;display:grid;place-items:center;border-radius:10px;
   background:#0e0a1fe6;border:1px solid var(--ring)
 }
 
-/* Composer is ANCHORED */
+/* Composer anchored */
 .composer{
   position:absolute; left:0; right:0; bottom:0;
   display:grid;grid-template-columns:1fr 110px;gap:10px;align-items:end;
@@ -195,30 +193,39 @@ textarea{width:100%;min-height:54px;max-height:180px;resize:vertical;padding:14p
   font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif !important}
 .send{height:54px;border-radius:16px;font-weight:900;background:linear-gradient(130deg,#ff7bf1,#ffd86a);color:#0b0c14;font-family:"TechfontItalica",system-ui}
 
-/* ---------- Modal (Modules) ---------- */
+/* ---------- Modules modal (more color, spacing, footer) ---------- */
 .modal{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:10000; }
 .modal.open{ display:flex; }
-.modal::before{ content:""; position:absolute; inset:0; background:rgba(6,4,12,.6); backdrop-filter:blur(4px); }
+.modal::before{ content:""; position:absolute; inset:0; background:rgba(6,4,12,.65); backdrop-filter:blur(4px); }
 .panel{
-  position:relative; z-index:1; width:min(720px,92vw);
-  background:linear-gradient(180deg,var(--glass1),var(--glass2));
-  border:1px solid var(--ring); border-radius:20px; padding:16px;
-  box-shadow:0 30px 80px rgba(0,0,0,.55);
+  position:relative; z-index:1; width:min(760px,92vw);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.12)),
+    radial-gradient(800px 600px at 10% 10%, rgba(255,123,241,.18), transparent 60%),
+    radial-gradient(800px 600px at 90% 30%, rgba(255,216,106,.14), transparent 65%);
+  border:1px solid var(--ring); border-radius:22px; padding:18px 18px 12px;
+  box-shadow:0 40px 100px rgba(0,0,0,.6);
 }
-.modlist .mod{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px; border:1px solid var(--ring); border-radius:14px; margin:10px 0; }
+.panel h3{margin:6px 6px 14px 6px}
+.modlist{display:flex;flex-direction:column;gap:12px;margin-bottom:10px}
+.modlist .mod{
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  padding:14px;border:1px solid var(--ring); border-radius:14px;
+  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.06));
+}
 .modlist .lock{ opacity:.6 }
+.panel .footer{display:flex;justify-content:flex-end;margin-top:8px}
+.panel .footer .btn-ghost{padding:10px 16px}
 </style>
 </head>
 <body>
 <div class="bg"></div>
 
-<!-- Premium iridescent wallpaper (new, behind existing) -->
+<!-- Premium layered wallpapers -->
 <div class="prem-geo-bg" aria-hidden="true"><div class="field"></div></div>
-
-<!-- Premium sacred geometry overlay (existing) -->
 <div class="prem-geo" aria-hidden="true">
   <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
-    <g class="spin" fill="none" stroke="url(#g)" stroke-width="0.4" opacity="0.85">
+    <g class="spin" fill="none" stroke="url(#g)" stroke-width="0.4" opacity="0.9">
       <defs>
         <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%"  stop-color="#ff7bf1"/><stop offset="50%" stop-color="#ffd86a"/><stop offset="100%" stop-color="#8dff6a"/>
@@ -263,6 +270,7 @@ textarea{width:100%;min-height:54px;max-height:180px;resize:vertical;padding:14p
             <div class="item" id="saveSnap">Save Snapshot</div>
             <div class="item" id="loadSnap">Load Snapshot</div>
             <div class="item" id="wake">Wake the Engine</div>
+            <div class="item" id="modelMode">Model: Smart</div>
             <div class="item danger" id="reset">Reset Progress</div>
             <div class="item" id="switchMode">Switch to Demo / Sign Out</div>
             <div class="item" id="enterKey">I have a license key</div>
@@ -293,9 +301,9 @@ textarea{width:100%;min-height:54px;max-height:180px;resize:vertical;padding:14p
 <!-- Modules modal -->
 <div class="modal" id="modModal" aria-hidden="true">
   <div class="panel">
-    <h3 style="margin:6px 6px 10px 6px">Modules</h3>
+    <h3>Modules</h3>
     <div class="modlist" id="modList"></div>
-    <div style="display:flex;justify-content:flex-end;margin-top:12px">
+    <div class="footer">
       <button class="btn btn-ghost" id="modClose">Close</button>
     </div>
   </div>
@@ -303,15 +311,16 @@ textarea{width:100%;min-height:54px;max-height:180px;resize:vertical;padding:14p
 
 <script>
 /* ======= Config / State ======= */
-const WORKER_BASE = "https://freedom-engine-worker.intelligentlyartificialsystems.workers.dev";
+const WORKER_BASE = "https://freedom-engine-worker.intelligentlyartificialsystems.workers.dev"; // your worker
 const STAGES = 5;
 const state = {
   tier: localStorage.getItem("fe_tier") || "demo",
   license: localStorage.getItem("fe_license") || "",
-  roadmap: 1,
-  messages: [],
+  roadmap: Number(localStorage.getItem("fe_roadmap")||1),
+  messages: JSON.parse(localStorage.getItem("fe_msgs")||"[]"),
   greeted:false,
-  lastWake:0
+  lastWake:0,
+  model: localStorage.getItem("fe_model") || "smart" // smart|smarter|savage
 };
 const el = {
   bar:document.getElementById("bar"),
@@ -335,18 +344,18 @@ const el = {
   modModal:document.getElementById("modModal"),
   modList:document.getElementById("modList"),
   modClose:document.getElementById("modClose"),
-  wake:document.getElementById("wake")
+  wake:document.getElementById("wake"),
+  modelMode:document.getElementById("modelMode")
 };
 
 /* ======= UI ======= */
 function setTier(t){
   state.tier=t; localStorage.setItem("fe_tier",t);
   const isDemo = t==="demo";
-  document.body.classList.toggle("is-premium", !isDemo); // toggle sacred geometry
+  document.body.classList.toggle("is-premium", !isDemo);
   el.demoCTA.style.display = isDemo ? "block":"none";
   el.enterKey.style.display = isDemo ? "block":"none";
   el.buy.style.display      = isDemo ? "block":"none";
-  /* hide “switch to demo / sign out” while already in demo */
   el.switchMode.style.display = isDemo ? "none":"block";
   el.tierBadge.textContent  = isDemo ? "Demo":"Premium";
   el.tierBadge.classList.toggle("demo", isDemo);
@@ -355,6 +364,7 @@ function updateBar(){
   const pct = Math.max(1,Math.min(STAGES,state.roadmap))/STAGES*100;
   el.bar.style.width = pct+"%";
   el.barText.textContent = `${Math.max(1,state.roadmap)}/${STAGES}`;
+  localStorage.setItem("fe_roadmap", state.roadmap);
 }
 function autoscroll(){ el.chat.scrollTop = el.chat.scrollHeight; }
 function pushBubble(who,text){
@@ -364,10 +374,12 @@ function pushBubble(who,text){
   b.innerHTML=`<div class="who">${who==="user"?"💬":"⚙️"}</div>${text}`;
   el.chat.appendChild(b);
   state.messages.push({who,text});
+  if(state.messages.length>200) state.messages.splice(0,state.messages.length-200);
+  localStorage.setItem("fe_msgs", JSON.stringify(state.messages));
   requestAnimationFrame(autoscroll);
 }
 
-/* ======= Kebab placement (clamped to viewport) ======= */
+/* ======= Kebab placement (clamped) ======= */
 function openKebab(){
   el.kebab.classList.add("open");
   const m = el.kebabMenu;
@@ -402,7 +414,7 @@ async function cloudLoad(){
     if(j.ok && j.found && j.data){
       const data=JSON.parse(j.data);
       state.roadmap = Number(data.roadmap)||1;
-      state.messages = Array.isArray(data.messages)? data.messages.slice(-100):[];
+      state.messages = Array.isArray(data.messages)? data.messages.slice(-200):[];
       el.chat.innerHTML=""; state.messages.forEach(m=>pushBubble(m.who,m.text));
       updateBar(); return true;
     }
@@ -410,35 +422,68 @@ async function cloudLoad(){
   return false;
 }
 
+/* ======= Mentor system prompt (used by worker) ======= */
+function systemPrompt(){
+return `
+You are "The Freedom Engine" — a personal trainer for tiny paid offers.
+Style: mentor/student, dark humor, light bullying toward success, warm, concise.
+Rules:
+- Always steer user through a 5-stage course: (1) lane pick, (2) tiny deliverable, (3) real person, (4) proof/price, (5) launch plan.
+- Keep answers short, then ask a pointed next question that advances the stage.
+- Allow brief detours but pull back to the roadmap.
+- Avoid interrogation tone; explain why a step matters.
+- Never ask "what do people thank you for". Use direct, concrete prompts instead.
+Output plain text only.`;
+}
+
+/* ======= Call Worker LLM (with fallback) ======= */
+async function askWorker(userText){
+  try{
+    const r=await fetch(WORKER_BASE+"/chat",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        license_key: state.license || "DEMO",
+        model: state.model,                          // smart|smarter|savage (worker decides mapping)
+        system: systemPrompt(),
+        stage: state.roadmap,
+        messages: state.messages.concat([{who:"user", text:userText}]).slice(-24)
+      })
+    });
+    const j=await r.json();
+    if(j && j.ok && j.reply){
+      return j.reply;
+    }
+  }catch(e){}
+  return null;
+}
+
+/* ======= Local curriculum fallback ======= */
+function fallbackReply(t){
+  const n=t.trim().toLowerCase();
+  const choose=`Okay, options time. Reply 1–5:<br>
+  1) <b>Design</b> • logos/graphics<br>2) <b>Writing</b> • copy/guides<br>
+  3) <b>Coaching</b> • audits/accelerators<br>4) <b>Dev</b> • tiny tools/setups<br>5) <b>Other</b> • pitch me your chaos`;
+  if(state.roadmap<=1 || /(help me choose|idk|no clue|stuck)/.test(n)) return choose;
+  if(state.roadmap===2) return `Name a <b>tiny deliverable in 48h</b> for that lane. One sentence.`;
+  if(state.roadmap===3) return `Who’s the <b>one real human</b> you'd ship this to first? Name or describe.`;
+  if(state.roadmap===4) return `Proof + price: what evidence or sample can you show, and what’s the <b>starter price</b>?`;
+  return `Launch plan: pick a channel (DM, email, post) and a <b>time in the next 48h</b>. I’ll give you the script.`;
+}
+
 /* ======= Conversational flow ======= */
 function normalize(t=""){ return t.trim().toLowerCase(); }
-function aiReply(userText){
-  const t = normalize(userText);
 
-  if(!t){ pushBubble("ai","Give me a crumb or say <em>help me choose</em>."); return; }
-  if(/(help me choose|idk|no clue|stuck)/.test(t)){
-    pushBubble("ai",
-      `Okay, options time. Reply 1–5:<br>
-       1) <b>Design</b> • logos/graphics<br>
-       2) <b>Writing</b> • copy/guides<br>
-       3) <b>Coaching</b> • audits/accelerators<br>
-       4) <b>Dev</b> • tiny tools/setups<br>
-       5) <b>Other</b> • pitch me your chaos`);
-    return;
-  }
-  const m=t.match(/^\s*([1-5])\s*$/);
-  if(m){
-    const lane=["","Design","Writing","Coaching","Dev","Other"][Number(m[1])];
-    state.roadmap=Math.max(2,state.roadmap);
-    updateBar();
-    pushBubble("ai",
-      `Locked: <b>${lane}</b>.<br>Now: what’s a <b>tiny deliverable in 48h</b> someone would pay for? One sentence.`);
-    cloudSave(); return;
-  }
-  pushBubble("ai",
-    `Got it. I’ll translate that into a tiny paid offer.<br>
-     Quick confirm: who’s the <b>one real human</b> you’d ship this to first? (Name or describe them.)`);
-  state.roadmap=Math.min(5,state.roadmap+1); updateBar(); cloudSave();
+async function aiReply(userText){
+  let reply = await askWorker(userText);
+  if(!reply) reply = fallbackReply(userText);
+
+  // stage nudging
+  const n=normalize(userText);
+  if(state.roadmap===1 && (/^[1-5]$/.test(n) || /design|writing|coach|dev|other/.test(n))) state.roadmap=2;
+  else if(state.roadmap===2 && n.length>3) state.roadmap=3;
+  else if(state.roadmap===3 && n.length>2) state.roadmap=4;
+  else if(state.roadmap===4 && /\$|\d/.test(n)) state.roadmap=5;
+
+  updateBar(); pushBubble("ai",reply); cloudSave();
 }
 
 /* ======= Greeting once ======= */
@@ -465,6 +510,8 @@ function renderModules(){
     {name:"Offer Sprint", desc:"Guided 72-hour micro-offer builder", locked:isDemo},
     {name:"Copy Booster", desc:"Emails, posts, and landing copy blocks", locked:isDemo},
     {name:"Launch Maps", desc:"Checklists + timelines", locked:isDemo},
+    {name:"Nudge Engine", desc:"Behavioral prompts to keep momentum", locked:isDemo},
+    {name:"Audience Miner", desc:"Find 10 real humans to contact", locked:isDemo},
   ];
   rows.forEach(r=>{
     const div=document.createElement("div");
@@ -484,6 +531,15 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   window.addEventListener("resize", ()=>{ if(el.kebab.classList.contains("open")) openKebab(); });
   document.addEventListener("click", (e)=>{ if(!el.kebab.contains(e.target)) closeKebab(); });
 
+  // model mode toggle
+  function labelModel(m){ return "Model: " + (m==="smart"?"Smart":m==="smarter"?"Smarter":"Savage"); }
+  el.modelMode.textContent = labelModel(state.model);
+  el.modelMode.addEventListener("click", ()=>{
+    state.model = state.model==="smart" ? "smarter" : state.model==="smarter" ? "savage" : "smart";
+    localStorage.setItem("fe_model", state.model);
+    el.modelMode.textContent = labelModel(state.model);
+  });
+
   // demo/premium
   const gumroad="https://intellartsystems.gumroad.com/l/the-freedom-engine";
   el.buy.addEventListener("click", ()=>window.open(gumroad,"_blank"));
@@ -498,10 +554,12 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   el.switchMode.addEventListener("click", ()=>{
     localStorage.removeItem("fe_license"); setTier("demo");
     state.license=""; state.roadmap=1; state.messages=[]; state.greeted=false;
+    localStorage.setItem("fe_msgs","[]"); localStorage.setItem("fe_roadmap","1");
     el.chat.innerHTML=""; greet(); updateBar();
   });
   el.reset.addEventListener("click", ()=>{
     state.roadmap=1; state.messages=[]; state.greeted=false;
+    localStorage.setItem("fe_msgs","[]"); localStorage.setItem("fe_roadmap","1");
     el.chat.innerHTML=""; greet(); updateBar(); cloudSave();
   });
 
@@ -521,7 +579,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     inp.onchange=async()=>{ const f=inp.files[0]; if(!f) return;
       try{ const d=JSON.parse(await f.text());
         state.roadmap=Math.max(1,Math.min(5,Number(d.roadmap)||1));
-        state.messages=Array.isArray(d.messages)?d.messages.slice(-100):[];
+        state.messages=Array.isArray(d.messages)?d.messages.slice(-200):[];
         el.chat.innerHTML=""; state.messages.forEach(m=>pushBubble(m.who,m.text)); updateBar(); cloudSave();
       }catch{ alert("Bad snapshot file."); }
     }; inp.click();
@@ -549,7 +607,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   if(state.tier==="premium" && state.license){ loaded=await cloudLoad(); }
   if(!loaded || state.messages.length===0) greet();
   updateBar();
-  autoscroll();
+  requestAnimationFrame(()=>el.chat.scrollTop=el.chat.scrollHeight);
 });
 </script>
 </body>
