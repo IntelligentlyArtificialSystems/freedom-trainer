@@ -305,14 +305,17 @@ textarea{width:100%;min-height:54px;max-height:180px;resize:vertical;padding:14p
 /* ======= Config / State ======= */
 const WORKER_BASE = "https://freedom-engine-worker.intelligentlyartificialsystems.workers.dev";
 const STAGES = 5;
+
 const state = {
   tier: localStorage.getItem("fe_tier") || "demo",
   license: localStorage.getItem("fe_license") || "",
   roadmap: 1,
   messages: [],
   greeted:false,
-  lastWake:0
+  lastWake:0,
+  sending:false
 };
+
 const el = {
   bar:document.getElementById("bar"),
   barText:document.getElementById("barText"),
@@ -338,33 +341,47 @@ const el = {
   wake:document.getElementById("wake")
 };
 
-/* ======= UI ======= */
-function setTier(t){
-  state.tier=t; localStorage.setItem("fe_tier",t);
-  const isDemo = t==="demo";
-  document.body.classList.toggle("is-premium", !isDemo); // toggle sacred geometry
-  el.demoCTA.style.display = isDemo ? "block":"none";
-  el.enterKey.style.display = isDemo ? "block":"none";
-  el.buy.style.display      = isDemo ? "block":"none";
-  /* hide “switch to demo / sign out” while already in demo */
-  el.switchMode.style.display = isDemo ? "none":"block";
-  el.tierBadge.textContent  = isDemo ? "Demo":"Premium";
-  el.tierBadge.classList.toggle("demo", isDemo);
-}
-function updateBar(){
-  const pct = Math.max(1,Math.min(STAGES,state.roadmap))/STAGES*100;
-  el.bar.style.width = pct+"%";
-  el.barText.textContent = `${Math.max(1,state.roadmap)}/${STAGES}`;
-}
+/* ======= Small utilities ======= */
+const sleep = (ms)=>new Promise(r=>setTimeout(r,ms));
+function normalize(t=""){ return t.trim().toLowerCase(); }
 function autoscroll(){ el.chat.scrollTop = el.chat.scrollHeight; }
-function pushBubble(who,text){
-  if(!text)return;
+
+/* Debounce helper for cloud saves */
+let saveTimer=null;
+function debounceSave(fn, delay=400){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(fn, delay);
+}
+
+/* Bubble rendering
+   FE_PATCH: add `record=true` flag — lets us render history without duplicating state */
+function pushBubble(who,text,{record=true}={}){
+  if(!text) return;
   const b=document.createElement("div");
   b.className="bubble";
   b.innerHTML=`<div class="who">${who==="user"?"💬":"⚙️"}</div>${text}`;
   el.chat.appendChild(b);
-  state.messages.push({who,text});
+  if(record) state.messages.push({who,text});
   requestAnimationFrame(autoscroll);
+}
+
+/* ======= UI ======= */
+function setTier(t){
+  state.tier=t; localStorage.setItem("fe_tier",t);
+  const isDemo = t==="demo";
+  document.body.classList.toggle("is-premium", !isDemo); // sacred geometry toggle
+  el.demoCTA.style.display = isDemo ? "block":"none";
+  el.enterKey.style.display = isDemo ? "block":"none";
+  el.buy.style.display      = isDemo ? "block":"none";
+  el.switchMode.style.display = isDemo ? "none":"block";
+  el.tierBadge.textContent  = isDemo ? "Demo":"Premium";
+  el.tierBadge.classList.toggle("demo", isDemo);
+}
+
+function updateBar(){
+  const pct = Math.max(1,Math.min(STAGES,state.roadmap))/STAGES*100;
+  el.bar.style.width = pct+"%";
+  el.barText.textContent = `${Math.max(1,state.roadmap)}/${STAGES}`;
 }
 
 /* ======= Kebab placement (clamped to viewport) ======= */
@@ -373,27 +390,31 @@ function openKebab(){
   const m = el.kebabMenu;
   const btnRect = el.kebabBtn.getBoundingClientRect();
   m.style.display="block";
-  const mw = m.offsetWidth, mh = m.offsetHeight;
-  const margin=8;
-  const roomBelow = window.innerHeight - btnRect.bottom;
-  let top = roomBelow > mh + margin ? (btnRect.bottom + 8) : (btnRect.top - mh - 8);
-  let left = btnRect.right - mw;
-  top  = Math.max(margin, Math.min(window.innerHeight - mh - margin, top));
-  left = Math.max(margin, Math.min(window.innerWidth  - mw - margin, left));
-  m.style.top  = `${top}px`;
-  m.style.left = `${left}px`;
+  requestAnimationFrame(()=>{
+    const mw = m.offsetWidth || 280, mh = m.offsetHeight || 180;
+    const margin=8;
+    const roomBelow = window.innerHeight - btnRect.bottom;
+    let top = roomBelow > mh + margin ? (btnRect.bottom + 8) : (btnRect.top - mh - 8);
+    let left = btnRect.right - mw;
+    top  = Math.max(margin, Math.min(window.innerHeight - mh - margin, top));
+    left = Math.max(margin, Math.min(window.innerWidth  - mw - margin, left));
+    m.style.top  = `${top}px`;
+    m.style.left = `${left}px`;
+  });
 }
 function closeKebab(){ el.kebab.classList.remove("open"); el.kebabMenu.style.display="none"; }
 
 /* ======= Cloud (D1) ======= */
-async function cloudSave(){
+async function cloudSaveNow(){
   if(state.tier!=="premium" || !state.license) return;
-  const payload = { roadmap:state.roadmap, messages:state.messages };
+  const payload = { roadmap:state.roadmap, messages:state.messages.slice(-300) };
   try{
     await fetch(WORKER_BASE+"/progress",{method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({license_key:state.license,data:JSON.stringify(payload)})});
-  }catch(e){}
+  }catch(e){/* silent fail */}
 }
+function cloudSave(){ debounceSave(cloudSaveNow, 450); }
+
 async function cloudLoad(){
   if(state.tier!=="premium" || !state.license) return false;
   try{
@@ -403,19 +424,34 @@ async function cloudLoad(){
       const data=JSON.parse(j.data);
       state.roadmap = Number(data.roadmap)||1;
       state.messages = Array.isArray(data.messages)? data.messages.slice(-100):[];
-      el.chat.innerHTML=""; state.messages.forEach(m=>pushBubble(m.who,m.text));
+      el.chat.innerHTML="";
+      // FE_PATCH: render history WITHOUT re-adding to state
+      state.messages.forEach(m=>pushBubble(m.who,m.text,{record:false}));
+      // state.messages already set; don't mutate further here
       updateBar(); return true;
     }
-  }catch(e){}
+  }catch(e){/* ignore */}
   return false;
 }
 
+/* ======= License verify (no more instant upgrade) ======= */
+async function verifyLicense(key){
+  try{
+    const r=await fetch(WORKER_BASE+"/verify",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({license_key:key.trim()})});
+    const j=await r.json();
+    return Boolean(j && (j.valid || j.ok)); // accept {valid:true} or {ok:true}
+  }catch(e){
+    return false;
+  }
+}
+
 /* ======= Conversational flow ======= */
-function normalize(t=""){ return t.trim().toLowerCase(); }
 function aiReply(userText){
   const t = normalize(userText);
 
   if(!t){ pushBubble("ai","Give me a crumb or say <em>help me choose</em>."); return; }
+
   if(/(help me choose|idk|no clue|stuck)/.test(t)){
     pushBubble("ai",
       `Okay, options time. Reply 1–5:<br>
@@ -426,6 +462,7 @@ function aiReply(userText){
        5) <b>Other</b> • pitch me your chaos`);
     return;
   }
+
   const m=t.match(/^\s*([1-5])\s*$/);
   if(m){
     const lane=["","Design","Writing","Coaching","Dev","Other"][Number(m[1])];
@@ -435,6 +472,7 @@ function aiReply(userText){
       `Locked: <b>${lane}</b>.<br>Now: what’s a <b>tiny deliverable in 48h</b> someone would pay for? One sentence.`);
     cloudSave(); return;
   }
+
   pushBubble("ai",
     `Got it. I’ll translate that into a tiny paid offer.<br>
      Quick confirm: who’s the <b>one real human</b> you’d ship this to first? (Name or describe them.)`);
@@ -488,18 +526,25 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   const gumroad="https://intellartsystems.gumroad.com/l/the-freedom-engine";
   el.buy.addEventListener("click", ()=>window.open(gumroad,"_blank"));
   el.ctaBuy?.addEventListener("click", ()=>window.open(gumroad,"_blank"));
+
   el.enterKey.addEventListener("click", async ()=>{
     const key=prompt("Enter license key:"); if(!key) return;
+    // FE_PATCH: verify before upgrading
+    const valid = await verifyLicense(key);
+    if(!valid){ alert("Invalid or inactive license."); return; }
     state.license=key.trim(); localStorage.setItem("fe_license",state.license);
-    setTier("premium"); const ok = await cloudLoad();
+    setTier("premium");
+    const ok = await cloudLoad();
     if(!ok){ el.chat.innerHTML=""; greet(); }
     updateBar();
   });
+
   el.switchMode.addEventListener("click", ()=>{
     localStorage.removeItem("fe_license"); setTier("demo");
     state.license=""; state.roadmap=1; state.messages=[]; state.greeted=false;
     el.chat.innerHTML=""; greet(); updateBar();
   });
+
   el.reset.addEventListener("click", ()=>{
     state.roadmap=1; state.messages=[]; state.greeted=false;
     el.chat.innerHTML=""; greet(); updateBar(); cloudSave();
@@ -519,10 +564,14 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   el.loadSnap.addEventListener("click", ()=>{
     const inp=document.createElement("input"); inp.type="file"; inp.accept="application/json";
     inp.onchange=async()=>{ const f=inp.files[0]; if(!f) return;
-      try{ const d=JSON.parse(await f.text());
+      try{
+        const d=JSON.parse(await f.text());
         state.roadmap=Math.max(1,Math.min(5,Number(d.roadmap)||1));
+        // FE_PATCH: set state, render without re-recording
         state.messages=Array.isArray(d.messages)?d.messages.slice(-100):[];
-        el.chat.innerHTML=""; state.messages.forEach(m=>pushBubble(m.who,m.text)); updateBar(); cloudSave();
+        el.chat.innerHTML="";
+        state.messages.forEach(m=>pushBubble(m.who,m.text,{record:false}));
+        updateBar(); cloudSave();
       }catch{ alert("Bad snapshot file."); }
     }; inp.click();
   });
@@ -538,8 +587,22 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     pushBubble("ai","Engine’s awake. I’ve got caffeine and poor judgment. Where were we?");
   });
 
-  // send
-  function send(){const v=el.input.value.trim(); if(!v) return; pushBubble("user",v); el.input.value=""; aiReply(v);}
+  // send (guard against double-send)
+  async function send(){
+    if(state.sending) return;
+    const v=el.input.value.trim(); if(!v) return;
+    state.sending=true;
+    el.send.disabled=true; el.input.disabled=true;
+
+    pushBubble("user",v);
+    el.input.value="";
+    await sleep(50); // tiny yield for UX
+    aiReply(v);
+
+    await sleep(200); // minimal lock to avoid double taps
+    el.send.disabled=false; el.input.disabled=false; el.input.focus();
+    state.sending=false;
+  }
   el.send.addEventListener("click", send);
   el.input.addEventListener("keydown", e=>{ if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}});
 
@@ -549,7 +612,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   if(state.tier==="premium" && state.license){ loaded=await cloudLoad(); }
   if(!loaded || state.messages.length===0) greet();
   updateBar();
-  autoscroll();
+  requestAnimationFrame(autoscroll);
 });
 </script>
 </body>
