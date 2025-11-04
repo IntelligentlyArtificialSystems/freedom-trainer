@@ -48,14 +48,16 @@ body{
   filter:saturate(125%) blur(0.2px);
 }
 
-/* Premium: sacred geometry overlay (animated) */
+/* ---------- Premium visuals ---------- */
+
+/* Sacred geometry overlay (animated, subtle) */
 .prem-geo{
   position:fixed; inset:0; z-index:-2; pointer-events:none; opacity:.14; display:none;
 }
 body.is-premium .prem-geo{ display:block; }
 .prem-geo svg{ width:100%; height:100%; }
 
-/* FE: class-based animations so every shape moves */
+/* Subtle class-based animations so ALL shapes move */
 .prem-geo .geo-r1,
 .prem-geo .geo-r2,
 .prem-geo .geo-tri,
@@ -65,37 +67,36 @@ body.is-premium .prem-geo{ display:block; }
   transform-origin:50% 50%;
   transform-box:fill-box;
 }
-.prem-geo .geo-r1   { animation:geoSpin    50s linear infinite; }
-.prem-geo .geo-r2   { animation:geoSpinRev 80s linear infinite; }
-.prem-geo .geo-tri  { animation:geoSpin    60s linear infinite; }
-.prem-geo .geo-dot1 { animation:geoSpin    70s linear infinite; }
-.prem-geo .geo-dot2 { animation:geoSpinRev 90s linear infinite; }
-.prem-geo .geo-dot3 { animation:geoSpin   110s linear infinite; }
-
+.prem-geo .geo-r1   { animation:geoSpin    90s linear infinite; }   /* outer ring */
+.prem-geo .geo-r2   { animation:geoSpinRev 140s linear infinite; }  /* inner ring */
+.prem-geo .geo-tri  { animation:geoSpin    120s linear infinite; }  /* triangle */
+.prem-geo .geo-dot1 { animation:geoSpin    160s linear infinite; }  /* top dot */
+.prem-geo .geo-dot2 { animation:geoSpinRev 180s linear infinite; }  /* right dot */
+.prem-geo .geo-dot3 { animation:geoSpin   200s linear infinite; }   /* left dot */
 @keyframes geoSpin    { to{ transform:rotate(360deg) } }
 @keyframes geoSpinRev { to{ transform:rotate(-360deg) } }
 
-/* Premium: iridescent wallpaper (always mounted; fades in for premium) */
+/* Iridescent wallpaper (always mounted; fades in when premium) */
 .prem-geo-bg{
   position:fixed; inset:-10%; z-index:-3; pointer-events:none;
-  display:block; opacity:0; filter:saturate(160%); transition:opacity .35s ease;
+  display:block; opacity:0; filter:saturate(150%); transition:opacity .5s ease;
 }
-body.is-premium .prem-geo-bg{ opacity:.20; }
+body.is-premium .prem-geo-bg{ opacity:.16; }  /* subtle but visible */
 .prem-geo-bg .field{
   width:100%; height:100%;
   background:
-    radial-gradient(640px 640px at 25% 30%, #ff7bf17a, transparent 60%),
-    radial-gradient(820px 820px at 75% 70%, #8dff6a7a, transparent 65%),
-    radial-gradient(720px 720px at 50% 50%, #ffd86a7a, transparent 55%);
-  animation:iris 30s linear infinite;
+    radial-gradient(620px 620px at 25% 30%, #ff7bf169, transparent 60%),
+    radial-gradient(800px 800px at 75% 70%, #8dff6a69, transparent 65%),
+    radial-gradient(700px 700px at 50% 50%, #ffd86a69, transparent 55%);
+  animation:iris 36s linear infinite;
 }
 @keyframes iris{
-  0%{ filter:hue-rotate(0deg) blur(0.5px); transform:scale(1); }
-  50%{ filter:hue-rotate(120deg) blur(0.7px); transform:scale(1.02); }
-  100%{ filter:hue-rotate(360deg) blur(0.5px); transform:scale(1); }
+  0%{ filter:hue-rotate(0deg) blur(.5px); transform:scale(1); }
+  50%{ filter:hue-rotate(120deg) blur(.7px); transform:scale(1.01); }
+  100%{ filter:hue-rotate(360deg) blur(.5px); transform:scale(1); }
 }
 
-/* Layout */
+/* ---------- Layout ---------- */
 .wrap{display:grid;grid-template-columns:440px 1fr;gap:24px;padding:24px;min-height:100dvh}
 @media(max-width:980px){.wrap{grid-template-columns:1fr}}
 
@@ -195,7 +196,7 @@ body.is-premium .prem-geo-bg{ opacity:.20; }
 .bubble{
   position:relative;margin:14px 0;padding:14px 16px 14px 56px;border-radius:18px;border:1px solid var(--ring);
   background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.05));box-shadow:0 10px 30px rgba(0,0,0,.25);
-  /* FE: use default system font inside bubbles (not brand font) */
+  /* default system font inside bubbles (not brand font) */
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 .bubble .who{
@@ -219,7 +220,7 @@ textarea{
   background:#120d20;
   border:1px solid var(--ring);
   border-radius:16px;
-  /* FE: default system font in input */
+  /* default system font in input */
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important;
 }
 .send{height:54px;border-radius:16px;font-weight:900;background:linear-gradient(130deg,#ff7bf1,#ffd86a);color:#0b0c14;font-family:"TechfontItalica",system-ui}
@@ -264,7 +265,7 @@ textarea{
         <stop offset="0%"  stop-color="#ff7bf1"/><stop offset="50%" stop-color="#ffd86a"/><stop offset="100%" stop-color="#8dff6a"/>
       </linearGradient>
     </defs>
-    <g class="spin" fill="none" stroke="url(#g)" stroke-width="0.4" opacity="0.85">
+    <g fill="none" stroke="url(#g)" stroke-width="0.4" opacity="0.85">
       <circle class="geo-r1"  cx="50" cy="50" r="30"/>
       <circle class="geo-r2"  cx="50" cy="50" r="20"/>
       <path   class="geo-tri" d="M50 18 L68 62 L32 62 Z"/>
@@ -544,7 +545,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     el.chat.innerHTML=""; greet(); updateBar();
   });
 
-  // FIX: true reset (no ghost history)
+  // true reset (no ghost history)
   el.reset.addEventListener("click", async ()=>{
     state.roadmap=1; state.messages=[]; state.greeted=false;
     el.chat.innerHTML="";
@@ -592,7 +593,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
 
   // init
   setTier(state.tier);
-  if(state.license){ document.body.classList.add("is-premium"); } // force premium visuals if key exists
+  if(state.tier==="premium" || state.license){ document.body.classList.add("is-premium"); } // force premium visuals if key exists
   let loaded=false;
   if(state.tier==="premium" && state.license){ loaded=await cloudLoad(); }
   if(!loaded || state.messages.length===0) greet();
