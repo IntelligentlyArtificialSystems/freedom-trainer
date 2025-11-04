@@ -22,6 +22,7 @@
 
   --mag:#ff7bf1; --pink:#ff76b5; --sun:#ffb84d; --gold:#ffd86a; --lime:#8dff6a; --vio:#ae8bff; --scar:#ff6a6a;
 
+  /* Logo tuning */
   --logo-x:50%;
   --logo-y:52%;
   --logo-scale:.95;
@@ -47,41 +48,45 @@ body{
   filter:saturate(125%) blur(0.2px);
 }
 
-/* Premium: subtle sacred geometry (existing layer) */
+/* Premium: sacred geometry overlay (animated) */
 .prem-geo{
   position:fixed; inset:0; z-index:-2; pointer-events:none; opacity:.14; display:none;
 }
 body.is-premium .prem-geo{ display:block; }
 .prem-geo svg{ width:100%; height:100%; }
-/* Move each sacred-geometry shape */
-.prem-geo .spin *{
+
+/* FE: class-based animations so every shape moves */
+.prem-geo .geo-r1,
+.prem-geo .geo-r2,
+.prem-geo .geo-tri,
+.prem-geo .geo-dot1,
+.prem-geo .geo-dot2,
+.prem-geo .geo-dot3{
   transform-origin:50% 50%;
-  transform-box: fill-box;            /* cross-browser */
+  transform-box:fill-box;
 }
-.prem-geo .spin > circle:nth-of-type(1){ animation:geoSpin 50s linear infinite; }
-.prem-geo .spin > circle:nth-of-type(2){ animation:geoSpinRev 80s linear infinite; }
-.prem-geo .spin > path{                 animation:geoSpin 60s linear infinite; }
-.prem-geo .spin > g circle:nth-of-type(1){ animation:geoSpin 70s linear infinite; }
-.prem-geo .spin > g circle:nth-of-type(2){ animation:geoSpinRev 90s linear infinite; }
-.prem-geo .spin > g circle:nth-of-type(3){ animation:geoSpin 110s linear infinite; }
+.prem-geo .geo-r1   { animation:geoSpin    50s linear infinite; }
+.prem-geo .geo-r2   { animation:geoSpinRev 80s linear infinite; }
+.prem-geo .geo-tri  { animation:geoSpin    60s linear infinite; }
+.prem-geo .geo-dot1 { animation:geoSpin    70s linear infinite; }
+.prem-geo .geo-dot2 { animation:geoSpinRev 90s linear infinite; }
+.prem-geo .geo-dot3 { animation:geoSpin   110s linear infinite; }
 
 @keyframes geoSpin    { to{ transform:rotate(360deg) } }
 @keyframes geoSpinRev { to{ transform:rotate(-360deg) } }
 
-
-/* Premium: iridescent wallpaper under everything */
-/* Always mounted; fade in for premium so it can't "disappear" */
+/* Premium: iridescent wallpaper (always mounted; fades in for premium) */
 .prem-geo-bg{
   position:fixed; inset:-10%; z-index:-3; pointer-events:none;
-  display:block; opacity:0; filter:saturate(140%); transition:opacity .35s ease;
+  display:block; opacity:0; filter:saturate(160%); transition:opacity .35s ease;
 }
-body.is-premium .prem-geo-bg{ opacity:.15; }   /* bump for visibility */
+body.is-premium .prem-geo-bg{ opacity:.20; }
 .prem-geo-bg .field{
   width:100%; height:100%;
   background:
-    radial-gradient(600px 600px at 25% 30%, #ff7bf150, transparent 60%),
-    radial-gradient(800px 800px at 75% 70%, #8dff6a50, transparent 65%),
-    radial-gradient(700px 700px at 50% 50%, #ffd86a50, transparent 55%);
+    radial-gradient(640px 640px at 25% 30%, #ff7bf17a, transparent 60%),
+    radial-gradient(820px 820px at 75% 70%, #8dff6a7a, transparent 65%),
+    radial-gradient(720px 720px at 50% 50%, #ffd86a7a, transparent 55%);
   animation:iris 30s linear infinite;
 }
 @keyframes iris{
@@ -171,7 +176,7 @@ body.is-premium .prem-geo-bg{ opacity:.15; }   /* bump for visibility */
 .cta .big{width:100%;padding:14px 16px;border-radius:12px;font-size:18px;font-weight:900;background:linear-gradient(90deg,#ff7bf1,#ffd86a);color:#0b0c14;font-family:"TechfontItalica",system-ui}
 .cta small{display:block;margin-top:8px;color:var(--ink-dim)}
 
-/* ---------- Chat (ANCHOR composer & chat) ---------- */
+/* ---------- Chat ---------- */
 .chat-col{
   position:relative; height:calc(100dvh - 48px);
   display:flex; flex-direction:column;
@@ -189,22 +194,21 @@ body.is-premium .prem-geo-bg{ opacity:.15; }   /* bump for visibility */
 
 .bubble{
   position:relative;margin:14px 0;padding:14px 16px 14px 56px;border-radius:18px;border:1px solid var(--ring);
-  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.05));box-shadow:0 10px 30px rgba(0,0,0,.25)
-}
-.bubble{
-  position:relative;margin:14px 0;padding:14px 16px 14px 56px;border-radius:18px;border:1px solid var(--ring);
   background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.05));box-shadow:0 10px 30px rgba(0,0,0,.25);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;   /* default font in chat bubbles */
+  /* FE: use default system font inside bubbles (not brand font) */
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+.bubble .who{
+  position:absolute;left:12px;top:12px;width:32px;height:32px;display:grid;place-items:center;border-radius:10px;
+  background:#0e0a1fe6;border:1px solid var(--ring)
 }
 
-
-/* Composer is ANCHORED */
+/* Composer */
 .composer{
   position:absolute; left:0; right:0; bottom:0;
   display:grid;grid-template-columns:1fr 110px;gap:10px;align-items:end;
   padding-top:10px;
 }
-/* FIX: input uses system default font, not brand */
 textarea{
   width:100%;
   min-height:54px;
@@ -215,13 +219,10 @@ textarea{
   background:#120d20;
   border:1px solid var(--ring);
   border-radius:16px;
+  /* FE: default system font in input */
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important;
 }
-.send{
-  height:54px;border-radius:16px;font-weight:900;
-  background:linear-gradient(130deg,#ff7bf1,#ffd86a);
-  color:#0b0c14;font-family:"TechfontItalica",system-ui
-}
+.send{height:54px;border-radius:16px;font-weight:900;background:linear-gradient(130deg,#ff7bf1,#ffd86a);color:#0b0c14;font-family:"TechfontItalica",system-ui}
 
 /* ---------- Modal (Modules) ---------- */
 .modal{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:10000; }
@@ -235,30 +236,42 @@ textarea{
 }
 .modlist .mod{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px; border:1px solid var(--ring); border-radius:14px; margin:10px 0; }
 .modlist .lock{ opacity:.6 }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .logo{ animation:none }
+  .prem-geo .geo-r1,
+  .prem-geo .geo-r2,
+  .prem-geo .geo-tri,
+  .prem-geo .geo-dot1,
+  .prem-geo .geo-dot2,
+  .prem-geo .geo-dot3{ animation:none }
+  .prem-geo-bg .field{ animation:none }
+}
 </style>
 </head>
 <body>
 <div class="bg"></div>
 
-<!-- Premium iridescent wallpaper (new, behind existing) -->
+<!-- Premium iridescent wallpaper (always mounted; fades in for premium) -->
 <div class="prem-geo-bg" aria-hidden="true"><div class="field"></div></div>
 
-<!-- Premium sacred geometry overlay (existing) -->
+<!-- Premium sacred geometry overlay (animated) -->
 <div class="prem-geo" aria-hidden="true">
   <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%"  stop-color="#ff7bf1"/><stop offset="50%" stop-color="#ffd86a"/><stop offset="100%" stop-color="#8dff6a"/>
+      </linearGradient>
+    </defs>
     <g class="spin" fill="none" stroke="url(#g)" stroke-width="0.4" opacity="0.85">
-      <defs>
-        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%"  stop-color="#ff7bf1"/><stop offset="50%" stop-color="#ffd86a"/><stop offset="100%" stop-color="#8dff6a"/>
-        </linearGradient>
-      </defs>
-      <circle cx="50" cy="50" r="30"/>
-      <circle cx="50" cy="50" r="20"/>
-      <path d="M50 18 L68 62 L32 62 Z"/>
+      <circle class="geo-r1"  cx="50" cy="50" r="30"/>
+      <circle class="geo-r2"  cx="50" cy="50" r="20"/>
+      <path   class="geo-tri" d="M50 18 L68 62 L32 62 Z"/>
       <g opacity="0.45">
-        <circle cx="50" cy="35" r="10"/>
-        <circle cx="65" cy="58" r="10"/>
-        <circle cx="35" cy="58" r="10"/>
+        <circle class="geo-dot1" cx="50" cy="35" r="10"/>
+        <circle class="geo-dot2" cx="65" cy="58" r="10"/>
+        <circle class="geo-dot3" cx="35" cy="58" r="10"/>
       </g>
     </g>
   </svg>
@@ -438,7 +451,7 @@ async function cloudLoad(){
   return false;
 }
 
-/* ======= Conversational flow (original minimal) ======= */
+/* ======= Conversational flow (existing minimal) ======= */
 function normalize(t=""){ return t.trim().toLowerCase(); }
 function aiReply(userText){
   const t = normalize(userText);
@@ -579,7 +592,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
 
   // init
   setTier(state.tier);
-  if(state.license){ document.body.classList.add("is-premium"); } // ensure premium wallpaper if key exists
+  if(state.license){ document.body.classList.add("is-premium"); } // force premium visuals if key exists
   let loaded=false;
   if(state.tier==="premium" && state.license){ loaded=await cloudLoad(); }
   if(!loaded || state.messages.length===0) greet();
