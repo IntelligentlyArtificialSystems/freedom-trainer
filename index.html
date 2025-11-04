@@ -6,7 +6,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>The Freedom Engine — Personal AI Trainer</title>
-<!-- BUILD_ID: NLU-20251104-0947-10 -->
+<!-- BUILD_ID: MORPROBE-20251104-095750 -->
 <style>
 
 :root{
@@ -278,7 +278,7 @@ textarea{
       <div class="bar-legend"><span>Roadmap</span><span id="barText">1/5</span></div>
       <div class="row">
         <button class="btn btn-ghost" id="exportBtn">Export</button>
-        <button class="btn btn-ghost" id="modulesBtn">Modules</button>
+        <button class="btn btn-ghost" id="expBtn">Expansions</button>
         <div class="drop" id="kebab">
           <button class="btn btn-ghost" id="kebabBtn">…</button>
           <div class="drop-menu" id="kebabMenu">
@@ -309,12 +309,12 @@ textarea{
   </section>
 </div>
 
-<div class="modal" id="modModal" aria-hidden="true">
+<div class="modal" id="expModal" aria-hidden="true">
   <div class="panel">
-    <h3 style="margin:6px 6px 10px 6px">Modules</h3>
-    <div class="modlist" id="modList"></div>
+    <h3 style="margin:6px 6px 10px 6px">Expansions</h3>
+    <div class="modlist" id="expList"></div>
     <div style="display:flex;justify-content:flex-end;margin-top:12px">
-      <button class="btn btn-ghost" id="modClose">Close</button>
+      <button class="btn btn-ghost" id="expClose">Close</button>
     </div>
   </div>
 </div>
@@ -353,10 +353,10 @@ const el = {
   reset:document.getElementById("reset"),
   saveSnap:document.getElementById("saveSnap"),
   loadSnap:document.getElementById("loadSnap"),
-  modulesBtn:document.getElementById("modulesBtn"),
-  modModal:document.getElementById("modModal"),
-  modList:document.getElementById("modList"),
-  modClose:document.getElementById("modClose"),
+  expBtn:document.getElementById("expBtn"),
+  expModal:document.getElementById("expModal"),
+  expList:document.getElementById("expList"),
+  expClose:document.getElementById("expClose"),
   wake:document.getElementById("wake")
 };
 
@@ -446,268 +446,22 @@ function setTier(t){
 /* ======= Mentor (module engine) ======= */
 function greet(){
   if(state.greeted) return; state.greeted=true;
-  const msgByStage = {
-    1:`Welcome in. Pick a lane or say <em>“help me choose”</em>: • design • writing • coaching • dev • other`,
-    2:`Now we craft your <b>tiny paid offer</b> (48h ship). Give me one sentence with scope + outcome.`,
-    3:`Copy time. I’ll generate outreach + post drafts. Say <b>ready</b> when set.`,
-    4:`Launch maps. I’ll set your 72h loop. Say <b>ready</b> to print the checklist.`,
-    5:`Automation & scaling. Want the handoff steps? Say <b>ready</b>.`
-  };
-  pushBubble("ai", msgByStage[state.stage] || msgByStage[1]);
+  const intro = `Welcome to <b>The Freedom Engine</b> — I’m your 1‑on‑1 mentor. We’ll build a tiny paid offer you can ship fast and repeat. I bring maps; you bring honesty.`;
+  const next = {
+    1:`First, choose your lane (or say anything and I’ll infer): <b>design • writing • coaching • dev • other</b>`,
+    2:`Now we shape a <b>48h tiny offer</b>. Say what you could deliver, who it’s for, how you’ll reach them, and a flat price.`,
+    3:`Time to turn it into words people reply to. Say <b>ready</b> for drafts.`,
+    4:`Launch loop time. Say <b>ready</b> to print the 72h checklist.`,
+    5:`Light automation so this keeps working while you breathe. Say <b>ready</b>.`
+  }[state.stage] || "";
+  pushBubble("ai", intro + "<br><br>" + next);
 }
 
-function makeIdeas(lane){
-  const ideas = {
-    Design: [
-      "Design a minimal logo + social avatar in 48h",
-      "Revamp one landing-page hero (layout + graphic)",
-      "Create 6 post templates in a cohesive mini-pack",
-      "Vectorize a sketch + export brand-ready files",
-      "YouTube thumbnail trio with a style guide card"
-    ],
-    Writing: [
-      "Rewrite a landing hero + CTA to boost clarity",
-      "Turn a thread into an email sequence (3 parts)",
-      "About page mini-makeover: headline + story block",
-      "Offer page punch-up: features → benefits in 48h",
-      "Twitter bio + pinned tweet kit, ready to post"
-    ],
-    Coaching: [
-      "30-min offer audit + 3 concrete changes",
-      "DM script review with 3 tailored variants",
-      "Profile teardown + checklist to fix in 48h",
-      "Pricing tune-up: 2 anchors + one irresistible tier",
-      "90-day content lane map (one-page)"
-    ],
-    Dev: [
-      "Set up a Typeform → Sheet → Email zap",
-      "Tiny landing page stub (fast HTML/CSS)",
-      "Link-in-bio page with analytics",
-      "Gumroad → Discord role auto-add Worker",
-      "Speed audit + 3 concrete fixes"
-    ],
-    Other: [
-      "Quick onboarding doc template filled for you",
-      "One Notion dashboard page wired to your offer",
-      "Light brand kit (colors + fonts + usage card)",
-      "Customer FAQ micro page",
-      "Testimonials wall embed"
-    ]
-  };
-  const list = ideas[lane] || [].concat(...Object.values(ideas));
-  const pick = list.slice(0,5).map((t,i)=>`${i+1}) ${t}`).join("<br>");
-  return pick;
-}
-
-
-/* ======= Lightweight NLU (no magic words) ======= */
-const STOP = new Set("the a an and or to for of on in with from at into by about as is are was were be been being i you we they he she it my your our their me us them this that these those".split(" "));
-
-function normText(s){
-  return (s||"").toLowerCase()
-    .replace(/[\u2018\u2019]/g,"'")
-    .replace(/[^\w\$@\- ]+/g," ")
-    .replace(/\s+/g," ")
-    .trim();
-}
-function tokenize(s){
-  return normText(s).split(" ").filter(w=>w && !STOP.has(w));
-}
-
-function near(a,b){
-  if(a===b) return true;
-  if(Math.abs(a.length-b.length)>1) return false;
-  let i=0,j=0,edits=0;
-  while(i<a.length && j<b.length){
-    if(a[i]===b[j]){ i++; j++; continue; }
-    edits++; if(edits>1) return false;
-    if(a.length> b.length) i++;
-    else if(a.length< b.length) j++;
-    else{ i++; j++; }
-  }
-  if(i<a.length || j<b.length) edits++;
-  return edits<=1;
-}
-
-const INTENTS = {
-  help_choose: ["help","choose","choice","pick","decide","options","menu","stuck","idk","unsure","confused"],
-  ideas: ["ideas","examples","brainstorm","inspire","suggestions","what can i do","what to sell","offer ideas","help me think"],
-  lane_design: ["design","logo","brand","graphic","thumbnail","banner","art"],
-  lane_writing:["writing","copy","email","thread","blog","post","tweet","caption","script"],
-  lane_coaching:["coach","coaching","audit","review","feedback","teardown"],
-  lane_dev:["dev","code","build","tool","automation","worker","script","site","landing"],
-  lane_other:["other","misc","random","not sure"],
-  channel_email:["email","mail","inbox","subject"],
-  channel_dm:["dm","message","pm","private"],
-  channel_post:["post","tweet","thread","update","story"],
-  channel_call:["call","phone","zoom"],
-  ready:["ready","go","show","generate","draft"],
-  done:["done","sent","shipped","finished","complete"],
-  price:["$","usd","price","charge","cost","bucks","dollars","29","49","99","149","199"],
-  templates:["template","templates","follow up","follow-up","swipe","script"],
-};
-
-function intentScores(text){
-  const toks = tokenize(text);
-  const scores = {};
-  for(const [name,words] of Object.entries(INTENTS)){
-    let s=0;
-    for(const t of toks){
-      for(const w of words){
-        if(near(t,w) || text.includes(w)) s++;
-      }
-    }
-    scores[name]=s;
-  }
-  return scores;
-}
-function topIntent(text){
-  const s = intentScores(text);
-  let best=null,score=0;
-  for(const [k,v] of Object.entries(s)){
-    if(v>score){ best=k; score=v; }
-  }
-  return score>=1 ? best : null;
-}
-
-function extractPrice(text){
-  const m = text.match(/\$?(\d{2,4})/);
-  return m ? m[1] : "";
-}
-function extractLane(text){
-  const s = intentScores(text);
-  const laneMap = {lane_design:"Design", lane_writing:"Writing", lane_coaching:"Coaching", lane_dev:"Dev", lane_other:"Other"};
-  let best=null,val=0;
-  for(const [k,v] of Object.entries(s)){ if(k.startswith && k.startswith("lane_") && v>val){ best=k; val=v; } }
-  if(!best){
-    for(const [k,v] of Object.entries(s)){ if(k.indexOf("lane_")===0 && v>val){ best=k; val=v; } }
-  }
-  return best ? laneMap[best] : "";
-}
-function extractChannel(text){
-  const s = intentScores(text);
-  const map = {channel_email:"email", channel_dm:"dm", channel_post:"post", channel_call:"call"};
-  let best=null,val=0;
-  for(const [k,v] of Object.entries(s)){ if(k.indexOf("channel_")===0 && v>val){ best=k; val=v; } }
-  return best ? map[best] : "";
-}
-
-function aiReply(userText){
-  const raw=(userText||"").trim(); const t=raw.toLowerCase();
-  if(!t){ nudge("Say <em>help me choose</em> or pick a lane (design / writing / coaching / dev / other)."); return; }
-
-  // global actions
-  if(/^(modules?|menu|roadmap)$/.test(t)){ renderModules(); el.modModal.classList.add("open"); return; }
-  if(/^reset$/i.test(t)){ return; }
-
-  switch(state.stage){
-    case 1: // Philosophy & Map (lane lock)
-      if(/help me choose|idk|stuck|no clue/.test(t)){
-        nudge(`Pick 1–5:<br>1) <b>Design</b><br>2) <b>Writing</b><br>3) <b>Coaching</b><br>4) <b>Dev</b><br>5) <b>Other</b>`); return;
-      }
-      const num = t.match(/^([1-5])$/);
-      const laneWord = /(design|writing|coaching|dev|development|other)/.exec(t);
-      if(num||laneWord){
-        const lane = num?["","Design","Writing","Coaching","Dev","Other"][Number(num[1])]:(laneWord[1]==="development"?"Dev":laneWord[1][0].toUpperCase()+laneWord[1].slice(1));
-        state.data.lane = lane;
-        nudge(`Locked: <b>${lane}</b>. Module 1 complete.`);
-        completeModule(); // bumps to module 2 (or gates in demo)
-        nudge(`Module 2 — <b>Offer Design</b>: describe a <b>tiny deliverable</b> you can ship in ~48h.`);
-        cloudSave(); return;
-      }
-      nudge("Tell me your lane (design / writing / coaching / dev / other) or say a number 1–5.");
-      return;
-
-    case 2: // Offer Design
-      // determine offer, avatar, channel, price in any order; complete when all present
-      const hasVerb = /(build|create|write|audit|design|setup|optimi[sz]e|fix|record|craft|review|map|coach|train|plan|launch|code|script|edit|template)/i.test(raw);
-      if(hasVerb && raw.split(/\s+/).length>=6 && !state.data.offer) state.data.offer=raw;
-      if(chanGuess) state.data.channel=chanGuess; else if(/(email|dm|post|call)/i.test(t)) state.data.channel=(/(email|dm|post|call)/i.exec(t)||[])[1].toLowerCase();
-      if(/\$?\b(29|39|49|59|69|79|89|99|149|199)\b/.test(t)) state.data.price=(/\b(\$?\d+)\b/.exec(t)||[])[1];
-      if(!state.data.avatar && raw.split(/\s+/).length<=18 && !hasVerb) state.data.avatar=raw;
-
-      const checklist = [
-        ['offer', 'One-sentence offer (scope+outcome)'],
-        ['avatar','One specific human (name/role)'],
-        ['channel','Email/DM/Post/Call'],
-        ['price','Flat price ($29–$199)']
-      ].map(([k,label])=>`<li>${state.data[k]?`✅`:`⬜`} ${label}</li>`).join("");
-
-      nudge(`<b>Module 2 checklist</b><ul>${checklist}</ul>`);
-
-      if(state.data.offer && state.data.avatar && state.data.channel && state.data.price){
-        nudge("Module 2 complete. On to <b>Copy Templates & AI Prompts</b>. Say <b>ready</b> to generate your first drafts.");
-        completeModule(); return;
-      }
-      nudge(`Fill the missing boxes by telling me: your <b>offer</b>, <b>avatar</b>, <b>channel</b>, and a <b>flat price</b>.`);
-      return;
-
-    case 3: // Copy Templates & Prompts
-      if(/^ready|go|show$/i.test(t)){
-        const {lane,offer,avatar,channel,price} = state.data;
-        const draft =
-          channel==="email" ? `Subject: quick idea for ${avatar}\n\nHey— I can ${offer} for ${price}. I can ship in 48h. Want it?` :
-          channel==="dm"    ? `Quick ${
-lane} idea: ${offer} — ${price}, 48h turnaround. Interested?` :
-          channel==="post"  ? `Tiny ${lane} offer: ${offer} — ${price}. One slot this week. Reply “info”.` :
-                              `Quick pitch for ${avatar}: ${offer} — ${price}. 48h turnaround. Good time to chat?`;
-        nudge(`<b>Outreach draft</b><pre style="white-space:pre-wrap">${draft}</pre>`);
-        nudge(`Need landing copy or thread prompts? Say <b>more copy</b>. Or say <b>done</b> when you’ve shipped one.`);
-        cloudSave(); return;
-      }
-      if(/^more copy$/i.test(t)){
-        nudge(`Landing blurb: “I ship a tiny ${
-state.data.lane} outcome in 48h: ${state.data.offer}. Flat ${state.data.price}. First come, first served.”`);
-        return;
-      }
-      if(/^done|sent|shipped$/i.test(t)){
-        nudge("Module 3 complete.");
-        completeModule(); return;
-      }
-      nudge("Say <b>ready</b> to print outreach drafts, or ask for <b>more copy</b>.");
-      return;
-
-    case 4: // Launch & Traffic Loops
-      if(/^ready|plan|checklist$/i.test(t)){
-        nudge(`<b>72h Launch Loop</b><ol>
-<li>Day 1 AM: outreach ${state.data.channel} to ${state.data.avatar}</li>
-<li>Day 1 PM: post teaser (“1 slot, ${state.data.price}”)</li>
-<li>Day 2: case/preview thread + re-DM</li>
-<li>Day 3: last call post + price-anchor next slot</li>
-</ol>`);
-        nudge("Say <b>done</b> to complete this module.");
-        return;
-      }
-      if(/^done$/i.test(t)){
-        nudge("Module 4 complete.");
-        completeModule(); return;
-      }
-      nudge("Say <b>ready</b> to print the 72h loop checklist.");
-      return;
-
-    case 5: // Automation & Scaling
-      if(/^ready|systems|automate$/i.test(t)){
-        nudge(`<b>Light Automation</b><ul>
-<li>Template bank: save your outreach + posts in a doc</li>
-<li>Recurring reminders: every M/W/F send 1 outreach</li>
-<li>Waitlist form: collect warm leads</li>
-</ul>`);
-        nudge("Say <b>finish</b> to mark the course complete.");
-        return;
-      }
-      if(/^finish|complete$/i.test(t)){
-        nudge("Course complete. Keep the loop running weekly. Need anything, just type it—I’ll adapt.");
-        cloudSave(); return;
-      }
-      nudge("Say <b>ready</b> to print the automation steps.");
-      return;
-  }
-}
 
 /* ======= Modules modal (labels reflect gating) ======= */
-function renderModules(){
+function renderExpansions(){
   const isDemo = state.tier==="demo";
-  el.modList.innerHTML="";
+  el.expList.innerHTML="";
   const rows = [
     {name:"1) Philosophy & Map", desc:"Pick lane + map win", locked:false},
     {name:"2) Offer Design", desc:"Offer, avatar, channel, price", locked:false},
@@ -720,7 +474,7 @@ function renderModules(){
     div.className="mod"+(r.locked?" lock":"");
     div.innerHTML=`<div><b>${r.name}</b><br><span class="dim">${r.desc}</span></div>
                    <div>${r.locked? "🔒" : (i+1<=state.stage? "✅" : "")}</div>`;
-    el.modList.appendChild(div);
+    el.expList.appendChild(div);
   });
 }
 
