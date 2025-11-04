@@ -1,39 +1,31 @@
+
 <!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>The Freedom Engine — Personal AI Trainer</title>
-
+<!-- BUILD_ID: FE-INDEX-20251104-0811-27 -->
 <style>
-/* ---------- Brand font ---------- */
 @font-face{
   font-family:"TechfontItalica";
   src:url("./Techfont-Italica.ttf") format("truetype");
   font-display:swap;
 }
-
-/* ---------- Theme ---------- */
 :root{
   --ink:#f7f8ff; --ink-dim:#cfd4ff;
   --ring:rgba(255,255,255,.22);
-  --glass1:rgba(255,255,255,.10);   /* ↓ was .14 */
-  --glass2:rgba(255,255,255,.04);   /* ↓ was .08 */
-
-  --mag:#ff7bf1; --sun:#ffb84d; --lime:#8dff6a; --vio:#ae8bff;
-
+  --glass1:rgba(255,255,255,.10);
+  --glass2:rgba(255,255,255,.04);
   --logo-x:50%; --logo-y:52%; --logo-scale:.95; --logo-speed:36s;
 }
-
-*{box-sizing:border-box}
-html,body{height:100%}
+*{box-sizing:border-box} html,body{height:100%}
 body{
   margin:0;color:var(--ink);
   font-family:"TechfontItalica",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
   background:#0f0a1c;
 }
-
-/* ---------- BASE COLOR BACKGROUND ---------- */
+/* Base color background */
 .bg{
   position:fixed; inset:0; z-index:-4;
   background:
@@ -46,10 +38,8 @@ body{
 }
 @keyframes bgHue{to{filter:hue-rotate(360deg) saturate(145%) blur(.2px);}}
 
-/* ---------- Iridescent layer (120%) ---------- */
-.fx{
-  position:fixed; inset:0; z-index:-3; pointer-events:none;
-}
+/* Iridescent field (120% saturation) */
+.fx{position:fixed; inset:0; z-index:-3; pointer-events:none;}
 .fx .field{
   position:absolute; inset:-10%;
   background:
@@ -65,27 +55,16 @@ body{
   100%{filter:hue-rotate(360deg) saturate(120%)}
 }
 
-/* ---------- NEW: Color-reactive moiré SVG (60s full cycle) ---------- */
+/* Moiré SVG overlay (JS-free) */
 .wave-wall{
   position:fixed; inset:0; z-index:-2; pointer-events:none; opacity:.24;
   mix-blend-mode:overlay;
 }
 .wave-wall svg{width:100%;height:100%;display:block}
-.wave-wall .layer{transform-origin:50% 50%;}
-.wave-wall .layer.a{animation:rollA 60s linear infinite;}
-.wave-wall .layer.b{animation:rollB 60s linear infinite;}
-@keyframes rollA{from{transform:translateX(0)}to{transform:translateX(-100px)}}
-@keyframes rollB{from{transform:translateX(0)}to{transform:translateX(100px)}}
-.wave-wall .stroke{
-  fill:none; stroke-width:.6; stroke-linecap:round; stroke-linejoin:round;
-  /* black core + reactive tint */
-  stroke:url(#waveGrad);
-}
 
-/* ---------- Layout ---------- */
+/* Layout & Frost (reduced) */
 .wrap{display:grid;grid-template-columns:440px 1fr;gap:24px;padding:24px;min-height:100dvh}
 @media(max-width:980px){.wrap{grid-template-columns:1fr}}
-
 .card{
   position:relative;border-radius:24px;padding:18px;border:1px solid var(--ring);
   background:linear-gradient(180deg,var(--glass1),var(--glass2));
@@ -93,8 +72,6 @@ body{
   backdrop-filter: blur(7px) saturate(60%);
   box-shadow:0 20px 48px rgba(0,0,0,.5);
 }
-
-/* ---------- Brand header ---------- */
 .brand{display:grid;grid-template-columns:148px 1fr;gap:18px;align-items:center;margin-bottom:16px}
 .logo-box{
   height:148px;border-radius:24px;border:1px solid var(--ring);
@@ -117,23 +94,17 @@ body{
     drop-shadow(0 0 32px rgba(174,139,255,.20));
 }
 @keyframes spinIn{to{transform:translate(-50%,-50%) scale(var(--logo-scale)) scaleY(-1) rotateZ(360deg)}}
-
 .titles h1{margin:0; line-height:1.02; letter-spacing:.4px; font-size:46px; font-weight:800; text-shadow:0 3px 14px rgba(0,0,0,.55)}
 .titles .sub{margin-top:6px;opacity:.95;font-weight:800;text-shadow:0 3px 12px rgba(0,0,0,.5)}
 .badge{display:inline-block;margin-left:8px;padding:5px 10px;border-radius:999px;color:#0b0c14;font-weight:900;font-size:13px;background:linear-gradient(90deg,#ff7bf1,#ffd86a)}
 .badge.demo{background:linear-gradient(90deg,#ff6a6a,#ffd86a)}
-
-/* ---------- Roadmap ---------- */
 .road{margin-top:18px;border:1px solid var(--ring);border-radius:18px;padding:16px;background:rgba(255,255,255,.08);
   -webkit-backdrop-filter: blur(7px) saturate(60%); backdrop-filter: blur(7px) saturate(60%);
-  box-shadow:0 20px 55px rgba(0,0,0,.45);
-}
+  box-shadow:0 20px 55px rgba(0,0,0,.45);}
 .bar{height:12px;border-radius:999px;background:rgba(14,10,25,.6);border:1px solid var(--ring);overflow:hidden}
 .bar>span{display:block;height:100%;width:0%;transition:width .35s ease;background:linear-gradient(90deg,#ff7bf1,#ffb84d,#8dff6a,#ff6a6a)}
 .bar-legend{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:var(--ink-dim)}
 .row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
-
-/* Buttons */
 .btn{
   appearance:none;border:none;cursor:pointer;font-weight:900;
   color:#0b0c14;background:linear-gradient(180deg,#fff,#e9eefc);
@@ -143,8 +114,6 @@ body{
 }
 .btn-ghost{background:rgba(255,255,255,.06);color:var(--ink);border:1px solid var(--ring)}
 .btn:active{transform:translateY(1px)}
-
-/* Kebab */
 .drop{position:relative}
 .drop-menu{
   position:fixed;display:none;min-width:280px;max-height:60dvh;overflow:auto;
@@ -155,16 +124,11 @@ body{
 .drop-menu .item{padding:10px 12px;border-radius:10px;font-weight:800;color:var(--ink);font-family:"TechfontItalica",system-ui}
 .drop-menu .item:hover{background:#ffffff18}
 .drop-menu .danger{background:#ff5b5b1a;border:1px solid #ff5b5b45}
-
-/* Demo CTA */
 .cta{margin-top:14px;padding:16px;border-radius:16px;border:1px solid var(--ring);background:linear-gradient(180deg,rgba(50,10,35,.92),rgba(45,15,40,.88));text-align:center;
   -webkit-backdrop-filter: blur(7px) saturate(60%); backdrop-filter: blur(7px) saturate(60%);
-  box-shadow:0 18px 55px rgba(0,0,0,.5);
-}
+  box-shadow:0 18px 55px rgba(0,0,0,.5);}
 .cta .big{width:100%;padding:14px 16px;border-radius:12px;font-size:18px;font-weight:900;background:linear-gradient(90deg,#ff7bf1,#ffd86a);color:#0b0c14;font-family:"TechfontItalica",system-ui}
 .cta small{display:block;margin-top:8px;color:var(--ink-dim);text-shadow:0 2px 10px rgba(0,0,0,.5)}
-
-/* ---------- Chat ---------- */
 .chat-col{position:relative; height:calc(100dvh - 48px); display:flex; flex-direction:column;}
 @media(max-width:980px){ .chat-col{ height:calc(100dvh - 48px); } }
 .chat{
@@ -187,8 +151,6 @@ body{
   position:absolute;left:12px;top:12px;width:32px;height:32px;display:grid;place-items:center;border-radius:10px;background:#0e0a1fe6;border:1px solid var(--ring);
   box-shadow:0 8px 18px rgba(0,0,0,.45);
 }
-
-/* Composer */
 .composer{
   position:absolute; left:0; right:0; bottom:0;
   display:grid;grid-template-columns:1fr 110px;gap:10px;align-items:end; padding-top:10px;
@@ -201,10 +163,7 @@ textarea{
   box-shadow:0 12px 30px rgba(0,0,0,.45);
 }
 .send{height:54px;border-radius:16px;font-weight:900;background:linear-gradient(130deg,#ff7bf1,#ffd86a);color:#0b0c14;font-family:"TechfontItalica",system-ui;
-  box-shadow:0 12px 28px rgba(0,0,0,.45);
-}
-
-/* ---------- Modal (Modules) ---------- */
+  box-shadow:0 12px 28px rgba(0,0,0,.45);}
 .modal{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:10000; }
 .modal.open{ display:flex; }
 .modal::before{ content:""; position:absolute; inset:0; background:rgba(6,4,12,.6); backdrop-filter:blur(4px); }
@@ -220,19 +179,18 @@ textarea{
   box-shadow:0 16px 42px rgba(0,0,0,.45);
 }
 .modlist .lock{ opacity:.6 }
-
-/* Reduced motion */
 @media (prefers-reduced-motion: reduce){
-  .logo,.wave-wall .layer{ animation:none }
-  .fx .field,.bg{ animation:none }
+  .logo{ animation:none }
+  .fx .field{ animation:none }
+  .bg{ animation:none }
 }
 </style>
 </head>
-<body>
+<body data-build="FE-INDEX-20251104-0811-27">
 <div class="bg"></div>
 <div class="fx" aria-hidden="true"><div class="field"></div></div>
 
-<!-- Reactive moiré wave overlay (SVG; no JS errors) -->
+<!-- Reactive moiré wave overlay (SVG-only) -->
 <div class="wave-wall" aria-hidden="true">
   <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
     <defs>
@@ -242,32 +200,38 @@ textarea{
         <stop offset="75%" stop-color="#8bbf56"/>
         <stop offset="100%" stop-color="#e3b24f"/>
       </linearGradient>
+      <path id="wPath" d="M0 0
+        C 12 25, -12 50, 0 75
+        C -12 100, 12 125, 0 150
+        C 12 175, -12 200, 0 225
+        C -12 250, 12 275, 0 300
+        C 12 325, -12 350, 0 375
+        C -12 400, 12 425, 0 450
+        C 12 475, -12 500, 0 525
+        C -12 550, 12 575, 0 600
+        C 12 625, -12 650, 0 675
+        C -12 700, 12 725, 0 800" />
     </defs>
-
-    <!-- Layer A: left drift -->
-    <g class="layer a" transform="translate(-200,0)">
-      <!-- vertical sine-like lines -->
-      <!-- 40 lines -->
-      <!-- generated inline for compatibility -->
-      <!-- x step 40 -->
-      <!-- path formula approximated sine with cubic beziers -->
-      <!-- We draw from x=-200..1400, y 0..800 -->
-      <!-- prettier omitted for brevity -->
-      <g id="linesA">
-        <!-- JS fills these to keep file clean -->
+    <!-- Layer A (left drift) -->
+    <g fill="none" stroke="url(#waveGrad)" stroke-width="0.6" stroke-linecap="round" opacity="0.24">
+      <g id="A">
+        <use href="#wPath" x="-200"/><use href="#wPath" x="-160"/><use href="#wPath" x="-120"/><use href="#wPath" x="-80"/><use href="#wPath" x="-40"/><use href="#wPath" x="0"/><use href="#wPath" x="40"/><use href="#wPath" x="80"/><use href="#wPath" x="120"/><use href="#wPath" x="160"/><use href="#wPath" x="200"/><use href="#wPath" x="240"/><use href="#wPath" x="280"/><use href="#wPath" x="320"/><use href="#wPath" x="360"/><use href="#wPath" x="400"/><use href="#wPath" x="440"/><use href="#wPath" x="480"/><use href="#wPath" x="520"/><use href="#wPath" x="560"/><use href="#wPath" x="600"/><use href="#wPath" x="640"/><use href="#wPath" x="680"/><use href="#wPath" x="720"/><use href="#wPath" x="760"/><use href="#wPath" x="800"/><use href="#wPath" x="840"/><use href="#wPath" x="880"/><use href="#wPath" x="920"/><use href="#wPath" x="960"/><use href="#wPath" x="1000"/><use href="#wPath" x="1040"/><use href="#wPath" x="1080"/><use href="#wPath" x="1120"/><use href="#wPath" x="1160"/><use href="#wPath" x="1200"/><use href="#wPath" x="1240"/><use href="#wPath" x="1280"/><use href="#wPath" x="1320"/><use href="#wPath" x="1360"/>
       </g>
+      <animateTransform attributeName="transform" type="translate"
+        from="0 0" to="-100 0" dur="60s" repeatCount="indefinite"/>
     </g>
-
-    <!-- Layer B: right drift -->
-    <g class="layer b" transform="translate(200,0)">
-      <g id="linesB"></g>
+    <!-- Layer B (right drift) -->
+    <g fill="none" stroke="url(#waveGrad)" stroke-width="0.6" stroke-linecap="round" opacity="0.24">
+      <g id="B" transform="translate(20,0)">
+        <use href="#wPath" x="-200"/><use href="#wPath" x="-160"/><use href="#wPath" x="-120"/><use href="#wPath" x="-80"/><use href="#wPath" x="-40"/><use href="#wPath" x="0"/><use href="#wPath" x="40"/><use href="#wPath" x="80"/><use href="#wPath" x="120"/><use href="#wPath" x="160"/><use href="#wPath" x="200"/><use href="#wPath" x="240"/><use href="#wPath" x="280"/><use href="#wPath" x="320"/><use href="#wPath" x="360"/><use href="#wPath" x="400"/><use href="#wPath" x="440"/><use href="#wPath" x="480"/><use href="#wPath" x="520"/><use href="#wPath" x="560"/><use href="#wPath" x="600"/><use href="#wPath" x="640"/><use href="#wPath" x="680"/><use href="#wPath" x="720"/><use href="#wPath" x="760"/><use href="#wPath" x="800"/><use href="#wPath" x="840"/><use href="#wPath" x="880"/><use href="#wPath" x="920"/><use href="#wPath" x="960"/><use href="#wPath" x="1000"/><use href="#wPath" x="1040"/><use href="#wPath" x="1080"/><use href="#wPath" x="1120"/><use href="#wPath" x="1160"/><use href="#wPath" x="1200"/><use href="#wPath" x="1240"/><use href="#wPath" x="1280"/><use href="#wPath" x="1320"/><use href="#wPath" x="1360"/>
+      </g>
+      <animateTransform attributeName="transform" type="translate"
+        from="0 0" to="100 0" dur="60s" repeatCount="indefinite"/>
     </g>
   </svg>
 </div>
 
 <div class="wrap">
-
-  <!-- LEFT -->
   <section class="card" id="left">
     <div class="brand">
       <div class="logo-box">
@@ -285,7 +249,6 @@ textarea{
       <div class="row">
         <button class="btn btn-ghost" id="exportBtn">Export</button>
         <button class="btn btn-ghost" id="modulesBtn">Modules</button>
-
         <div class="drop" id="kebab">
           <button class="btn btn-ghost" id="kebabBtn">…</button>
           <div class="drop-menu" id="kebabMenu">
@@ -301,14 +264,12 @@ textarea{
       </div>
     </div>
 
-    <!-- DEMO CTA -->
     <div class="cta" id="demoCTA" style="display:none">
       <button class="big" id="ctaBuy">$29 — Unlock Full Engine</button>
       <small>Cloud saves + premium modules included.</small>
     </div>
   </section>
 
-  <!-- RIGHT -->
   <section class="chat-col">
     <div class="card chat" id="chat"></div>
     <div class="composer">
@@ -316,10 +277,8 @@ textarea{
       <button class="send" id="sendBtn">Send</button>
     </div>
   </section>
-
 </div>
 
-<!-- Modules modal -->
 <div class="modal" id="modModal" aria-hidden="true">
   <div class="panel">
     <h3 style="margin:6px 6px 10px 6px">Modules</h3>
@@ -331,72 +290,25 @@ textarea{
 </div>
 
 <script>
-/* ===== Build SVG lines so the overlay is guaranteed ===== */
-(function buildLines(){
-  const make = (id, phase) => {
-    const g = document.getElementById(id);
-    if(!g) return;
-    for(let i=-200;i<=1400;i+=40){
-      const p = document.createElementNS("http://www.w3.org/2000/svg","path");
-      let d = `M ${i} 0`;
-      const seg = 50; const amp = 18;
-      for(let s=1;s<=seg;s++){
-        const x = i;
-        const y = (800/seg)*s;
-        const k = Math.sin((y/120)+(i*0.01)+phase)*amp;
-        // cubic bezier step to emulate sine “wiggle”
-        d += ` C ${x+k} ${y-8}, ${x-k} ${y-4}, ${x} ${y}`;
-      }
-      p.setAttribute("d", d);
-      p.setAttribute("class","stroke");
-      p.setAttribute("opacity","0.9");
-      g.appendChild(p);
-    }
-  };
-  make("linesA", 0.0);
-  make("linesB", Math.PI/3);
-})();
+// Expose build id for tracking
+window.FE_BUILD = "FE-INDEX-20251104-0811-27";
+console.log("Freedom Engine build:", window.FE_BUILD);
 
-/* ======= Config / State ======= */
+/* Fail-soft: don't let visual errors kill app */
+window.addEventListener('error', (e)=>{ try{ const chat=document.getElementById('chat'); if(chat){ const b=document.createElement('div'); b.className='bubble'; b.innerHTML='<div class="who">⚙️</div><em>Visual failed safely.</em>'; chat.appendChild(b);} }catch(_){}} , {once:true});
+
+/* Config / State */
 const WORKER_BASE = "https://freedom-engine-worker.intelligentlyartificialsystems.workers.dev";
 const STAGES = 5;
-const state = {
-  tier: localStorage.getItem("fe_tier") || "demo",
-  license: localStorage.getItem("fe_license") || "",
-  roadmap: 1,
-  messages: [],
-  greeted:false,
-  lastWake:0
-};
-const el = {
-  bar:document.getElementById("bar"),
-  barText:document.getElementById("barText"),
-  chat:document.getElementById("chat"),
-  input:document.getElementById("input"),
-  send:document.getElementById("sendBtn"),
-  kebab:document.getElementById("kebab"),
-  kebabBtn:document.getElementById("kebabBtn"),
-  kebabMenu:document.getElementById("kebabMenu"),
-  demoCTA:document.getElementById("demoCTA"),
-  tierBadge:document.getElementById("tierBadge"),
-  enterKey:document.getElementById("enterKey"),
-  buy:document.getElementById("buy"),
-  ctaBuy:document.getElementById("ctaBuy"),
-  switchMode:document.getElementById("switchMode"),
-  reset:document.getElementById("reset"),
-  saveSnap:document.getElementById("saveSnap"),
-  loadSnap:document.getElementById("loadSnap"),
-  modulesBtn:document.getElementById("modulesBtn"),
-  modModal:document.getElementById("modModal"),
-  modList:document.getElementById("modList"),
-  modClose:document.getElementById("modClose"),
-  wake:document.getElementById("wake")
-};
+const state = { tier: localStorage.getItem("fe_tier") || "demo", license: localStorage.getItem("fe_license") || "", roadmap: 1, messages: [], greeted:false, lastWake:0 };
+const el = { bar:document.getElementById("bar"), barText:document.getElementById("barText"), chat:document.getElementById("chat"), input:document.getElementById("input"), send:document.getElementById("sendBtn"),
+  kebab:document.getElementById("kebab"), kebabBtn:document.getElementById("kebabBtn"), kebabMenu:document.getElementById("kebabMenu"), demoCTA:document.getElementById("demoCTA"),
+  tierBadge:document.getElementById("tierBadge"), enterKey:document.getElementById("enterKey"), buy:document.getElementById("buy"), ctaBuy:document.getElementById("ctaBuy"),
+  switchMode:document.getElementById("switchMode"), reset:document.getElementById("reset"), saveSnap:document.getElementById("saveSnap"), loadSnap:document.getElementById("loadSnap"),
+  modulesBtn:document.getElementById("modulesBtn"), modModal:document.getElementById("modModal"), modList:document.getElementById("modList"), modClose:document.getElementById("modClose"), wake:document.getElementById("wake") };
 
-/* ======= UI ======= */
-function setTier(t){
-  state.tier=t; localStorage.setItem("fe_tier",t);
-  const isDemo = t==="demo";
+/* UI */
+function setTier(t){ state.tier=t; localStorage.setItem("fe_tier",t); const isDemo = t==="demo";
   document.body.classList.toggle("is-premium", !isDemo);
   el.demoCTA.style.display = isDemo ? "block":"none";
   el.enterKey.style.display = isDemo ? "block":"none";
@@ -405,98 +317,43 @@ function setTier(t){
   el.tierBadge.textContent  = isDemo ? "Demo":"Premium";
   el.tierBadge.classList.toggle("demo", isDemo);
 }
-function updateBar(){
-  const pct = Math.max(1,Math.min(STAGES,state.roadmap))/STAGES*100;
-  if(el.bar){ el.bar.style.width = pct+"%"; }
-  if(el.barText){ el.barText.textContent = `${Math.max(1,state.roadmap)}/${STAGES}`; }
-}
+function updateBar(){ const pct = Math.max(1,Math.min(STAGES,state.roadmap))/STAGES*100; if(el.bar) el.bar.style.width = pct+"%"; if(el.barText) el.barText.textContent = `${Math.max(1,state.roadmap)}/${STAGES}`; }
 function autoscroll(){ el.chat.scrollTop = el.chat.scrollHeight; }
-function pushBubble(who,text){
-  if(!text)return;
-  const b=document.createElement("div");
-  b.className="bubble";
-  b.innerHTML=`<div class="who">${who==="user"?"💬":"⚙️"}</div>${text}`;
-  el.chat.appendChild(b);
-  state.messages.push({who,text});
-  requestAnimationFrame(autoscroll);
-}
+function pushBubble(who,text){ if(!text)return; const b=document.createElement("div"); b.className="bubble"; b.innerHTML=`<div class="who">${who==="user"?"💬":"⚙️"}</div>${text}`; el.chat.appendChild(b); state.messages.push({who,text}); requestAnimationFrame(autoscroll); }
 
-/* ======= Kebab placement (clamped) ======= */
-function openKebab(){
-  el.kebab.classList.add("open");
-  const m = el.kebabMenu;
-  const btnRect = el.kebabBtn.getBoundingClientRect();
-  m.style.display="block";
-  const mw = m.offsetWidth, mh = m.offsetHeight;
-  const margin=8;
-  const roomBelow = window.innerHeight - btnRect.bottom;
-  let top = roomBelow > mh + margin ? (btnRect.bottom + 8) : (btnRect.top - mh - 8);
-  let left = btnRect.right - mw;
-  top  = Math.max(margin, Math.min(window.innerHeight - mh - margin, top));
-  left = Math.max(margin, Math.min(window.innerWidth  - mw - margin, left));
-  m.style.top  = `${top}px`;
-  m.style.left = `${left}px`;
-}
+/* Kebab */
+function openKebab(){ el.kebab.classList.add("open"); const m = el.kebabMenu; const r = el.kebabBtn.getBoundingClientRect(); m.style.display="block"; const mw=m.offsetWidth,mh=m.offsetHeight,margin=8; const room=innerHeight - r.bottom;
+  let top = room > mh + margin ? (r.bottom + 8) : (r.top - mh - 8); let left = r.right - mw;
+  top = Math.max(margin, Math.min(innerHeight - mh - margin, top)); left = Math.max(margin, Math.min(innerWidth - mw - margin, left)); m.style.top=top+"px"; m.style.left=left+"px"; }
 function closeKebab(){ el.kebab.classList.remove("open"); el.kebabMenu.style.display="none"; }
 
-/* ======= Cloud (D1) ======= */
-async function cloudSave(){
-  if(state.tier!=="premium" || !state.license) return;
-  const payload = { roadmap:state.roadmap, messages:state.messages };
-  try{
-    await fetch(WORKER_BASE+"/progress",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({license_key:state.license,data:JSON.stringify(payload)})});
-  }catch(e){}
+/* Cloud */
+async function cloudSave(){ if(state.tier!=="premium" || !state.license) return; const payload = { roadmap:state.roadmap, messages:state.messages };
+  try{ await fetch(WORKER_BASE+"/progress",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({license_key:state.license,data:JSON.stringify(payload)})}); }catch(e){}
 }
-async function cloudLoad(){
-  if(state.tier!=="premium" || !state.license) return false;
-  try{
-    const r=await fetch(WORKER_BASE+"/progress?license_key="+encodeURIComponent(state.license));
-    const j=await r.json();
-    if(j.ok && j.found && j.data){
-      const data=JSON.parse(j.data);
-      state.roadmap = Number(data.roadmap)||1;
-      state.messages = Array.isArray(data.messages)? data.messages.slice(-100):[];
-      el.chat.innerHTML=""; state.messages.forEach(m=>pushBubble(m.who,m.text));
-      updateBar(); return true;
-    }
-  }catch(e){}
-  return false;
-}
+async function cloudLoad(){ if(state.tier!=="premium" || !state.license) return false; try{ const r=await fetch(WORKER_BASE+"/progress?license_key="+encodeURIComponent(state.license)); const j=await r.json();
+  if(j.ok && j.found && j.data){ const data=JSON.parse(j.data); state.roadmap = Number(data.roadmap)||1; state.messages = Array.isArray(data.messages)? data.messages.slice(-100):[]; el.chat.innerHTML=""; state.messages.forEach(m=>pushBubble(m.who,m.text)); updateBar(); return true; } }catch(e){} return false; }
 
-/* ======= Conversational flow (unchanged) ======= */
+/* Conversation */
 function normalize(t=""){ return t.trim().toLowerCase(); }
-function aiReply(userText){
-  const t = normalize(userText);
+function aiReply(userText){ const t = normalize(userText);
   if(!t){ pushBubble("ai","Give me a crumb or say <em>help me choose</em>."); return; }
-  if(/(help me choose|idk|no clue|stuck)/.test(t)){
-    pushBubble("ai",
-      `Okay, options time. Reply 1–5:<br>
+  if(/(help me choose|idk|no clue|stuck)/.test(t)){ pushBubble("ai",`Okay, options time. Reply 1–5:<br>
        1) <b>Design</b> • logos/graphics<br>
        2) <b>Writing</b> • copy/guides<br>
        3) <b>Coaching</b> • audits/accelerators<br>
        4) <b>Dev</b> • tiny tools/setups<br>
-       5) <b>Other</b> • pitch me your chaos`);
-    return;
-  }
+       5) <b>Other</b> • pitch me your chaos`); return; }
   const m=t.match(/^\s*([1-5])\s*$/);
-  if(m){
-    const lane=["","Design","Writing","Coaching","Dev","Other"][Number(m[1])];
-    state.roadmap=Math.max(2,state.roadmap);
-    updateBar();
-    pushBubble("ai",
-      `Locked: <b>${lane}</b>.<br>Now: what’s a <b>tiny deliverable in 48h</b> someone would pay for? One sentence.`);
-    cloudSave(); return;
-  }
-  pushBubble("ai",
-    `Got it. I’ll translate that into a tiny paid offer.<br>
-     Quick confirm: who’s the <b>one real human</b> you’d ship this to first? (Name or describe them.)`);
+  if(m){ const lane=["","Design","Writing","Coaching","Dev","Other"][Number(m[1])]; state.roadmap=Math.max(2,state.roadmap); updateBar();
+    pushBubble("ai",`Locked: <b>${lane}</b>.<br>Now: what’s a <b>tiny deliverable in 48h</b> someone would pay for? One sentence.`); cloudSave(); return; }
+  pushBubble("ai",`Got it. I’ll translate that into a tiny paid offer.<br>Quick confirm: who’s the <b>one real human</b> you’d ship this to first? (Name or describe them.)`);
   state.roadmap=Math.min(5,state.roadmap+1); updateBar(); cloudSave();
 }
 
-/* ======= Greeting once ======= */
-function greet(){
-  if(state.greeted) return; state.greeted=true;
+/* Greeting */
+function greet(){ if(state.greeted) return; state.greeted=true;
   [...document.querySelectorAll(".bubble")].forEach(b=>{ if(b.dataset.greet==="1") b.remove(); });
   const text = `
     Welcome to the Freedom Engine. I’m your personal trainer for tiny paid offers.<br><br>
@@ -504,82 +361,50 @@ function greet(){
     To get moving, pick a lane or say <em>“help me choose”</em>:<br>
     • design • writing • coaching • dev • other
   `;
-  const b=document.createElement("div");
-  b.className="bubble"; b.dataset.greet="1";
-  b.innerHTML=\`<div class="who">⚙️</div>\${text}\`;
-  el.chat.appendChild(b); requestAnimationFrame(autoscroll);
+  const b=document.createElement("div"); b.className="bubble"; b.dataset.greet="1"; b.innerHTML=`<div class="who">⚙️</div>${text}`; el.chat.appendChild(b); requestAnimationFrame(autoscroll);
 }
 
-/* ======= Modules modal ======= */
-function renderModules(){
-  const isDemo = state.tier==="demo";
-  el.modList.innerHTML="";
-  const rows = [
-    {name:"Offer Sprint", desc:"Guided 72-hour micro-offer builder", locked:isDemo},
-    {name:"Copy Booster", desc:"Emails, posts, and landing copy blocks", locked:isDemo},
-    {name:"Launch Maps", desc:"Checklists + timelines", locked:isDemo},
-  ];
-  rows.forEach(r=>{
-    const div=document.createElement("div");
-    div.className="mod"+(r.locked?" lock":"");
-    div.innerHTML=\`<div><b>\${r.name}</b><br><span class="dim">\${r.desc}</span></div>
-                   <div>\${r.locked? "🔒" : "<button class='btn btn-ghost'>Enable</button>"}</div>\`;
-    el.modList.appendChild(div);
-  });
+/* Modules */
+function renderModules(){ const isDemo = state.tier==="demo"; el.modList.innerHTML="";
+  const rows = [ {name:"Offer Sprint", desc:"Guided 72-hour micro-offer builder", locked:isDemo},
+                 {name:"Copy Booster", desc:"Emails, posts, and landing copy blocks", locked:isDemo},
+                 {name:"Launch Maps", desc:"Checklists + timelines", locked:isDemo} ];
+  rows.forEach(r=>{ const div=document.createElement("div"); div.className="mod"+(r.locked?" lock":""); div.innerHTML=`<div><b>${r.name}</b><br><span class="dim">${r.desc}</span></div>
+                   <div>${r.locked? "🔒" : "<button class='btn btn-ghost'>Enable</button>"}</div>`; el.modList.appendChild(div); });
 }
 
-/* ======= Boot ======= */
+/* Boot */
 document.addEventListener("DOMContentLoaded", async ()=>{
-  // PRE-INIT: set tier + initial bar so you always see fill
-  setTier(state.tier);
-  updateBar();
+  // Ensure bar visible even if later code hiccups
+  try{ setTier(state.tier); }catch(e){}
+  try{ updateBar(); }catch(e){}
 
   // kebab
-  el.kebabBtn.addEventListener("click", (e)=>{
-    e.stopPropagation(); if(el.kebab.classList.contains("open")) closeKebab(); else openKebab();
-  });
-  window.addEventListener("resize", ()=>{ if(el.kebab.classList.contains("open")) openKebab(); });
+  el.kebabBtn.addEventListener("click", (e)=>{ e.stopPropagation(); if(el.kebab.classList.contains("open")) closeKebab(); else openKebab(); });
+  addEventListener("resize", ()=>{ if(el.kebab.classList.contains("open")) openKebab(); });
   document.addEventListener("click", (e)=>{ if(!el.kebab.contains(e.target)) closeKebab(); });
 
   // demo/premium
   const gumroad="https://intellartsystems.gumroad.com/l/the-freedom-engine";
-  el.buy.addEventListener("click", ()=>window.open(gumroad,"_blank"));
-  el.ctaBuy?.addEventListener("click", ()=>window.open(gumroad,"_blank"));
-  el.enterKey.addEventListener("click", async ()=>{
-    const key=prompt("Enter license key:"); if(!key) return;
-    state.license=key.trim(); localStorage.setItem("fe_license",state.license);
-    setTier("premium"); const ok = await cloudLoad();
-    if(!ok){ el.chat.innerHTML=""; greet(); }
-    updateBar();
-  });
-  el.switchMode.addEventListener("click", ()=>{
-    localStorage.removeItem("fe_license"); setTier("demo");
-    state.license=""; state.roadmap=1; state.messages=[]; state.greeted=false;
-    el.chat.innerHTML=""; greet(); updateBar();
-  });
+  el.buy.addEventListener("click", ()=>open(gumroad,"_blank"));
+  el.ctaBuy?.addEventListener("click", ()=>open(gumroad,"_blank"));
+  el.enterKey.addEventListener("click", async ()=>{ const key=prompt("Enter license key:"); if(!key) return;
+    state.license=key.trim(); localStorage.setItem("fe_license",state.license); setTier("premium"); const ok = await cloudLoad(); if(!ok){ el.chat.innerHTML=""; greet(); } updateBar(); });
+  el.switchMode.addEventListener("click", ()=>{ localStorage.removeItem("fe_license"); setTier("demo");
+    state.license=""; state.roadmap=1; state.messages=[]; state.greeted=false; el.chat.innerHTML=""; greet(); updateBar(); });
 
-  el.reset.addEventListener("click", async ()=>{
-    state.roadmap=1; state.messages=[]; state.greeted=false;
-    el.chat.innerHTML=""; await cloudSave(); greet(); updateBar();
-  });
+  el.reset.addEventListener("click", async ()=>{ state.roadmap=1; state.messages=[]; state.greeted=false;
+    el.chat.innerHTML=""; await cloudSave(); greet(); updateBar(); });
 
-  // export / snapshots
-  document.getElementById("exportBtn").addEventListener("click", ()=>{
-    const data={roadmap:state.roadmap,messages:state.messages,tier:state.tier};
-    const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-    const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="freedom-engine-snapshot.json"; a.click(); URL.revokeObjectURL(a.href);
-  });
-  el.saveSnap.addEventListener("click", ()=>{
-    const data={roadmap:state.roadmap,messages:state.messages};
-    const blob=new Blob([JSON.stringify(data)],{type:"application/json"});
-    const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="fe-local-snapshot.json"; a.click(); URL.revokeObjectURL(a.href);
-  });
-  el.loadSnap.addEventListener("click", ()=>{
-    const inp=document.createElement("input"); inp.type="file"; inp.accept="application/json";
+  // export/snapshot
+  document.getElementById("exportBtn").addEventListener("click", ()=>{ const data={roadmap:state.roadmap,messages:state.messages,tier:state.tier}; const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="freedom-engine-snapshot.json"; a.click(); URL.revokeObjectURL(a.href); });
+  el.saveSnap.addEventListener("click", ()=>{ const data={roadmap:state.roadmap,messages:state.messages}; const blob=new Blob([JSON.stringify(data)],{type:"application/json"});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="fe-local-snapshot.json"; a.click(); URL.revokeObjectURL(a.href); });
+  el.loadSnap.addEventListener("click", ()=>{ const inp=document.createElement("input"); inp.type="file"; inp.accept="application/json";
     inp.onchange=async()=>{ const f=inp.files[0]; if(!f) return;
       try{ const d=JSON.parse(await f.text());
-        state.roadmap=Math.max(1,Math.min(5,Number(d.roadmap)||1));
-        state.messages=Array.isArray(d.messages)?d.messages.slice(-100):[];
+        state.roadmap=Math.max(1,Math.min(5,Number(d.roadmap)||1)); state.messages=Array.isArray(d.messages)?d.messages.slice(-100):[];
         el.chat.innerHTML=""; state.messages.forEach(m=>pushBubble(m.who,m.text)); updateBar(); cloudSave();
       }catch{ alert("Bad snapshot file."); }
     }; inp.click();
@@ -591,21 +416,19 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   el.modModal.addEventListener("click",(e)=>{ if(e.target===el.modModal) el.modModal.classList.remove("open"); });
 
   // wake
-  el.wake.addEventListener("click", ()=>{
-    const now=Date.now(); if(now-state.lastWake<2000) return; state.lastWake=now;
-    pushBubble("ai","Engine’s awake. I’ve got caffeine and poor judgment. Where were we?");
-  });
+  el.wake.addEventListener("click", ()=>{ const now=Date.now(); if(now-state.lastWake<2000) return; state.lastWake=now;
+    pushBubble("ai","Engine’s awake. I’ve got caffeine and poor judgment. Where were we?"); });
 
   // send
   function send(){const v=el.input.value.trim(); if(!v) return; pushBubble("user",v); el.input.value=""; aiReply(v);}
   el.send.addEventListener("click", send);
   el.input.addEventListener("keydown", e=>{ if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}});
 
-  // greet
+  // greet/init
   let loaded=false;
   if(state.tier==="premium" && state.license){ loaded=await cloudLoad(); }
   if(!loaded || state.messages.length===0) greet();
-  autoscroll();
+  updateBar(); autoscroll();
 });
 </script>
 </body>
