@@ -78,12 +78,12 @@ body{
 /* group animations: ultra-slow spin + gentle breath */
 .spiral-spin{
   transform-origin:50% 50%;
-  animation:spiralSpin 420s linear infinite, spiralBreath 16s ease-in-out infinite;
+  animation:spiralSpin 100s linear infinite, spiralBreath 10s ease-in-out infinite;
 }
 @keyframes spiralSpin{ to { transform:rotate(360deg); } }
 @keyframes spiralBreath{
   0%{ transform:scale(1) }
-  50%{ transform:scale(1.008) }
+  50%{ transform:scale(1.050) }
   100%{ transform:scale(1) }
 }
 
