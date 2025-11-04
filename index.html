@@ -446,78 +446,105 @@ async function verifyLicense(key){
   }
 }
 
-// FE_PATCH: fixes repeating response logic
+// FE_WIT: adaptive, witty, deterministic 5-module flow
 function aiReply(userText){
-  const t = normalize(userText);
-  if(!t){ 
-    pushBubble("ai","Give me a crumb or say <em>help me choose</em>.");
-    return;
+  const t = userText || "";
+  const mode = vibe(t);
+  if(!state.flow) state.flow = { module:1, step:0, lane:null, offer:null, target:null, pitch:null, action:null };
+  const F = state.flow;
+  const it = detectIntent(t);
+
+  // Empty
+  if(it==="empty"){ pushBubble("ai", R(QUIPS.stall)); return; }
+
+  // Reset anytime
+  if(it==="reset"){
+    state.flow = { module:1, step:0, lane:null, offer:null, target:null, pitch:null, action:null };
+    state.roadmap = 1; updateBar();
+    pushBubble("ai", `${R(QUIPS.ok)} Back to <b>Module 1</b>. ${R(QUIPS.poke)}`); cloudSave(); return;
   }
 
-  // Option help
-  if(/(help me choose|idk|no clue|stuck)/.test(t)){
-    pushBubble("ai",`Okay, options time. Reply 1–5:<br>
-      1) <b>Design</b> • logos/graphics<br>
-      2) <b>Writing</b> • copy/guides<br>
-      3) <b>Coaching</b> • audits/accelerators<br>
-      4) <b>Dev</b> • tiny tools/setups<br>
-      5) <b>Other</b> • pitch me your chaos`);
-    return;
+  // -------- Module 1: Philosophy & Map (lane) --------
+  if(F.module===1){
+    if(it==="help"){
+      pushBubble("ai",
+        `Reply 1–5:<br>1) <b>Design</b><br>2) <b>Writing</b><br>3) <b>Coaching</b><br>4) <b>Dev</b><br>5) <b>Other</b>`);
+      return;
+    }
+    if(it==="pick"){
+      const n=Number(t.trim()); F.lane=["","Design","Writing","Coaching","Dev","Other"][n];
+      F.module=2; F.step=0; state.roadmap=2; updateBar();
+      pushBubble("ai", `${R(QUIPS.ok)} Lane: <b>${F.lane}</b>.<br><b>Module 2 — Offer Design</b><br>
+        Give me a <b>one-sentence</b> offer you can deliver in 48h. ${R(QUIPS.nudge)}`);
+      cloudSave(); return;
+    }
+    // keyword fallback
+    if(/design|logo|brand/i.test(t))      { F.lane="Design";   F.module=2; F.step=0; state.roadmap=2; updateBar(); }
+    else if(/write|copy|ebook|post/i.test(t)){ F.lane="Writing";  F.module=2; F.step=0; state.roadmap=2; updateBar(); }
+    else if(/coach|audit|review/i.test(t))   { F.lane="Coaching"; F.module=2; F.step=0; state.roadmap=2; updateBar(); }
+    else if(/dev|tool|script|site/i.test(t)) { F.lane="Dev";      F.module=2; F.step=0; state.roadmap=2; updateBar(); }
+    if(F.module===2){
+      pushBubble("ai", `${R(QUIPS.ok)} Lane: <b>${F.lane}</b>. One-liner offer, 48h deliverable.`);
+      cloudSave(); return;
+    }
+    pushBubble("ai", R(QUIPS.poke)); return;
   }
 
-  // Lane choice
-  const m = t.match(/^\s*([1-5])\s*$/);
-  if(m){
-    const lane = ["","Design","Writing","Coaching","Dev","Other"][Number(m[1])];
-    state.lane = lane;
-    state.roadmap = 2;
-    updateBar();
-    pushBubble("ai",`Locked lane: <b>${lane}</b>.<br>Now tell me one <b>tiny deliverable</b> someone would pay for within 48h.`);
-    cloudSave();
-    return;
+  // -------- Module 2: Offer Design (offer -> target) --------
+  if(F.module===2){
+    if(F.step===0){
+      if(t.trim().length<6){ pushBubble("ai", `Short and concrete. ${R(QUIPS.nudge)}`); return; }
+      F.offer = userText.trim(); F.step=1;
+      pushBubble("ai", `Saved: “${F.offer}”.<br>Who’s the <b>one real human</b> you’d deliver this to first?`);
+      cloudSave(); return;
+    } else {
+      F.target = userText.trim(); F.module=3; F.step=0; state.roadmap=3; updateBar();
+      pushBubble("ai", `<b>Module 3 — Copy & Prompts</b><br>Drafting your one-line pitch…`);
+      F.pitch = `In 48 hours, I’ll deliver ${F.offer.replace(/\.$/, '')} for ${F.target} so you can start earning without the grind.`;
+      pushBubble("ai", `<b>Draft:</b> “${F.pitch}”<br>Reply <b>OK</b> to accept or paste an edit.`);
+      cloudSave(); return;
+    }
   }
 
-  // Offer sentence → human target
-  if(state.roadmap === 2){
-    state.offer = t;
-    state.roadmap = 3;
-    updateBar();
-    pushBubble("ai",`Nice. Offer idea saved.<br>Now, who’s the <b>one real human</b> you’d ship this to first? (Name or describe them.)`);
-    cloudSave();
-    return;
+  // -------- Module 3: Pitch (accept/edit) --------
+  if(F.module===3){
+    if(it==="accept"){
+      F.module=4; F.step=0; state.roadmap=4; updateBar();
+      pushBubble("ai", `<b>Module 4 — Launch</b><br>Pick one for the next 24h (1–3):<br>
+        1) Post pitch on one platform<br>2) DM 3 prospects like “${F.target}”<br>3) $10/day Gumroad ad with that pitch`);
+      cloudSave(); return;
+    } else {
+      F.pitch = userText.trim();
+      pushBubble("ai", `Updated: “${F.pitch}”. Reply <b>OK</b> to lock it.`);
+      cloudSave(); return;
+    }
   }
 
-  // Human target → close loop
-  if(state.roadmap === 3){
-    state.target = t;
-    state.roadmap = 4;
-    updateBar();
-    pushBubble("ai",`Good. You’ve got your human: <b>${t}</b>.<br>Next, we’ll write the <b>one-line pitch</b> tomorrow. For now, rest easy.`);
-    cloudSave();
-    return;
+  // -------- Module 4: Launch (choose action) --------
+  if(F.module===4){
+    if(it==="pick"){
+      const c=Number(t.trim());
+      const actions={1:`Post your pitch with a $29 CTA.`,2:`DM 3 prospects; paste the pitch.`,3:`Spin a $10/day Gumroad ad.`};
+      if(!actions[c]){ pushBubble("ai","Reply 1, 2, or 3."); return; }
+      F.action = actions[c]; F.module=5; F.step=0; state.roadmap=5; updateBar();
+      pushBubble("ai", `${R(QUIPS.ok)} Launch move: ${F.action}<br><br><b>Module 5 — Automation</b><br>
+        When you execute, reply <b>DONE</b>. Type <b>reset</b> to restart.`);
+      cloudSave(); return;
+    }
+    pushBubble("ai","Reply 1, 2, or 3."); return;
   }
 
-  // After roadmap 4+, keep light
-  pushBubble("ai","You're in the final stretch. Review your notes or reset to start again.");
-  state.roadmap = Math.min(5,state.roadmap+1);
-  updateBar();
-  cloudSave();
-}
+  // -------- Module 5: Automation (finish/reset) --------
+  if(F.module===5){
+    if(it==="done"){
+      pushBubble("ai", `Sprint complete. Save snapshot (⋯). Want another? Type <b>reset</b>.`);
+      cloudSave(); return;
+    }
+    pushBubble("ai", `Execute your move, then type <b>DONE</b>. Or <b>reset</b>.`); return;
+  }
 
-/* ======= Greeting once ======= */
-function greet(){
-  if(state.greeted) return; state.greeted=true;
-  [...document.querySelectorAll(".bubble")].forEach(b=>{ if(b.dataset.greet==="1") b.remove(); });
-  const text = `
-    Welcome to the Freedom Engine. I’m your personal trainer for tiny paid offers.<br><br>
-    I’ll carry strategy, templates, and deadlines; you’ll do bite-size reps. We’ll ship one in ~72 hours.<br><br>
-    To get moving, pick a lane or say <em>“help me choose”</em>:<br>
-    • design • writing • coaching • dev • other
-  `;
-  const b=document.createElement("div");
-  b.className="bubble"; b.dataset.greet="1";
-  b.innerHTML=`<div class="who">⚙️</div>${text}`;
-  el.chat.appendChild(b); requestAnimationFrame(autoscroll);
+  // Fallback
+  pushBubble("ai", `Follow the module prompt. ${R(QUIPS.nudge)}`);
 }
 
 /* ======= Modules modal ======= */
