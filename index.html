@@ -5,7 +5,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>The Freedom Engine — Personal AI Trainer</title>
-<!-- BUILD_ID: FX-20251104-0838-31 -->
+<!-- BUILD_ID: FOL-20251104-0848-44 -->
 <style>
 @font-face{
   font-family:"TechfontItalica";
@@ -56,7 +56,7 @@ body{
 }
 
 /* Moiré SVG overlay (JS-free) */
-.wave-wall{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.28;}
+.wave-wall{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.35;}
 .wave-wall svg{width:100%;height:100%;display:block}
 
 /* Layout & Frost (reduced) */
@@ -188,30 +188,80 @@ textarea{
 <div class="fx" aria-hidden="true"><div class="field"></div></div>
 
 
-<!-- Psychedelic spiral overlay -->
+
+
+<!-- Flower-of-Life sacred geometry overlay -->
 <div class="wave-wall" aria-hidden="true">
   <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
     <defs>
-      <linearGradient id="spiralGrad" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#ff7bf1"/>
+      <!-- Soft neon gradient for strokes -->
+      <linearGradient id="folGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%"  stop-color="#ff7bf1"/>
         <stop offset="50%" stop-color="#ffd86a"/>
         <stop offset="100%" stop-color="#8dff6a"/>
       </linearGradient>
+
+      <!-- Glow filter -->
+      <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="2" result="b"/>
+        <feMerge>
+          <feMergeNode in="b"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+
+      <!-- Single Flower-of-Life tile (hexagonal packing of circles) -->
+      <g id="folTile" fill="none" stroke="url(#folGrad)" stroke-width="0.8" filter="url(#glow)">
+        <!-- Base hex radius -->
+        <!-- Draw 19 circles (1 center + first ring + second ring) -->
+        <circle cx="0" cy="0" r="40"/>
+        <!-- first ring -->
+        <circle cx="40" cy="0" r="40"/>
+        <circle cx="-40" cy="0" r="40"/>
+        <circle cx="20" cy="34.641" r="40"/>
+        <circle cx="-20" cy="34.641" r="40"/>
+        <circle cx="20" cy="-34.641" r="40"/>
+        <circle cx="-20" cy="-34.641" r="40"/>
+        <!-- second ring (outer) -->
+        <circle cx="80" cy="0" r="40"/>
+        <circle cx="-80" cy="0" r="40"/>
+        <circle cx="60" cy="34.641" r="40"/>
+        <circle cx="-60" cy="34.641" r="40"/>
+        <circle cx="60" cy="-34.641" r="40"/>
+        <circle cx="-60" cy="-34.641" r="40"/>
+        <circle cx="40" cy="69.282" r="40"/>
+        <circle cx="-40" cy="69.282" r="40"/>
+        <circle cx="0" cy="69.282" r="40"/>
+        <circle cx="40" cy="-69.282" r="40"/>
+        <circle cx="-40" cy="-69.282" r="40"/>
+        <circle cx="0" cy="-69.282" r="40"/>
+      </g>
+
+      <!-- Pattern using the tile on a hex grid -->
+      <pattern id="folPattern" patternUnits="userSpaceOnUse" width="140" height="121.243">
+        <!-- Two rows to tile hexagonally -->
+        <g opacity="0.9">
+          <use href="#folTile" x="70"  y="60.6215"/>
+          <use href="#folTile" x="0"   y="0"/>
+          <use href="#folTile" x="140" y="0"/>
+          <use href="#folTile" x="-70" y="60.6215"/>
+          <use href="#folTile" x="70"  y="-60.6215"/>
+        </g>
+      </pattern>
     </defs>
-    <g fill="none" stroke="url(#spiralGrad)" stroke-width="1.2" opacity="0.28">
-      <path d="M600,400
-               m0,-5
-               a5,5 0 1,1 10,0
-               a10,10 0 1,1 -20,0
-               a20,20 0 1,1 40,0
-               a40,40 0 1,1 -80,0
-               a80,80 0 1,1 160,0
-               a160,160 0 1,1 -320,0
-               a320,320 0 1,1 640,0
-               a480,480 0 1,1 -960,0" />
+
+    <!-- Layer A: slow rotate + subtle zoom -->
+    <g id="FOLA">
+      <rect x="-300" y="-200" width="1800" height="1200" fill="url(#folPattern)" opacity="0.34"/>
+      <animateTransform attributeName="transform" type="rotate" from="0 600 400" to="360 600 400" dur="90s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" additive="sum" type="scale" from="1 1" to="1.05 1.05" dur="18s" repeatCount="indefinite" values="1;1.03;1;1.05;1"/>
     </g>
-    <animateTransform attributeName="transform" type="rotate"
-      from="0 600 400" to="360 600 400" dur="60s" repeatCount="indefinite"/>
+
+    <!-- Layer B: counter-rotate, lower opacity for parallax -->
+    <g id="FOLB" opacity="0.22" transform="translate(20,10)">
+      <rect x="-300" y="-200" width="1800" height="1200" fill="url(#folPattern)"/>
+      <animateTransform attributeName="transform" type="rotate" from="0 600 400" to="-360 600 400" dur="140s" repeatCount="indefinite"/>
+    </g>
   </svg>
 </div>
 <div class="wrap">
