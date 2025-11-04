@@ -6,14 +6,14 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>The Freedom Engine — Personal AI Trainer</title>
-<!-- BUILD_ID: FOL3-20251104-0857-26 -->
+<!-- BUILD_ID: FOL4-20251104-0901-38 -->
 <style>
 
 :root{
   --ink:#f7f8ff; --ink-dim:#cfd4ff;
   --ring:rgba(255,255,255,.22);
-  --glass1:rgba(255,255,255,.05);
-  --glass2:rgba(255,255,255,.02);
+  --glass1:rgba(255,255,255,.025);
+  --glass2:rgba(255,255,255,.01);
   --logo-x:50%; --logo-y:52%; --logo-scale:.95; --logo-speed:36s;
 }
 *{box-sizing:border-box} html,body{height:100%}
@@ -69,10 +69,10 @@ body{
 .brand{display:grid;grid-template-columns:148px 1fr;gap:18px;align-items:center;margin-bottom:16px}
 .logo-box{
   height:148px;border-radius:24px;border:1px solid var(--ring);
-  background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.02));
+  background:linear-gradient(180deg,rgba(255,255,255,.01),rgba(255,255,255,.01));
   overflow:hidden;position:relative;isolation:isolate;
   -webkit-backdrop-filter: blur(3.5px) saturate(60%); backdrop-filter: blur(3.5px) saturate(60%);
-  box-shadow:0 22px 60px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.02)
+  box-shadow:0 22px 60px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.01)
 }
 .logo{
   position:absolute; left:var(--logo-x); top:var(--logo-y);
@@ -92,7 +92,7 @@ body{
 .titles .sub{margin-top:6px;opacity:.95;font-weight:800;text-shadow:0 3px 12px rgba(0,0,0,.5)}
 .badge{display:inline-block;margin-left:8px;padding:5px 10px;border-radius:999px;color:#0b0c14;font-weight:900;font-size:13px;background:linear-gradient(90deg,#ff7bf1,#ffd86a)}
 .badge.demo{background:linear-gradient(90deg,#ff6a6a,#ffd86a)}
-.road{margin-top:18px;border:1px solid var(--ring);border-radius:18px;padding:16px;background:rgba(255,255,255,.02);
+.road{margin-top:18px;border:1px solid var(--ring);border-radius:18px;padding:16px;background:rgba(255,255,255,.01);
   -webkit-backdrop-filter: blur(3.5px) saturate(60%); backdrop-filter: blur(3.5px) saturate(60%);
   box-shadow:0 20px 55px rgba(0,0,0,.45);}
 .bar{height:12px;border-radius:999px;background:rgba(14,10,25,.6);border:1px solid var(--ring);overflow:hidden}
@@ -106,7 +106,7 @@ body{
   box-shadow:0 10px 26px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.4);
   font-family:"Orbitron", system-ui, sans-serif;
 }
-.btn-ghost{background:rgba(255,255,255,.03);color:var(--ink);border:1px solid var(--ring)}
+.btn-ghost{background:rgba(255,255,255,.015);color:var(--ink);border:1px solid var(--ring)}
 .btn:active{transform:translateY(1px)}
 .drop{position:relative}
 .drop-menu{
@@ -127,7 +127,7 @@ body{
 @media(max-width:980px){ .chat-col{ height:calc(100dvh - 48px); } }
 .chat{
   flex:1; min-height:0; overflow:auto; padding:18px 18px 96px;
-  background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.02));
+  background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.01));
   border:1px solid var(--ring);border-radius:24px;scroll-behavior:smooth; scrollbar-width:none;
   -webkit-backdrop-filter: blur(3.5px) saturate(60%); backdrop-filter: blur(3.5px) saturate(60%);
   box-shadow:0 28px 70px rgba(0,0,0,.55);
@@ -135,7 +135,7 @@ body{
 .chat::-webkit-scrollbar{width:0;height:0}
 .bubble{
   position:relative;margin:14px 0;padding:14px 16px 14px 56px;border-radius:18px;border:1px solid var(--ring);
-  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+  background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.01));
   -webkit-backdrop-filter: blur(3.5px) saturate(60%); backdrop-filter: blur(3.5px) saturate(60%);
   box-shadow:0 18px 46px rgba(0,0,0,.45);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
