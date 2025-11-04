@@ -25,7 +25,7 @@
   /* Logo tuning */
   --logo-x:50%;
   --logo-y:52%;
-  --logo-scale:.95;            /* logo size (you asked: about half of the big one) */
+  --logo-scale:.95;
   --logo-speed:36s;
 }
 
@@ -57,7 +57,7 @@ body.is-premium .prem-geo{ display:block; }
 .prem-geo .spin path{ transform-origin:50% 50%; animation:geoSpin 60s linear infinite; }
 @keyframes geoSpin{ to{ transform:rotate(360deg) } }
 
-/* Premium: NEW iridescent wallpaper under everything (half opacity of the above) */
+/* Premium: NEW iridescent wallpaper under everything */
 .prem-geo-bg{
   position:fixed; inset:-10%; z-index:-3; pointer-events:none; display:none; opacity:.07; filter:saturate(140%);
 }
@@ -98,10 +98,8 @@ body.is-premium .prem-geo-bg{ display:block; }
   position:absolute; left:var(--logo-x); top:var(--logo-y);
   width:520px;height:520px; object-fit:contain; pointer-events:none;
   transform-origin:center center;
-  /* flip Y so it spins “inwards” as requested */
   transform:translate(-50%,-50%) scale(var(--logo-scale)) scaleY(-1);
   animation:spinIn var(--logo-speed) linear infinite reverse;
-  /* multicolor glow (stacked drop-shadows) */
   filter:
     drop-shadow(0 0 12px rgba(255,255,255,.22))
     drop-shadow(0 0 18px rgba(255,123,241,.35))
@@ -116,7 +114,7 @@ body.is-premium .prem-geo-bg{ display:block; }
   font-size:46px; font-weight:800;
   text-shadow:
     0 2px 0 rgba(0,0,0,.28),
-    0 12px 30px rgba(0,0,0,.45);       /* stronger pop */
+    0 12px 30px rgba(0,0,0,.45);
 }
 .titles .sub{
   margin-top:6px;opacity:.92;font-weight:800;
@@ -130,7 +128,7 @@ body.is-premium .prem-geo-bg{ display:block; }
 .bar{height:12px;border-radius:999px;background:rgba(14,10,25,.6);border:1px solid var(--ring);overflow:hidden}
 .bar>span{display:block;height:100%;width:0%;transition:width .35s ease;background:linear-gradient(90deg,#ff7bf1,#ffb84d,#8dff6a,#ff6a6a)}
 .bar-legend{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:var(--ink-dim)}
-.row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.row{display:flex;gap:12px;margin-top:16px;flex-wrap:wrap}
 
 /* Buttons keep brand font */
 .btn{
@@ -159,19 +157,18 @@ body.is-premium .prem-geo-bg{ display:block; }
 .cta .big{width:100%;padding:14px 16px;border-radius:12px;font-size:18px;font-weight:900;background:linear-gradient(90deg,#ff7bf1,#ffd86a);color:#0b0c14;font-family:"TechfontItalica",system-ui}
 .cta small{display:block;margin-top:8px;color:var(--ink-dim)}
 
-/* ---------- Chat (ANCHOR composer & chat) ---------- */
+/* ---------- Chat ---------- */
 .chat-col{
-  position:relative; height:calc(100dvh - 48px);   /* fixed column height */
+  position:relative; height:calc(100dvh - 48px);
   display:flex; flex-direction:column;
 }
 @media(max-width:980px){ .chat-col{ height:calc(100dvh - 48px); } }
 
 .chat{
-  flex:1; min-height:0; overflow:auto;              /* scroll instead of expand */
-  padding:18px 18px 96px;                           /* bottom space for composer */
+  flex:1; min-height:0; overflow:auto;
+  padding:18px 18px 96px;
   background:linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.06));
   border:1px solid var(--ring);border-radius:24px;scroll-behavior:smooth;
-  /* hide scrollbars visually */
   scrollbar-width:none;
 }
 .chat::-webkit-scrollbar{width:0;height:0}
@@ -185,7 +182,7 @@ body.is-premium .prem-geo-bg{ display:block; }
   background:#0e0a1fe6;border:1px solid var(--ring)
 }
 
-/* Composer is ANCHORED */
+/* Composer */
 .composer{
   position:absolute; left:0; right:0; bottom:0;
   display:grid;grid-template-columns:1fr 110px;gap:10px;align-items:end;
@@ -202,20 +199,26 @@ textarea{width:100%;min-height:54px;max-height:180px;resize:vertical;padding:14p
 .panel{
   position:relative; z-index:1; width:min(720px,92vw);
   background:linear-gradient(180deg,var(--glass1),var(--glass2));
-  border:1px solid var(--ring); border-radius:20px; padding:16px;
+  border:1px solid var(--ring); border-radius:20px; padding:20px;
   box-shadow:0 30px 80px rgba(0,0,0,.55);
 }
-.modlist .mod{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px; border:1px solid var(--ring); border-radius:14px; margin:10px 0; }
-.modlist .lock{ opacity:.6 }
+.modlist .mod{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:16px; border:1px solid var(--ring); border-radius:14px; margin:10px 0; }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .logo{ animation:none }
+  .prem-geo .spin path{ animation:none }
+  .prem-geo-bg .field{ animation:none }
+}
 </style>
 </head>
 <body>
 <div class="bg"></div>
 
-<!-- Premium iridescent wallpaper (new, behind existing) -->
+<!-- Premium iridescent wallpaper -->
 <div class="prem-geo-bg" aria-hidden="true"><div class="field"></div></div>
 
-<!-- Premium sacred geometry overlay (existing) -->
+<!-- Premium sacred geometry overlay -->
 <div class="prem-geo" aria-hidden="true">
   <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
     <g class="spin" fill="none" stroke="url(#g)" stroke-width="0.4" opacity="0.85">
@@ -309,11 +312,12 @@ const STAGES = 5;
 const state = {
   tier: localStorage.getItem("fe_tier") || "demo",
   license: localStorage.getItem("fe_license") || "",
-  roadmap: 1,
+  roadmap: 1,                 // kept for snapshots; bar uses flow.module
   messages: [],
   greeted:false,
   lastWake:0,
-  sending:false
+  sending:false,
+  flow:null                   // {module, step, lane, offer, target, pitch, action}
 };
 
 const el = {
@@ -341,114 +345,10 @@ const el = {
   wake:document.getElementById("wake")
 };
 
-/* ======= Small utilities ======= */
+/* ======= Small utils ======= */
 const sleep = (ms)=>new Promise(r=>setTimeout(r,ms));
 function normalize(t=""){ return t.trim().toLowerCase(); }
 function autoscroll(){ el.chat.scrollTop = el.chat.scrollHeight; }
-
-/* Debounce helper for cloud saves */
-let saveTimer=null;
-function debounceSave(fn, delay=400){
-  clearTimeout(saveTimer);
-  saveTimer=setTimeout(fn, delay);
-}
-
-/* Bubble rendering
-   FE_PATCH: add `record=true` flag — lets us render history without duplicating state */
-function pushBubble(who,text,{record=true}={}){
-  if(!text) return;
-  const b=document.createElement("div");
-  b.className="bubble";
-  b.innerHTML=`<div class="who">${who==="user"?"💬":"⚙️"}</div>${text}`;
-  el.chat.appendChild(b);
-  if(record) state.messages.push({who,text});
-  requestAnimationFrame(autoscroll);
-}
-
-/* ======= UI ======= */
-function setTier(t){
-  state.tier=t; localStorage.setItem("fe_tier",t);
-  const isDemo = t==="demo";
-  document.body.classList.toggle("is-premium", !isDemo); // sacred geometry toggle
-  el.demoCTA.style.display = isDemo ? "block":"none";
-  el.enterKey.style.display = isDemo ? "block":"none";
-  el.buy.style.display      = isDemo ? "block":"none";
-  el.switchMode.style.display = isDemo ? "none":"block";
-  el.tierBadge.textContent  = isDemo ? "Demo":"Premium";
-  el.tierBadge.classList.toggle("demo", isDemo);
-}
-
-function updateBar(){
-  const pct = Math.max(1,Math.min(STAGES,state.roadmap))/STAGES*100;
-  el.bar.style.width = pct+"%";
-  el.barText.textContent = `${Math.max(1,state.roadmap)}/${STAGES}`;
-}
-
-/* ======= Kebab placement (clamped to viewport) ======= */
-function openKebab(){
-  el.kebab.classList.add("open");
-  const m = el.kebabMenu;
-  const btnRect = el.kebabBtn.getBoundingClientRect();
-  m.style.display="block";
-  requestAnimationFrame(()=>{
-    const mw = m.offsetWidth || 280, mh = m.offsetHeight || 180;
-    const margin=8;
-    const roomBelow = window.innerHeight - btnRect.bottom;
-    let top = roomBelow > mh + margin ? (btnRect.bottom + 8) : (btnRect.top - mh - 8);
-    let left = btnRect.right - mw;
-    top  = Math.max(margin, Math.min(window.innerHeight - mh - margin, top));
-    left = Math.max(margin, Math.min(window.innerWidth  - mw - margin, left));
-    m.style.top  = `${top}px`;
-    m.style.left = `${left}px`;
-  });
-}
-function closeKebab(){ el.kebab.classList.remove("open"); el.kebabMenu.style.display="none"; }
-
-/* ======= Cloud (D1) ======= */
-async function cloudSaveNow(){
-  if(state.tier!=="premium" || !state.license) return;
-  const payload = { roadmap:state.roadmap, messages:state.messages.slice(-300) };
-  try{
-    await fetch(WORKER_BASE+"/progress",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({license_key:state.license,data:JSON.stringify(payload)})});
-  }catch(e){/* silent fail */}
-}
-function cloudSave(){ debounceSave(cloudSaveNow, 450); }
-
-async function cloudLoad(){
-  if(state.tier!=="premium" || !state.license) return false;
-  try{
-    const r=await fetch(WORKER_BASE+"/progress?license_key="+encodeURIComponent(state.license));
-    const j=await r.json();
-    if(j.ok && j.found && j.data){
-      const data=JSON.parse(j.data);
-      state.roadmap = Number(data.roadmap)||1;
-      state.messages = Array.isArray(data.messages)? data.messages.slice(-100):[];
-      el.chat.innerHTML="";
-      // FE_PATCH: render history WITHOUT re-adding to state
-      state.messages.forEach(m=>pushBubble(m.who,m.text,{record:false}));
-      // state.messages already set; don't mutate further here
-      updateBar(); return true;
-    }
-  }catch(e){/* ignore */}
-  return false;
-}
-
-/* ======= License verify (no more instant upgrade) ======= */
-async function verifyLicense(key){
-  try{
-    const r=await fetch(WORKER_BASE+"/verify",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({license_key:key.trim()})});
-    const j=await r.json();
-    return Boolean(j && (j.valid || j.ok)); // accept {valid:true} or {ok:true}
-  }catch(e){
-    return false;
-  }
-}
-
-  
-// FE_WIT: adaptive, witty, deterministic 5-module flow
-  // FE_WIT: tiny NLU + quips
 const R = a => a[Math.floor(Math.random()*a.length)];
 const QUIPS = {
   greet: ["Let’s make rent, not art.","Freedom through systems, not heroics.","Small offer, big exhale."],
@@ -467,12 +367,125 @@ function detectIntent(t){
   if(/^reset\b/i.test(t)) return "reset";
   return "text";
 }
-// personality mirroring (very light)
 function vibe(t){ return /\b(fuck|shit|hell)\b/i.test(t) ? "spicy" : "plain"; }
 
+/* Debounced cloud save */
+let saveTimer=null;
+function debounceSave(fn, delay=450){ clearTimeout(saveTimer); saveTimer=setTimeout(fn, delay); }
+
+/* Bubble render (record flag avoids double-add on history render) */
+function pushBubble(who,text,{record=true}={}){
+  if(!text) return;
+  const b=document.createElement("div");
+  b.className="bubble";
+  b.innerHTML=`<div class="who">${who==="user"?"💬":"⚙️"}</div>${text}`;
+  el.chat.appendChild(b);
+  if(record) state.messages.push({who,text});
+  requestAnimationFrame(autoscroll);
+}
+
+/* ======= UI ======= */
+function setTier(t){
+  state.tier=t; localStorage.setItem("fe_tier",t);
+  const isDemo = t==="demo";
+  document.body.classList.toggle("is-premium", !isDemo);
+  el.demoCTA.style.display = isDemo ? "block":"none";
+  el.enterKey.style.display = isDemo ? "block":"none";
+  el.buy.style.display      = isDemo ? "block":"none";
+  el.switchMode.style.display = isDemo ? "none":"block";
+  el.tierBadge.textContent  = isDemo ? "Demo":"Premium";
+  el.tierBadge.classList.toggle("demo", isDemo);
+}
+
+/* FE_PATCH: progress bar tied to module only */
+function updateBar(){
+  const mod = (state.flow?.module ?? 1);
+  const pct = Math.max(1, Math.min(STAGES, mod)) / STAGES * 100;
+  el.bar.style.width = pct + "%";
+  el.barText.textContent = `${Math.max(1, mod)}/${STAGES}`;
+}
+
+/* ======= Kebab menu ======= */
+function openKebab(){
+  el.kebab.classList.add("open");
+  const m = el.kebabMenu;
+  const btnRect = el.kebabBtn.getBoundingClientRect();
+  m.style.display="block";
+  requestAnimationFrame(()=>{
+    const mw = m.offsetWidth || 280, mh = m.offsetHeight || 180;
+    const margin=8;
+    const roomBelow = window.innerHeight - btnRect.bottom;
+    let top = roomBelow > mh + margin ? (btnRect.bottom + 8) : (btnRect.top - mh - 8);
+    let left = btnRect.right - mw;
+    top  = Math.max(margin, Math.min(window.innerHeight - mh - margin, top));
+    left = Math.max(margin, Math.min(window.innerWidth  - mw - margin, left));
+    m.style.top  = `${top}px`; m.style.left = `${left}px`;
+  });
+}
+function closeKebab(){ el.kebab.classList.remove("open"); el.kebabMenu.style.display="none"; }
+
+/* ======= Cloud (D1) ======= */
+async function cloudSaveNow(){
+  if(state.tier!=="premium" || !state.license) return;
+  const payload = {
+    roadmap: state.flow?.module ?? 1,
+    flow: state.flow,
+    messages: state.messages.slice(-300)
+  };
+  try{
+    await fetch(WORKER_BASE+"/progress",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({license_key:state.license,data:JSON.stringify(payload)})});
+  }catch(e){}
+}
+function cloudSave(){ debounceSave(cloudSaveNow, 450); }
+
+async function cloudLoad(){
+  if(state.tier!=="premium" || !state.license) return false;
+  try{
+    const r=await fetch(WORKER_BASE+"/progress?license_key="+encodeURIComponent(state.license));
+    const j=await r.json();
+    if(j.ok && j.found && j.data){
+      const data=JSON.parse(j.data);
+      state.flow = data.flow || { module:Number(data.roadmap)||1, step:0, lane:null, offer:null, target:null, pitch:null, action:null };
+      state.messages = Array.isArray(data.messages)? data.messages.slice(-100):[];
+      el.chat.innerHTML="";
+      state.messages.forEach(m=>pushBubble(m.who,m.text,{record:false}));
+      updateBar(); return true;
+    }
+  }catch(e){}
+  return false;
+}
+
+/* ======= License verify ======= */
+async function verifyLicense(key){
+  try{
+    const r=await fetch(WORKER_BASE+"/verify",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({license_key:key.trim()})});
+    const j=await r.json();
+    return Boolean(j && (j.valid || j.ok));
+  }catch(e){ return false; }
+}
+
+/* ======= Conversational flow (adaptive 5-module) ======= */
+function greet(){
+  if(!state.flow) state.flow = { module:1, step:0, lane:null, offer:null, target:null, pitch:null, action:null };
+  if(state.greeted) return; state.greeted=true;
+
+  const text = `
+    ${R(QUIPS.greet)}<br><br>
+    <b>Module 1 — Philosophy & Map</b><br>
+    Pick a lane or say <em>help me choose</em>: design • writing • coaching • dev • other
+  `;
+  const b=document.createElement("div");
+  b.className="bubble"; b.dataset.greet="1";
+  b.innerHTML=`<div class="who">⚙️</div>${text}`;
+  el.chat.appendChild(b);
+  updateBar(); requestAnimationFrame(autoscroll);
+}
+
+/* FE_WIT: adaptive, witty, deterministic 5-module flow */
 function aiReply(userText){
   const t = userText || "";
-  const mode = vibe(t);
   if(!state.flow) state.flow = { module:1, step:0, lane:null, offer:null, target:null, pitch:null, action:null };
   const F = state.flow;
   const it = detectIntent(t);
@@ -483,7 +496,7 @@ function aiReply(userText){
   // Reset anytime
   if(it==="reset"){
     state.flow = { module:1, step:0, lane:null, offer:null, target:null, pitch:null, action:null };
-    state.roadmap = 1; updateBar();
+    updateBar();
     pushBubble("ai", `${R(QUIPS.ok)} Back to <b>Module 1</b>. ${R(QUIPS.poke)}`); cloudSave(); return;
   }
 
@@ -496,16 +509,16 @@ function aiReply(userText){
     }
     if(it==="pick"){
       const n=Number(t.trim()); F.lane=["","Design","Writing","Coaching","Dev","Other"][n];
-      F.module=2; F.step=0; state.roadmap=2; updateBar();
+      F.module=2; F.step=0; updateBar();
       pushBubble("ai", `${R(QUIPS.ok)} Lane: <b>${F.lane}</b>.<br><b>Module 2 — Offer Design</b><br>
         Give me a <b>one-sentence</b> offer you can deliver in 48h. ${R(QUIPS.nudge)}`);
       cloudSave(); return;
     }
     // keyword fallback
-    if(/design|logo|brand/i.test(t))      { F.lane="Design";   F.module=2; F.step=0; state.roadmap=2; updateBar(); }
-    else if(/write|copy|ebook|post/i.test(t)){ F.lane="Writing";  F.module=2; F.step=0; state.roadmap=2; updateBar(); }
-    else if(/coach|audit|review/i.test(t))   { F.lane="Coaching"; F.module=2; F.step=0; state.roadmap=2; updateBar(); }
-    else if(/dev|tool|script|site/i.test(t)) { F.lane="Dev";      F.module=2; F.step=0; state.roadmap=2; updateBar(); }
+    if(/design|logo|brand/i.test(t))      { F.lane="Design";   F.module=2; F.step=0; updateBar(); }
+    else if(/write|copy|ebook|post/i.test(t)){ F.lane="Writing";  F.module=2; F.step=0; updateBar(); }
+    else if(/coach|audit|review/i.test(t))   { F.lane="Coaching"; F.module=2; F.step=0; updateBar(); }
+    else if(/dev|tool|script|site/i.test(t)) { F.lane="Dev";      F.module=2; F.step=0; updateBar(); }
     if(F.module===2){
       pushBubble("ai", `${R(QUIPS.ok)} Lane: <b>${F.lane}</b>. One-liner offer, 48h deliverable.`);
       cloudSave(); return;
@@ -521,7 +534,7 @@ function aiReply(userText){
       pushBubble("ai", `Saved: “${F.offer}”.<br>Who’s the <b>one real human</b> you’d deliver this to first?`);
       cloudSave(); return;
     } else {
-      F.target = userText.trim(); F.module=3; F.step=0; state.roadmap=3; updateBar();
+      F.target = userText.trim(); F.module=3; F.step=0; updateBar();
       pushBubble("ai", `<b>Module 3 — Copy & Prompts</b><br>Drafting your one-line pitch…`);
       F.pitch = `In 48 hours, I’ll deliver ${F.offer.replace(/\.$/, '')} for ${F.target} so you can start earning without the grind.`;
       pushBubble("ai", `<b>Draft:</b> “${F.pitch}”<br>Reply <b>OK</b> to accept or paste an edit.`);
@@ -532,7 +545,7 @@ function aiReply(userText){
   // -------- Module 3: Pitch (accept/edit) --------
   if(F.module===3){
     if(it==="accept"){
-      F.module=4; F.step=0; state.roadmap=4; updateBar();
+      F.module=4; F.step=0; updateBar();
       pushBubble("ai", `<b>Module 4 — Launch</b><br>Pick one for the next 24h (1–3):<br>
         1) Post pitch on one platform<br>2) DM 3 prospects like “${F.target}”<br>3) $10/day Gumroad ad with that pitch`);
       cloudSave(); return;
@@ -549,7 +562,7 @@ function aiReply(userText){
       const c=Number(t.trim());
       const actions={1:`Post your pitch with a $29 CTA.`,2:`DM 3 prospects; paste the pitch.`,3:`Spin a $10/day Gumroad ad.`};
       if(!actions[c]){ pushBubble("ai","Reply 1, 2, or 3."); return; }
-      F.action = actions[c]; F.module=5; F.step=0; state.roadmap=5; updateBar();
+      F.action = actions[c]; F.module=5; F.step=0; updateBar();
       pushBubble("ai", `${R(QUIPS.ok)} Launch move: ${F.action}<br><br><b>Module 5 — Automation</b><br>
         When you execute, reply <b>DONE</b>. Type <b>reset</b> to restart.`);
       cloudSave(); return;
@@ -581,7 +594,7 @@ function renderModules(){
   ];
   rows.forEach(r=>{
     const div=document.createElement("div");
-    div.className="mod"+(r.locked?" lock":"");
+    div.className="mod";
     div.innerHTML=`<div><b>${r.name}</b><br><span class="dim">${r.desc}</span></div>
                    <div>${r.locked? "🔒" : "<button class='btn btn-ghost'>Enable</button>"}</div>`;
     el.modList.appendChild(div);
@@ -601,38 +614,34 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   const gumroad="https://intellartsystems.gumroad.com/l/the-freedom-engine";
   el.buy.addEventListener("click", ()=>window.open(gumroad,"_blank"));
   el.ctaBuy?.addEventListener("click", ()=>window.open(gumroad,"_blank"));
-
   el.enterKey.addEventListener("click", async ()=>{
     const key=prompt("Enter license key:"); if(!key) return;
-    // FE_PATCH: verify before upgrading
     const valid = await verifyLicense(key);
     if(!valid){ alert("Invalid or inactive license."); return; }
     state.license=key.trim(); localStorage.setItem("fe_license",state.license);
     setTier("premium");
     const ok = await cloudLoad();
-    if(!ok){ el.chat.innerHTML=""; greet(); }
-    updateBar();
+    if(!ok){ el.chat.innerHTML=""; state.greeted=false; }
+    greet(); updateBar();
   });
-
   el.switchMode.addEventListener("click", ()=>{
     localStorage.removeItem("fe_license"); setTier("demo");
-    state.license=""; state.roadmap=1; state.messages=[]; state.greeted=false;
+    state.license=""; state.messages=[]; state.greeted=false; state.flow=null;
     el.chat.innerHTML=""; greet(); updateBar();
   });
-
   el.reset.addEventListener("click", ()=>{
-    state.roadmap=1; state.messages=[]; state.greeted=false;
+    state.messages=[]; state.greeted=false; state.flow=null;
     el.chat.innerHTML=""; greet(); updateBar(); cloudSave();
   });
 
   // export / snapshots
   document.getElementById("exportBtn").addEventListener("click", ()=>{
-    const data={roadmap:state.roadmap,messages:state.messages,tier:state.tier};
+    const data={roadmap:state.flow?.module ?? 1, flow:state.flow, messages:state.messages, tier:state.tier};
     const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
     const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="freedom-engine-snapshot.json"; a.click(); URL.revokeObjectURL(a.href);
   });
   el.saveSnap.addEventListener("click", ()=>{
-    const data={roadmap:state.roadmap,messages:state.messages};
+    const data={roadmap:state.flow?.module ?? 1, flow:state.flow, messages:state.messages};
     const blob=new Blob([JSON.stringify(data)],{type:"application/json"});
     const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="fe-local-snapshot.json"; a.click(); URL.revokeObjectURL(a.href);
   });
@@ -641,40 +650,37 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     inp.onchange=async()=>{ const f=inp.files[0]; if(!f) return;
       try{
         const d=JSON.parse(await f.text());
-        state.roadmap=Math.max(1,Math.min(5,Number(d.roadmap)||1));
-        // FE_PATCH: set state, render without re-recording
+        state.flow = d.flow || { module:Number(d.roadmap)||1, step:0, lane:null, offer:null, target:null, pitch:null, action:null };
         state.messages=Array.isArray(d.messages)?d.messages.slice(-100):[];
-        el.chat.innerHTML="";
-        state.messages.forEach(m=>pushBubble(m.who,m.text,{record:false}));
+        el.chat.innerHTML=""; state.messages.forEach(m=>pushBubble(m.who,m.text,{record:false}));
         updateBar(); cloudSave();
       }catch{ alert("Bad snapshot file."); }
     }; inp.click();
   });
 
-  // modules
+  // modules modal
   el.modulesBtn.addEventListener("click", ()=>{ renderModules(); el.modModal.classList.add("open"); });
   el.modClose.addEventListener("click", ()=> el.modModal.classList.remove("open"));
   el.modModal.addEventListener("click",(e)=>{ if(e.target===el.modModal) el.modModal.classList.remove("open"); });
 
-  // wake (debounced)
+  // wake
   el.wake.addEventListener("click", ()=>{
     const now=Date.now(); if(now-state.lastWake<2000) return; state.lastWake=now;
-    pushBubble("ai","Engine’s awake. I’ve got caffeine and poor judgment. Where were we?");
+    pushBubble("ai","Engine’s awake. Caffeine loaded. Where were we?");
   });
 
-  // send (guard against double-send)
+  // send (double-click guard)
   async function send(){
     if(state.sending) return;
     const v=el.input.value.trim(); if(!v) return;
-    state.sending=true;
-    el.send.disabled=true; el.input.disabled=true;
+    state.sending=true; el.send.disabled=true; el.input.disabled=true;
 
     pushBubble("user",v);
     el.input.value="";
-    await sleep(50); // tiny yield for UX
+    await sleep(40);
     aiReply(v);
 
-    await sleep(200); // minimal lock to avoid double taps
+    await sleep(160);
     el.send.disabled=false; el.input.disabled=false; el.input.focus();
     state.sending=false;
   }
@@ -685,7 +691,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   setTier(state.tier);
   let loaded=false;
   if(state.tier==="premium" && state.license){ loaded=await cloudLoad(); }
-  if(!loaded || state.messages.length===0) greet();
+  if(!loaded || !state.messages.length) greet();
   updateBar();
   requestAnimationFrame(autoscroll);
 });
