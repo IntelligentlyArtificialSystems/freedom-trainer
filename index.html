@@ -6,11 +6,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>The Freedom Engine — Personal AI Trainer</title>
-<!-- BUILD_ID: MORPROBE-20251104-095750 -->
-<style>
-
-:root{
-  --ink:#f7f8ff; --ink-dim:#cfd4ff;
+<!-- BUILD_ID: STACK-ABEF-20251104-101413 -->  --ink:#f7f8ff; --ink-dim:#cfd4ff;
   --ring:rgba(255,255,255,.22);
   --glass1:rgba(255,255,255,.025);
   --glass2:rgba(255,255,255,.005);
@@ -178,6 +174,9 @@ textarea{
   .fx .field{ animation:none }
   .bg{ animation:none }
 }
+
+/* drop-menu max z */
+.drop-menu{z-index:2147483647 !important; position:fixed !important;}
 </style>
 </head>
 <body data-build="ZFIX-FE-INDEX-20251104-0811-27">
@@ -302,6 +301,7 @@ textarea{
 
   <section class="chat-col">
     <div class="card chat" id="chat"></div>
+    <div class="coach" id="coachCard"></div>
     <div class="composer">
       <textarea id="input" placeholder="Answer here. Press Enter to send."></textarea>
       <button class="send" id="sendBtn">Send</button>
@@ -548,6 +548,34 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   if(state.messages.length===0) greet();
   updateBar(); autoscroll();
 });
+
+// ---- SafeBrain & Coach Card (ABEF) ----
+function safeReply(fn){ return (t)=>{ try{ fn(t); } catch(e){ console.error(e); pushBubble("ai","Glitch dodged. Say that again in plain words."); } finally { renderCoachCard(); } }; }
+function renderCoachCard(){
+  const d = state.data||{};
+  const bits = [
+    `<b>Stage:</b> ${state.stage||state.roadmap||1}/5`,
+    d.lane? `<b>Lane:</b> ${d.lane}` : ``,
+    d.offer? `<b>Offer:</b> ${d.offer}`: ``,
+    d.avatar? `<b>Avatar:</b> ${d.avatar}`: ``,
+    d.channel? `<b>Channel:</b> ${d.channel}`: ``,
+    d.price? `<b>Price:</b> $${String(d.price).replace(/^\$/,'')}`: ``
+  ].filter(Boolean).map(s=>`<span class="pill">${s}</span>`).join(" ");
+  const box = document.getElementById("coachCard"); if(!box) return;
+  box.innerHTML = bits || `<span class="pill"><b>Stage:</b> ${state.stage||state.roadmap||1}/5</span>`;
+}
+// patch send to wrap aiReply safely
+(function(){
+  if(typeof aiReply === "function" && !window.__safe_patched){
+    const core = aiReply;
+    window.aiReply = safeReply(core);
+    window.__safe_patched = true;
+  }
+  // move kebab menu into body (portal)
+  try{ if(el && el.kebabMenu && el.kebabMenu.parentElement!==document.body){ document.body.appendChild(el.kebabMenu); } }catch(e){}
+  // render coach at load
+  try{ renderCoachCard(); }catch(e){}
+})();
 </script>
 
 </body>
