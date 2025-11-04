@@ -555,17 +555,35 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   });
 
   const _aiCore = safeReply(aiReply);
-  function send(){ const v=el.input && el.input.value ? el.input.value.trim() : ""; if(!v) return; pushBubble("user",v); if(el.input) el.input.value=""; _aiCore(v); }
-  if (el.send) el.send.addEventListener("click", send);
-  if (el.input) el.input.addEventListener("keydown", e=>{ if(e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); send(); }});
+  function send(){ function send(){
+  const v = el.input && el.input.value ? el.input.value.trim() : "";
+  if(!v) return;
 
-  setTier(state.tier);
-  let loaded=false; if(state.tier==="premium" && state.license){ loaded=await cloudLoad(); }
-  if(!loaded || state.messages.length===0) greet();
-  updateBar(); renderCoachCard();
+  pushBubble("user", v);
+  el.input.value = "";
+
+  fetch(WORKER_BASE + "/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      user: v,
+      stage: state.stage || state.roadmap || 1,
+      data: state.data || {},
+      history: state.messages.slice(-10)  // last 10 exchanges only
+    })
+  })
+  .then(r => r.json())
+  .then(j => {
+    if(!j || !j.ok){ pushBubble("ai","Network hiccup. Say that again."); return; }
+    if(j.updates && typeof j.updates === "object"){
+      state.data = Object.assign({}, state.data || {}, j.updates);
+    }
+    if(typeof j.stage === "number"){ setStage(j.stage); }
+    pushBubble("ai", j.reply || "Noted.");
+    cloudSave();
+  })
+  .catch(() => pushBubble("ai","Server nap. Try once more."));
 });
 </script>
-
-
 </body>
 </html>
