@@ -22,8 +22,7 @@
 
   --mag:#ff7bf1; --pink:#ff76b5; --sun:#ffb84d; --gold:#ffd86a; --lime:#8dff6a; --vio:#ae8bff; --scar:#ff6a6a;
 
-  --logo-x:50%;
-  --logo-y:52%;
+  --logo-x:50%; --logo-y:52%;
   --logo-scale:.95;
   --logo-speed:36s;
 }
@@ -49,7 +48,7 @@ body{
 }
 @keyframes bgHue{ to { filter:hue-rotate(360deg) saturate(145%) blur(.2px); } }
 
-/* ---------- Iridescent field (SATURATION -> 120%) ---------- */
+/* ---------- Iridescent field (SATURATION = 120%) ---------- */
 .fx{
   position:fixed; inset:0; z-index:-3; pointer-events:none;
 }
@@ -68,32 +67,12 @@ body{
   100%{ filter:hue-rotate(360deg) saturate(120%); transform:scale(1); }
 }
 
-/* ---------- NEW: Psychedelic 3D line illusion wallpaper ---------- */
-/* Transparent gradient stroke lines; two counter-rotating layers + slight skew to fake depth */
-.psy-wall{
+/* ---------- Color-reactive moiré wave overlay (60s per full cycle) ---------- */
+.wave-wall{
   position:fixed; inset:0; z-index:-2; pointer-events:none; opacity:.22;
-  mix-blend-mode:screen;
+  mix-blend-mode:overlay;
 }
-.psy-wall svg{ width:100%; height:100%; }
-
-/* global gradients for lines */
-.psy-wall .stroke-1{ stroke:url(#psyGrad); stroke-width:.5; fill:none; }
-.psy-wall .stroke-2{ stroke:url(#psyGradSoft); stroke-width:.4; fill:none; opacity:.7; }
-
-/* motion: ultra-slow rotation + parallax drift */
-.psy-outer, .psy-inner{
-  transform-origin:50% 50%;
-}
-.psy-outer{ animation:psyRotate 520s linear infinite, psyDrift 60s ease-in-out infinite; }
-.psy-inner{ animation:psyRotateRev 640s linear infinite, psyDrift 70s ease-in-out infinite; }
-
-@keyframes psyRotate{ to { transform:rotate(360deg) skewX(6deg) skewY(3deg); } }
-@keyframes psyRotateRev{ to { transform:rotate(-360deg) skewX(-6deg) skewY(-3deg); } }
-@keyframes psyDrift{
-  0%   { transform:translate(0,0); }
-  50%  { transform:translate(-1.2%, .8%); }
-  100% { transform:translate(0,0); }
-}
+.wave-wall canvas{ width:100%; height:100%; display:block; }
 
 /* ---------- Layout ---------- */
 .wrap{display:grid;grid-template-columns:440px 1fr;gap:24px;padding:24px;min-height:100dvh}
@@ -101,12 +80,10 @@ body{
 
 .card{
   position:relative;border-radius:24px;padding:18px;border:1px solid var(--ring);
-  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.06));
-  -webkit-backdrop-filter: blur(9px) saturate(100%);
-  backdrop-filter: blur(9px) saturate(100%);
-  box-shadow:
-    0 28px 70px rgba(0,0,0,.55),
-    0 2px 0 rgba(255,255,255,.06) inset;
+  background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.05));
+  -webkit-backdrop-filter: blur(7px) saturate(60%);
+  backdrop-filter: blur(7px) saturate(60%);
+  box-shadow:0 20px 50px rgba(0,0,0,.50);
 }
 
 /* ---------- Brand header ---------- */
@@ -115,11 +92,8 @@ body{
   height:148px;border-radius:24px;border:1px solid var(--ring);
   background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.05));
   overflow:hidden;position:relative;isolation:isolate;
-  -webkit-backdrop-filter: blur(9px) saturate(100%);
-  backdrop-filter: blur(9px) saturate(100%);
-  box-shadow:
-    0 22px 60px rgba(0,0,0,.55),
-    inset 0 0 0 1px rgba(255,255,255,.08);
+  -webkit-backdrop-filter: blur(7px) saturate(60%); backdrop-filter: blur(7px) saturate(60%);
+  box-shadow:0 22px 60px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.08)
 }
 .logo{
   position:absolute; left:var(--logo-x); top:var(--logo-y);
@@ -149,7 +123,7 @@ body{
 
 /* ---------- Roadmap ---------- */
 .road{margin-top:18px;border:1px solid var(--ring);border-radius:18px;padding:16px;background:rgba(255,255,255,.10);
-  -webkit-backdrop-filter: blur(10px) saturate(100%); backdrop-filter: blur(10px) saturate(100%);
+  -webkit-backdrop-filter: blur(7px) saturate(60%); backdrop-filter: blur(7px) saturate(60%);
   box-shadow:0 20px 55px rgba(0,0,0,.45);
 }
 .bar{height:12px;border-radius:999px;background:rgba(14,10,25,.6);border:1px solid var(--ring);overflow:hidden}
@@ -172,7 +146,7 @@ body{
 .drop{position:relative}
 .drop-menu{
   position:fixed;display:none;min-width:280px;max-height:60dvh;overflow:auto;
-  background:#0e0a1fe6;backdrop-filter:blur(10px);border:1px solid var(--ring);border-radius:16px;padding:8px;z-index:9999;
+  background:#0e0a1fe6;backdrop-filter:blur(7px) saturate(60%);border:1px solid var(--ring);border-radius:16px;padding:8px;z-index:9999;
   box-shadow:0 18px 50px rgba(0,0,0,.5);
 }
 .drop.open .drop-menu{display:block}
@@ -182,7 +156,7 @@ body{
 
 /* Demo CTA */
 .cta{margin-top:14px;padding:16px;border-radius:16px;border:1px solid var(--ring);background:linear-gradient(180deg,rgba(50,10,35,.92),rgba(45,15,40,.88));text-align:center;
-  -webkit-backdrop-filter: blur(12px) saturate(100%); backdrop-filter: blur(12px) saturate(100%);
+  -webkit-backdrop-filter: blur(7px) saturate(60%); backdrop-filter: blur(7px) saturate(60%);
   box-shadow:0 18px 55px rgba(0,0,0,.5);
 }
 .cta .big{width:100%;padding:14px 16px;border-radius:12px;font-size:18px;font-weight:900;background:linear-gradient(90deg,#ff7bf1,#ffd86a);color:#0b0c14;font-family:"TechfontItalica",system-ui}
@@ -196,15 +170,14 @@ body{
   padding:18px 18px 96px;
   background:linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.06));
   border:1px solid var(--ring);border-radius:24px;scroll-behavior:smooth; scrollbar-width:none;
-  -webkit-backdrop-filter: blur(9px) saturate(100%); backdrop-filter: blur(9px) saturate(100%);
+  -webkit-backdrop-filter: blur(7px) saturate(60%); backdrop-filter: blur(7px) saturate(60%);
   box-shadow:0 28px 70px rgba(0,0,0,.55);
 }
 .chat::-webkit-scrollbar{width:0;height:0}
 .bubble{
   position:relative;margin:14px 0;padding:14px 16px 14px 56px;border-radius:18px;border:1px solid var(--ring);
-  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.05));
-  -webkit-backdrop-filter: blur(10px) saturate(100%); backdrop-filter: blur(10px) saturate(100%);
-  box-shadow:0 18px 46px rgba(0,0,0,.45);
+  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.05));box-shadow:0 18px 46px rgba(0,0,0,.45);
+  -webkit-backdrop-filter: blur(7px) saturate(60%); backdrop-filter: blur(7px) saturate(60%);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   text-shadow:0 2px 8px rgba(0,0,0,.45);
 }
@@ -222,7 +195,7 @@ textarea{
   width:100%; min-height:54px; max-height:180px; resize:vertical; padding:14px 16px;
   color:var(--ink); background:#120d20; border:1px solid var(--ring); border-radius:16px;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important;
-  -webkit-backdrop-filter: blur(8px) saturate(100%); backdrop-filter: blur(8px) saturate(100%);
+  -webkit-backdrop-filter: blur(7px) saturate(60%); backdrop-filter: blur(7px) saturate(60%);
   box-shadow:0 12px 30px rgba(0,0,0,.45);
 }
 .send{height:54px;border-radius:16px;font-weight:900;background:linear-gradient(130deg,#ff7bf1,#ffd86a);color:#0b0c14;font-family:"TechfontItalica",system-ui;
@@ -237,11 +210,11 @@ textarea{
   position:relative; z-index:1; width:min(720px,92vw);
   background:linear-gradient(180deg,var(--glass1),var(--glass2));
   border:1px solid var(--ring); border-radius:20px; padding:16px;
-  -webkit-backdrop-filter: blur(14px) saturate(100%); backdrop-filter: blur(14px) saturate(100%);
+  -webkit-backdrop-filter: blur(7px) saturate(60%); backdrop-filter: blur(7px) saturate(60%);
   box-shadow:0 30px 80px rgba(0,0,0,.6);
 }
 .modlist .mod{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px; border:1px solid var(--ring); border-radius:14px; margin:10px 0;
-  -webkit-backdrop-filter: blur(10px) saturate(100%); backdrop-filter: blur(10px) saturate(100%);
+  -webkit-backdrop-filter: blur(7px) saturate(60%); backdrop-filter: blur(7px) saturate(60%);
   box-shadow:0 16px 42px rgba(0,0,0,.45);
 }
 .modlist .lock{ opacity:.6 }
@@ -249,7 +222,6 @@ textarea{
 /* Reduced motion safety */
 @media (prefers-reduced-motion: reduce){
   .logo{ animation:none }
-  .psy-outer,.psy-inner{ animation:none }
   .fx .field{ animation:none }
   .bg{ animation:none }
 }
@@ -258,48 +230,11 @@ textarea{
 <body>
 <div class="bg"></div>
 
-<!-- Iridescent field (kept; 120% saturation) -->
-<div class="fx" aria-hidden="true">
-  <div class="field"></div>
-</div>
+<!-- Iridescent field (120% saturation) -->
+<div class="fx" aria-hidden="true"><div class="field"></div></div>
 
-<!-- NEW psychedelic 3D line illusion wallpaper -->
-<div class="psy-wall" aria-hidden="true">
-  <svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice">
-    <defs>
-      <!-- brand gradients for strokes -->
-      <linearGradient id="psyGrad" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%"  stop-color="#ff7bf1"/>
-        <stop offset="50%" stop-color="#ffd86a"/>
-        <stop offset="100%" stop-color="#8dff6a"/>
-      </linearGradient>
-      <linearGradient id="psyGradSoft" x1="1" y1="0" x2="0" y2="1">
-        <stop offset="0%"  stop-color="#ff7bf1"/>
-        <stop offset="50%" stop-color="#ae8bff"/>
-        <stop offset="100%" stop-color="#ffd86a"/>
-      </linearGradient>
-    </defs>
-
-    <!-- OUTER: concentric “tunnel” rings (very thin) -->
-    <g class="psy-outer">
-      <!-- 80 rings, spaced to create depth; slight ellipse for 3D feel -->
-      <!-- generated as SVG, not JS, for perf -->
-      <!-- r goes 60..520 -->
-      <!-- stroke classes control gradient + weight -->
-      <g transform="translate(500,500) scale(1,0.86)">
-        <!-- rings -->
-        <!-- we hand-write a few, then repeat with varying class via a tiny script below (keeps HTML readable) -->
-        <!-- placeholder group; will be populated by script to keep your file single-piece -->
-        <g id="outerRings"></g>
-      </g>
-    </g>
-
-    <!-- INNER: flowing sinusoid lines crossing the tunnel (spiro-moíré vibe) -->
-    <g class="psy-inner">
-      <g id="flowLines"></g>
-    </g>
-  </svg>
-</div>
+<!-- Color-reactive moiré wave overlay -->
+<div class="wave-wall" aria-hidden="true"><canvas id="waveCanvas"></canvas></div>
 
 <div class="wrap">
 
@@ -403,45 +338,6 @@ const el = {
   wake:document.getElementById("wake")
 };
 
-/* ======= Build line-illusion SVG contents ======= */
-function buildPsyLines(){
-  // Outer concentric rings
-  const ringsGroup = document.getElementById('outerRings');
-  if(ringsGroup){
-    while(ringsGroup.firstChild) ringsGroup.removeChild(ringsGroup.firstChild);
-    for(let i=0;i<80;i++){
-      const r = 60 + i*6; // 60..~540
-      const c = document.createElementNS("http://www.w3.org/2000/svg","ellipse");
-      c.setAttribute("cx","0"); c.setAttribute("cy","0");
-      c.setAttribute("rx", String(r));
-      c.setAttribute("ry", String(r));
-      c.setAttribute("class", i%3===0 ? "stroke-1" : "stroke-2");
-      ringsGroup.appendChild(c);
-    }
-  }
-
-  // Flowing sine lines across the canvas (gives spiro/moiré feel)
-  const flow = document.getElementById('flowLines');
-  if(flow){
-    while(flow.firstChild) flow.removeChild(flow.firstChild);
-    const W=1000, H=1000, rows=18;
-    for(let r=0;r<rows;r++){
-      const p = document.createElementNS("http://www.w3.org/2000/svg","path");
-      const amp = 18 + r*1.2;
-      const freq = 0.014 + r*0.0006;
-      let d=`M 0 ${100 + r*40}`;
-      for(let x=0;x<=W;x+=12){
-        const y = 100 + r*40 + Math.sin(x*freq)*(amp);
-        d += ` L ${x} ${y.toFixed(2)}`;
-      }
-      p.setAttribute("d", d);
-      p.setAttribute("class", r%2===0 ? "stroke-2" : "stroke-1");
-      p.setAttribute("opacity", r<3? .35 : .22);
-      flow.appendChild(p);
-    }
-  }
-}
-
 /* ======= UI ======= */
 function setTier(t){
   state.tier=t; localStorage.setItem("fe_tier",t);
@@ -470,7 +366,7 @@ function pushBubble(who,text){
   requestAnimationFrame(autoscroll);
 }
 
-/* ======= Kebab placement ======= */
+/* ======= Kebab placement (clamped) ======= */
 function openKebab(){
   el.kebab.classList.add("open");
   const m = el.kebabMenu;
@@ -557,7 +453,7 @@ function greet(){
   `;
   const b=document.createElement("div");
   b.className="bubble"; b.dataset.greet="1";
-  b.innerHTML=`<div class="who">⚙️</div>${text}`;
+  b.innerHTML=\`<div class="who">⚙️</div>\${text}\`;
   el.chat.appendChild(b); requestAnimationFrame(autoscroll);
 }
 
@@ -573,17 +469,63 @@ function renderModules(){
   rows.forEach(r=>{
     const div=document.createElement("div");
     div.className="mod"+(r.locked?" lock":"");
-    div.innerHTML=`<div><b>${r.name}</b><br><span class="dim">${r.desc}</span></div>
-                   <div>${r.locked? "🔒" : "<button class='btn btn-ghost'>Enable</button>"}</div>`;
+    div.innerHTML=\`<div><b>\${r.name}</b><br><span class="dim">\${r.desc}</span></div>
+                   <div>\${r.locked? "🔒" : "<button class='btn btn-ghost'>Enable</button>"}</div>\`;
     el.modList.appendChild(div);
   });
 }
 
+/* ======= Animated color-reactive moiré lines (time-based 60s cycle) ======= */
+(function(){
+  const canvas=document.getElementById("waveCanvas");
+  if(!canvas) return;
+  const ctx=canvas.getContext("2d");
+
+  function resize(){ canvas.width = innerWidth; canvas.height = innerHeight; }
+  addEventListener("resize", resize, {passive:true}); resize();
+
+  let start = performance.now();
+  function frame(now){
+    const w=canvas.width, h=canvas.height;
+    const elapsed = (now - start) % 60000;             // 60,000 ms per cycle
+    const phase = (elapsed / 60000) * Math.PI * 2;     // 0..2π over 60s
+
+    ctx.clearRect(0,0,w,h);
+
+    const lines = 64;                                   // density
+    const ampBase = 12;                                 // base amplitude
+    const gradA = (phase*180/Math.PI*1.5)%360;          // slow hue shift
+    const gradB = (gradA + 180) % 360;
+
+    for(let i=0;i<lines;i++){
+      const y = (h/(lines+1))*(i+1);
+      const amp = ampBase * (0.6 + 0.4*Math.sin(phase + i*0.15));
+      const freq = 0.012 + i*0.0006;
+
+      ctx.beginPath();
+      for(let x=0;x<=w;x+=2){
+        const yoff = Math.sin((x*freq) + (i*0.25) + phase) * amp
+                   + Math.sin((x*freq*0.45) - phase*0.7) * (amp*0.35);
+        ctx.lineTo(x, y + yoff);
+      }
+
+      const g = ctx.createLinearGradient(0, 0, w, h);
+      // color-reactive: dark core with brand-ish tint
+      g.addColorStop(0,  `hsla(${(gradA + i*2)%360}, 65%, 42%, 0.85)`);
+      g.addColorStop(1,  `hsla(${(gradB + i*2)%360}, 70%, 46%, 0.85)`);
+      ctx.strokeStyle = g;
+      ctx.globalAlpha = 0.22;
+      ctx.lineWidth = 0.6;
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
 /* ======= Boot ======= */
 document.addEventListener("DOMContentLoaded", async ()=>{
-  // build the illusion lines
-  buildPsyLines();
-
   // kebab
   el.kebabBtn.addEventListener("click", (e)=>{
     e.stopPropagation(); if(el.kebab.classList.contains("open")) closeKebab(); else openKebab();
@@ -609,11 +551,11 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     el.chat.innerHTML=""; greet(); updateBar();
   });
 
-  // true reset
+  // true reset (wipe cloud first)
   el.reset.addEventListener("click", async ()=>{
     state.roadmap=1; state.messages=[]; state.greeted=false;
     el.chat.innerHTML="";
-    await cloudSaveNow();
+    await cloudSaveNow();        // persist blank
     greet(); updateBar();
   });
 
@@ -633,7 +575,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     inp.onchange=async()=>{ const f=inp.files[0]; if(!f) return;
       try{ const d=JSON.parse(await f.text());
         state.roadmap=Math.max(1,Math.min(5,Number(d.roadmap)||1));
-        state.messages=Array.isArray(d.messages)? d.messages.slice(-100):[];
+        state.messages=Array.isArray(d.messages)?d.messages.slice(-100):[];
         el.chat.innerHTML=""; state.messages.forEach(m=>pushBubble(m.who,m.text)); updateBar(); cloudSave();
       }catch{ alert("Bad snapshot file."); }
     }; inp.click();
@@ -644,7 +586,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   el.modClose.addEventListener("click", ()=> el.modModal.classList.remove("open"));
   el.modModal.addEventListener("click",(e)=>{ if(e.target===el.modModal) el.modModal.classList.remove("open"); });
 
-  // wake
+  // wake (debounced)
   el.wake.addEventListener("click", ()=>{
     const now=Date.now(); if(now-state.lastWake<2000) return; state.lastWake=now;
     pushBubble("ai","Engine’s awake. I’ve got caffeine and poor judgment. Where were we?");
