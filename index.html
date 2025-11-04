@@ -36,7 +36,7 @@ body{
   background:#0f0a1c;
 }
 
-/* ---------- BASE COLOR BACKGROUND (kept; a bit more vibrant, slightly faster) ---------- */
+/* ---------- BASE COLOR BACKGROUND (vibrant + a touch faster) ---------- */
 .bg{
   position:fixed; inset:0; z-index:-4;
   background:
@@ -45,11 +45,11 @@ body{
     radial-gradient(1000px 800px at 20% 85%, rgba(141,255,106,.24), transparent 65%),
     linear-gradient(180deg, #1b1032 0%, #2a184a 50%, #25143f 100%);
   filter:saturate(145%) blur(.2px);
-  animation:bgHue 140s linear infinite;   /* was 180s */
+  animation:bgHue 140s linear infinite;
 }
 @keyframes bgHue{ to { filter:hue-rotate(360deg) saturate(145%) blur(.2px); } }
 
-/* ---------- Iridescent field (kept; a touch faster) ---------- */
+/* ---------- Iridescent field (SATURATION -> 120%) ---------- */
 .fx{
   position:fixed; inset:0; z-index:-3; pointer-events:none;
 }
@@ -59,37 +59,41 @@ body{
     radial-gradient(640px 640px at 25% 30%, #ff7bf17a, transparent 60%),
     radial-gradient(820px 820px at 75% 70%, #8dff6a7a, transparent 65%),
     radial-gradient(720px 720px at 50% 50%, #ffd86a7a, transparent 55%);
-  filter:saturate(160%);
-  animation:iris 30s linear infinite;     /* was 36s */
+  filter:saturate(120%);
+  animation:iris 30s linear infinite;
 }
 @keyframes iris{
   0%{ filter:hue-rotate(0deg)  saturate(120%); transform:scale(1); }
-  50%{ filter:hue-rotate(120deg) saturate(120%); transform:scale(1.020); }
+  50%{ filter:hue-rotate(120deg) saturate(120%); transform:scale(1.012); }
   100%{ filter:hue-rotate(360deg) saturate(120%); transform:scale(1); }
 }
 
-/* ---------- NEW: Fibonacci (phyllotaxis) spiral wallpaper ---------- */
-.spiral-wall{
-  position:fixed; inset:0; z-index:-2; pointer-events:none; opacity:.22; /* subtle overlay */
+/* ---------- NEW: Psychedelic 3D line illusion wallpaper ---------- */
+/* Transparent gradient stroke lines; two counter-rotating layers + slight skew to fake depth */
+.psy-wall{
+  position:fixed; inset:0; z-index:-2; pointer-events:none; opacity:.22;
   mix-blend-mode:screen;
 }
-.spiral-wall svg{ width:150%; height:150%; }
+.psy-wall svg{ width:100%; height:100%; }
 
-/* group animations: ultra-slow spin + gentle breath */
-.spiral-spin{
-  transform-origin:50% 70%;
-  animation:spiralSpin 100s linear infinite, spiralBreath 16s ease-in-out infinite;
-}
-@keyframes spiralSpin{ to { transform:rotate(360deg); } }
-@keyframes spiralBreath{
-  0%{ transform:scale(1) }
-  50%{ transform:scale(1.2) }
-  100%{ transform:scale(1) }
-}
+/* global gradients for lines */
+.psy-wall .stroke-1{ stroke:url(#psyGrad); stroke-width:.5; fill:none; }
+.psy-wall .stroke-2{ stroke:url(#psyGradSoft); stroke-width:.4; fill:none; opacity:.7; }
 
-/* dot styling */
-.dot{ fill:none; stroke:url(#grad); stroke-width:1; }
-.dot.faint{ stroke-width:.65; opacity:.75; }
+/* motion: ultra-slow rotation + parallax drift */
+.psy-outer, .psy-inner{
+  transform-origin:50% 50%;
+}
+.psy-outer{ animation:psyRotate 520s linear infinite, psyDrift 60s ease-in-out infinite; }
+.psy-inner{ animation:psyRotateRev 640s linear infinite, psyDrift 70s ease-in-out infinite; }
+
+@keyframes psyRotate{ to { transform:rotate(360deg) skewX(6deg) skewY(3deg); } }
+@keyframes psyRotateRev{ to { transform:rotate(-360deg) skewX(-6deg) skewY(-3deg); } }
+@keyframes psyDrift{
+  0%   { transform:translate(0,0); }
+  50%  { transform:translate(-1.2%, .8%); }
+  100% { transform:translate(0,0); }
+}
 
 /* ---------- Layout ---------- */
 .wrap{display:grid;grid-template-columns:440px 1fr;gap:24px;padding:24px;min-height:100dvh}
@@ -97,17 +101,25 @@ body{
 
 .card{
   position:relative;border-radius:24px;padding:18px;border:1px solid var(--ring);
-  background:linear-gradient(180deg,var(--glass1),var(--glass2));
-  box-shadow:0 20px 60px rgba(0,0,0,.45);
+  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.06));
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+  backdrop-filter: blur(14px) saturate(120%);
+  box-shadow:
+    0 28px 70px rgba(0,0,0,.55),
+    0 2px 0 rgba(255,255,255,.06) inset;
 }
 
 /* ---------- Brand header ---------- */
 .brand{display:grid;grid-template-columns:148px 1fr;gap:18px;align-items:center;margin-bottom:16px}
 .logo-box{
   height:148px;border-radius:24px;border:1px solid var(--ring);
-  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.06));
+  background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.05));
   overflow:hidden;position:relative;isolation:isolate;
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 12px 40px rgba(0,0,0,.35)
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  backdrop-filter: blur(16px) saturate(120%);
+  box-shadow:
+    0 22px 60px rgba(0,0,0,.55),
+    inset 0 0 0 1px rgba(255,255,255,.08);
 }
 .logo{
   position:absolute; left:var(--logo-x); top:var(--logo-y);
@@ -116,27 +128,30 @@ body{
   transform:translate(-50%,-50%) scale(var(--logo-scale)) scaleY(-1);
   animation:spinIn var(--logo-speed) linear infinite reverse;
   filter:
-    drop-shadow(0 0 12px rgba(255,255,255,.22))
-    drop-shadow(0 0 18px rgba(255,123,241,.35))
-    drop-shadow(0 0 22px rgba(255,216,106,.28))
-    drop-shadow(0 0 26px rgba(141,255,106,.28))
-    drop-shadow(0 0 32px rgba(174,139,255,.25));
+    drop-shadow(0 0 12px rgba(255,255,255,.20))
+    drop-shadow(0 0 18px rgba(255,123,241,.32))
+    drop-shadow(0 0 22px rgba(255,216,106,.25))
+    drop-shadow(0 0 26px rgba(141,255,106,.25))
+    drop-shadow(0 0 32px rgba(174,139,255,.22));
 }
 @keyframes spinIn{to{transform:translate(-50%,-50%) scale(var(--logo-scale)) scaleY(-1) rotateZ(360deg)}}
 
 .titles h1{
   margin:0; line-height:1.02; letter-spacing:.4px;
   font-size:46px; font-weight:800;
-  text-shadow:0 2px 0 rgba(0,0,0,.28), 0 12px 30px rgba(0,0,0,.45);
+  text-shadow:0 3px 14px rgba(0,0,0,.55);
 }
 .titles .sub{
-  margin-top:6px;opacity:.92;font-weight:800;text-shadow:0 8px 20px rgba(0,0,0,.35);
+  margin-top:6px;opacity:.95;font-weight:800;text-shadow:0 3px 12px rgba(0,0,0,.5);
 }
 .badge{display:inline-block;margin-left:8px;padding:5px 10px;border-radius:999px;color:#0b0c14;font-weight:900;font-size:13px;background:linear-gradient(90deg,#ff7bf1,#ffd86a)}
 .badge.demo{background:linear-gradient(90deg,#ff6a6a,#ffd86a)}
 
 /* ---------- Roadmap ---------- */
-.road{margin-top:18px;border:1px solid var(--ring);border-radius:18px;padding:16px;background:rgba(255,255,255,.10)}
+.road{margin-top:18px;border:1px solid var(--ring);border-radius:18px;padding:16px;background:rgba(255,255,255,.10);
+  -webkit-backdrop-filter: blur(10px) saturate(120%); backdrop-filter: blur(10px) saturate(120%);
+  box-shadow:0 20px 55px rgba(0,0,0,.45);
+}
 .bar{height:12px;border-radius:999px;background:rgba(14,10,25,.6);border:1px solid var(--ring);overflow:hidden}
 .bar>span{display:block;height:100%;width:0%;transition:width .35s ease;background:linear-gradient(90deg,#ff7bf1,#ffb84d,#8dff6a,#ff6a6a)}
 .bar-legend{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:var(--ink-dim)}
@@ -147,7 +162,7 @@ body{
   appearance:none;border:none;cursor:pointer;font-weight:900;
   color:#0b0c14;background:linear-gradient(180deg,#fff,#e9eefc);
   border-radius:999px;padding:10px 14px;
-  box-shadow:0 8px 20px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.4);
+  box-shadow:0 10px 26px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.4);
   font-family:"TechfontItalica", system-ui, sans-serif;
 }
 .btn-ghost{background:rgba(255,255,255,.08);color:var(--ink);border:1px solid var(--ring)}
@@ -157,7 +172,8 @@ body{
 .drop{position:relative}
 .drop-menu{
   position:fixed;display:none;min-width:280px;max-height:60dvh;overflow:auto;
-  background:#0e0a1fe6;backdrop-filter:blur(10px);border:1px solid var(--ring);border-radius:16px;padding:8px;z-index:9999
+  background:#0e0a1fe6;backdrop-filter:blur(10px);border:1px solid var(--ring);border-radius:16px;padding:8px;z-index:9999;
+  box-shadow:0 18px 50px rgba(0,0,0,.5);
 }
 .drop.open .drop-menu{display:block}
 .drop-menu .item{padding:10px 12px;border-radius:10px;font-weight:800;color:var(--ink);font-family:"TechfontItalica",system-ui}
@@ -165,9 +181,12 @@ body{
 .drop-menu .danger{background:#ff5b5b1a;border:1px solid #ff5b5b45}
 
 /* Demo CTA */
-.cta{margin-top:14px;padding:16px;border-radius:16px;border:1px solid var(--ring);background:linear-gradient(180deg,rgba(50,10,35,.92),rgba(45,15,40,.88));text-align:center}
+.cta{margin-top:14px;padding:16px;border-radius:16px;border:1px solid var(--ring);background:linear-gradient(180deg,rgba(50,10,35,.92),rgba(45,15,40,.88));text-align:center;
+  -webkit-backdrop-filter: blur(12px) saturate(120%); backdrop-filter: blur(12px) saturate(120%);
+  box-shadow:0 18px 55px rgba(0,0,0,.5);
+}
 .cta .big{width:100%;padding:14px 16px;border-radius:12px;font-size:18px;font-weight:900;background:linear-gradient(90deg,#ff7bf1,#ffd86a);color:#0b0c14;font-family:"TechfontItalica",system-ui}
-.cta small{display:block;margin-top:8px;color:var(--ink-dim)}
+.cta small{display:block;margin-top:8px;color:var(--ink-dim);text-shadow:0 2px 10px rgba(0,0,0,.5)}
 
 /* ---------- Chat ---------- */
 .chat-col{position:relative; height:calc(100dvh - 48px); display:flex; flex-direction:column;}
@@ -177,15 +196,21 @@ body{
   padding:18px 18px 96px;
   background:linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.06));
   border:1px solid var(--ring);border-radius:24px;scroll-behavior:smooth; scrollbar-width:none;
+  -webkit-backdrop-filter: blur(14px) saturate(120%); backdrop-filter: blur(14px) saturate(120%);
+  box-shadow:0 28px 70px rgba(0,0,0,.55);
 }
 .chat::-webkit-scrollbar{width:0;height:0}
 .bubble{
   position:relative;margin:14px 0;padding:14px 16px 14px 56px;border-radius:18px;border:1px solid var(--ring);
-  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.05));box-shadow:0 10px 30px rgba(0,0,0,.25);
+  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.05));
+  -webkit-backdrop-filter: blur(10px) saturate(120%); backdrop-filter: blur(10px) saturate(120%);
+  box-shadow:0 18px 46px rgba(0,0,0,.45);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  text-shadow:0 2px 8px rgba(0,0,0,.45);
 }
 .bubble .who{
-  position:absolute;left:12px;top:12px;width:32px;height:32px;display:grid;place-items:center;border-radius:10px;background:#0e0a1fe6;border:1px solid var(--ring)
+  position:absolute;left:12px;top:12px;width:32px;height:32px;display:grid;place-items:center;border-radius:10px;background:#0e0a1fe6;border:1px solid var(--ring);
+  box-shadow:0 8px 18px rgba(0,0,0,.45);
 }
 
 /* Composer */
@@ -197,8 +222,12 @@ textarea{
   width:100%; min-height:54px; max-height:180px; resize:vertical; padding:14px 16px;
   color:var(--ink); background:#120d20; border:1px solid var(--ring); border-radius:16px;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important;
+  -webkit-backdrop-filter: blur(8px) saturate(120%); backdrop-filter: blur(8px) saturate(120%);
+  box-shadow:0 12px 30px rgba(0,0,0,.45);
 }
-.send{height:54px;border-radius:16px;font-weight:900;background:linear-gradient(130deg,#ff7bf1,#ffd86a);color:#0b0c14;font-family:"TechfontItalica",system-ui}
+.send{height:54px;border-radius:16px;font-weight:900;background:linear-gradient(130deg,#ff7bf1,#ffd86a);color:#0b0c14;font-family:"TechfontItalica",system-ui;
+  box-shadow:0 12px 28px rgba(0,0,0,.45);
+}
 
 /* ---------- Modal (Modules) ---------- */
 .modal{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:10000; }
@@ -208,15 +237,19 @@ textarea{
   position:relative; z-index:1; width:min(720px,92vw);
   background:linear-gradient(180deg,var(--glass1),var(--glass2));
   border:1px solid var(--ring); border-radius:20px; padding:16px;
-  box-shadow:0 30px 80px rgba(0,0,0,.55);
+  -webkit-backdrop-filter: blur(14px) saturate(120%); backdrop-filter: blur(14px) saturate(120%);
+  box-shadow:0 30px 80px rgba(0,0,0,.6);
 }
-.modlist .mod{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px; border:1px solid var(--ring); border-radius:14px; margin:10px 0; }
+.modlist .mod{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px; border:1px solid var(--ring); border-radius:14px; margin:10px 0;
+  -webkit-backdrop-filter: blur(10px) saturate(120%); backdrop-filter: blur(10px) saturate(120%);
+  box-shadow:0 16px 42px rgba(0,0,0,.45);
+}
 .modlist .lock{ opacity:.6 }
 
 /* Reduced motion safety */
 @media (prefers-reduced-motion: reduce){
   .logo{ animation:none }
-  .spiral-spin{ animation:none }
+  .psy-outer,.psy-inner{ animation:none }
   .fx .field{ animation:none }
   .bg{ animation:none }
 }
@@ -225,20 +258,46 @@ textarea{
 <body>
 <div class="bg"></div>
 
-<!-- Iridescent field (kept) -->
+<!-- Iridescent field (kept; 120% saturation) -->
 <div class="fx" aria-hidden="true">
   <div class="field"></div>
 </div>
 
-<!-- Fibonacci spiral wallpaper -->
-<div class="spiral-wall" aria-hidden="true">
+<!-- NEW psychedelic 3D line illusion wallpaper -->
+<div class="psy-wall" aria-hidden="true">
   <svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice">
     <defs>
-      <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%"  stop-color="#ff7bf1"/><stop offset="50%" stop-color="#ffd86a"/><stop offset="100%" stop-color="#8dff6a"/>
+      <!-- brand gradients for strokes -->
+      <linearGradient id="psyGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%"  stop-color="#ff7bf1"/>
+        <stop offset="50%" stop-color="#ffd86a"/>
+        <stop offset="100%" stop-color="#8dff6a"/>
+      </linearGradient>
+      <linearGradient id="psyGradSoft" x1="1" y1="0" x2="0" y2="1">
+        <stop offset="0%"  stop-color="#ff7bf1"/>
+        <stop offset="50%" stop-color="#ae8bff"/>
+        <stop offset="100%" stop-color="#ffd86a"/>
       </linearGradient>
     </defs>
-    <g id="spiralGroup" class="spiral-spin"></g>
+
+    <!-- OUTER: concentric “tunnel” rings (very thin) -->
+    <g class="psy-outer">
+      <!-- 80 rings, spaced to create depth; slight ellipse for 3D feel -->
+      <!-- generated as SVG, not JS, for perf -->
+      <!-- r goes 60..520 -->
+      <!-- stroke classes control gradient + weight -->
+      <g transform="translate(500,500) scale(1,0.86)">
+        <!-- rings -->
+        <!-- we hand-write a few, then repeat with varying class via a tiny script below (keeps HTML readable) -->
+        <!-- placeholder group; will be populated by script to keep your file single-piece -->
+        <g id="outerRings"></g>
+      </g>
+    </g>
+
+    <!-- INNER: flowing sinusoid lines crossing the tunnel (spiro-moíré vibe) -->
+    <g class="psy-inner">
+      <g id="flowLines"></g>
+    </g>
   </svg>
 </div>
 
@@ -344,6 +403,45 @@ const el = {
   wake:document.getElementById("wake")
 };
 
+/* ======= Build line-illusion SVG contents ======= */
+function buildPsyLines(){
+  // Outer concentric rings
+  const ringsGroup = document.getElementById('outerRings');
+  if(ringsGroup){
+    while(ringsGroup.firstChild) ringsGroup.removeChild(ringsGroup.firstChild);
+    for(let i=0;i<80;i++){
+      const r = 60 + i*6; // 60..~540
+      const c = document.createElementNS("http://www.w3.org/2000/svg","ellipse");
+      c.setAttribute("cx","0"); c.setAttribute("cy","0");
+      c.setAttribute("rx", String(r));
+      c.setAttribute("ry", String(r));
+      c.setAttribute("class", i%3===0 ? "stroke-1" : "stroke-2");
+      ringsGroup.appendChild(c);
+    }
+  }
+
+  // Flowing sine lines across the canvas (gives spiro/moiré feel)
+  const flow = document.getElementById('flowLines');
+  if(flow){
+    while(flow.firstChild) flow.removeChild(flow.firstChild);
+    const W=1000, H=1000, rows=18;
+    for(let r=0;r<rows;r++){
+      const p = document.createElementNS("http://www.w3.org/2000/svg","path");
+      const amp = 18 + r*1.2;
+      const freq = 0.014 + r*0.0006;
+      let d=`M 0 ${100 + r*40}`;
+      for(let x=0;x<=W;x+=12){
+        const y = 100 + r*40 + Math.sin(x*freq)*(amp);
+        d += ` L ${x} ${y.toFixed(2)}`;
+      }
+      p.setAttribute("d", d);
+      p.setAttribute("class", r%2===0 ? "stroke-2" : "stroke-1");
+      p.setAttribute("opacity", r<3? .35 : .22);
+      flow.appendChild(p);
+    }
+  }
+}
+
 /* ======= UI ======= */
 function setTier(t){
   state.tier=t; localStorage.setItem("fe_tier",t);
@@ -416,7 +514,7 @@ async function cloudLoad(){
   return false;
 }
 
-/* ======= Conversational flow (minimal, unchanged) ======= */
+/* ======= Conversational flow (unchanged) ======= */
 function normalize(t=""){ return t.trim().toLowerCase(); }
 function aiReply(userText){
   const t = normalize(userText);
@@ -481,47 +579,16 @@ function renderModules(){
   });
 }
 
-/* ======= Build Fibonacci Spiral Wallpaper ======= */
-function buildPhyllo(){
-  const svgGroup = document.getElementById('spiralGroup');
-  if(!svgGroup) return;
-
-  const total = 900;              // number of dots (tuned for perf/looks)
-  const golden = Math.PI * (3 - Math.sqrt(5)); // ~2.399963 (golden angle in radians)
-  const c = 0.9;                  // radial scale factor
-  const center = 500;             // SVG viewBox center (1000x1000)
-
-  // Clear if rerun
-  while(svgGroup.firstChild) svgGroup.removeChild(svgGroup.firstChild);
-
-  for(let i=0;i<total;i++){
-    const r = c * Math.sqrt(i) * 14;        // radius grows with sqrt(i)
-    const theta = i * golden;
-    const x = center + r * Math.cos(theta);
-    const y = center + r * Math.sin(theta);
-
-    const circle = document.createElementNS("http://www.w3.org/2000/svg","circle");
-    circle.setAttribute("cx", x.toFixed(2));
-    circle.setAttribute("cy", y.toFixed(2));
-    // alternate dot sizes for texture
-    const rad = (i % 7 === 0) ? 1.25 : 0.9;
-    circle.setAttribute("r", rad);
-    circle.setAttribute("class", (i % 9 === 0) ? "dot" : "dot faint");
-    svgGroup.appendChild(circle);
-  }
-}
-
 /* ======= Boot ======= */
 document.addEventListener("DOMContentLoaded", async ()=>{
-  // build spiral once DOM is ready
-  buildPhyllo();
+  // build the illusion lines
+  buildPsyLines();
 
   // kebab
   el.kebabBtn.addEventListener("click", (e)=>{
     e.stopPropagation(); if(el.kebab.classList.contains("open")) closeKebab(); else openKebab();
   });
   window.addEventListener("resize", ()=>{ if(el.kebab.classList.contains("open")) openKebab(); });
-
   document.addEventListener("click", (e)=>{ if(!el.kebab.contains(e.target)) closeKebab(); });
 
   // demo/premium
@@ -566,7 +633,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     inp.onchange=async()=>{ const f=inp.files[0]; if(!f) return;
       try{ const d=JSON.parse(await f.text());
         state.roadmap=Math.max(1,Math.min(5,Number(d.roadmap)||1));
-        state.messages=Array.isArray(d.messages)?d.messages.slice(-100):[];
+        state.messages=Array.isArray(d.messages)? d.messages.slice(-100):[];
         el.chat.innerHTML=""; state.messages.forEach(m=>pushBubble(m.who,m.text)); updateBar(); cloudSave();
       }catch{ alert("Bad snapshot file."); }
     }; inp.click();
