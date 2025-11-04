@@ -63,9 +63,9 @@ body{
   animation:iris 30s linear infinite;     /* was 36s */
 }
 @keyframes iris{
-  0%{ filter:hue-rotate(0deg)  saturate(160%); transform:scale(1); }
-  50%{ filter:hue-rotate(120deg) saturate(160%); transform:scale(1.012); }
-  100%{ filter:hue-rotate(360deg) saturate(160%); transform:scale(1); }
+  0%{ filter:hue-rotate(0deg)  saturate(120%); transform:scale(1); }
+  50%{ filter:hue-rotate(120deg) saturate(120%); transform:scale(1.020); }
+  100%{ filter:hue-rotate(360deg) saturate(120%); transform:scale(1); }
 }
 
 /* ---------- NEW: Fibonacci (phyllotaxis) spiral wallpaper ---------- */
@@ -73,12 +73,12 @@ body{
   position:fixed; inset:0; z-index:-2; pointer-events:none; opacity:.22; /* subtle overlay */
   mix-blend-mode:screen;
 }
-.spiral-wall svg{ width:100%; height:100%; }
+.spiral-wall svg{ width:150%; height:150%; }
 
 /* group animations: ultra-slow spin + gentle breath */
 .spiral-spin{
-  transform-origin:50% 50%;
-  animation:spiralSpin 100s linear infinite, spiralBreath 10s ease-in-out infinite;
+  transform-origin:50% 70%;
+  animation:spiralSpin 100s linear infinite, spiralBreath 16s ease-in-out infinite;
 }
 @keyframes spiralSpin{ to { transform:rotate(360deg); } }
 @keyframes spiralBreath{
