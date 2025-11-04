@@ -5,7 +5,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>The Freedom Engine — Personal AI Trainer</title>
-<!-- BUILD_ID: ZFIX-FE-INDEX-20251104-0828-52 FE-INDEX-20251104-0811-27 -->
+<!-- BUILD_ID: DIAG-20251104-0833-27 ZFIX-FE-INDEX-20251104-0828-52 FE-INDEX-20251104-0811-27 -->
 <style>
 @font-face{
   font-family:"TechfontItalica";
@@ -56,10 +56,7 @@ body{
 }
 
 /* Moiré SVG overlay (JS-free) */
-.wave-wall{
-  position:fixed; inset:0; z-index:2; pointer-events:none; opacity:.4;
-  mix-blend-mode:overlay;
-}
+.wave-wall{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.95;}
 .wave-wall svg{width:100%;height:100%;display:block}
 
 /* Layout & Frost (reduced) */
@@ -190,47 +187,34 @@ textarea{
 <div class="bg"></div>
 <div class="fx" aria-hidden="true"><div class="field"></div></div>
 
-<!-- Reactive moiré wave overlay (SVG-only) -->
+<!-- DIAG overlay (high contrast) -->
 <div class="wave-wall" aria-hidden="true">
   <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
-    <defs>
-      <linearGradient id="waveGrad" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%"  stop-color="#111"/>
-        <stop offset="50%" stop-color="#5d4a9f"/>
-        <stop offset="75%" stop-color="#8bbf56"/>
-        <stop offset="100%" stop-color="#e3b24f"/>
-      </linearGradient>
-      <path id="wPath" d="M0 0
-        C 12 25, -12 50, 0 75
-        C -12 100, 12 125, 0 150
-        C 12 175, -12 200, 0 225
-        C -12 250, 12 275, 0 300
-        C 12 325, -12 350, 0 375
-        C -12 400, 12 425, 0 450
-        C 12 475, -12 500, 0 525
-        C -12 550, 12 575, 0 600
-        C 12 625, -12 650, 0 675
-        C -12 700, 12 725, 0 800" />
-    </defs>
-    <!-- Layer A (left drift) -->
-    <g fill="none" stroke="url(#waveGrad)" stroke-width="0.6" stroke-linecap="round" opacity="0.24">
-      <g id="A">
-        <use href="#wPath" x="-200"/><use href="#wPath" x="-160"/><use href="#wPath" x="-120"/><use href="#wPath" x="-80"/><use href="#wPath" x="-40"/><use href="#wPath" x="0"/><use href="#wPath" x="40"/><use href="#wPath" x="80"/><use href="#wPath" x="120"/><use href="#wPath" x="160"/><use href="#wPath" x="200"/><use href="#wPath" x="240"/><use href="#wPath" x="280"/><use href="#wPath" x="320"/><use href="#wPath" x="360"/><use href="#wPath" x="400"/><use href="#wPath" x="440"/><use href="#wPath" x="480"/><use href="#wPath" x="520"/><use href="#wPath" x="560"/><use href="#wPath" x="600"/><use href="#wPath" x="640"/><use href="#wPath" x="680"/><use href="#wPath" x="720"/><use href="#wPath" x="760"/><use href="#wPath" x="800"/><use href="#wPath" x="840"/><use href="#wPath" x="880"/><use href="#wPath" x="920"/><use href="#wPath" x="960"/><use href="#wPath" x="1000"/><use href="#wPath" x="1040"/><use href="#wPath" x="1080"/><use href="#wPath" x="1120"/><use href="#wPath" x="1160"/><use href="#wPath" x="1200"/><use href="#wPath" x="1240"/><use href="#wPath" x="1280"/><use href="#wPath" x="1320"/><use href="#wPath" x="1360"/>
-      </g>
-      <animateTransform attributeName="transform" type="translate"
-        from="0 0" to="-100 0" dur="60s" repeatCount="indefinite"/>
+    <rect width="1200" height="800" fill="none"/>
+    <g fill="none" stroke="#000" stroke-width="2" opacity="0.85">
+      <!-- Big concentric arcs -->
+      <circle cx="600" cy="400" r="120"/>
+      <circle cx="600" cy="400" r="220"/>
+      <circle cx="600" cy="400" r="320"/>
+      <circle cx="600" cy="400" r="420"/>
+      <circle cx="600" cy="400" r="520"/>
     </g>
-    <!-- Layer B (right drift) -->
-    <g fill="none" stroke="url(#waveGrad)" stroke-width="0.6" stroke-linecap="round" opacity="0.24">
-      <g id="B" transform="translate(20,0)">
-        <use href="#wPath" x="-200"/><use href="#wPath" x="-160"/><use href="#wPath" x="-120"/><use href="#wPath" x="-80"/><use href="#wPath" x="-40"/><use href="#wPath" x="0"/><use href="#wPath" x="40"/><use href="#wPath" x="80"/><use href="#wPath" x="120"/><use href="#wPath" x="160"/><use href="#wPath" x="200"/><use href="#wPath" x="240"/><use href="#wPath" x="280"/><use href="#wPath" x="320"/><use href="#wPath" x="360"/><use href="#wPath" x="400"/><use href="#wPath" x="440"/><use href="#wPath" x="480"/><use href="#wPath" x="520"/><use href="#wPath" x="560"/><use href="#wPath" x="600"/><use href="#wPath" x="640"/><use href="#wPath" x="680"/><use href="#wPath" x="720"/><use href="#wPath" x="760"/><use href="#wPath" x="800"/><use href="#wPath" x="840"/><use href="#wPath" x="880"/><use href="#wPath" x="920"/><use href="#wPath" x="960"/><use href="#wPath" x="1000"/><use href="#wPath" x="1040"/><use href="#wPath" x="1080"/><use href="#wPath" x="1120"/><use href="#wPath" x="1160"/><use href="#wPath" x="1200"/><use href="#wPath" x="1240"/><use href="#wPath" x="1280"/><use href="#wPath" x="1320"/><use href="#wPath" x="1360"/>
-      </g>
-      <animateTransform attributeName="transform" type="translate"
-        from="0 0" to="100 0" dur="60s" repeatCount="indefinite"/>
+    <g fill="none" stroke="#000" stroke-width="2" opacity="0.7">
+      <!-- Logarithmic-ish spiral approximation -->
+      <path d="M600,400
+               m 0,-10
+               c 60,-10 110,40 120,100
+               c 15,90 -60,160 -150,160
+               c -110,0 -200,-90 -200,-200
+               c 0,-140 120,-240 260,-220" />
+    </g>
+    <g stroke="#000" stroke-width="1" opacity="0.5">
+      <!-- Crosshair -->
+      <line x1="0" y1="400" x2="1200" y2="400"/>
+      <line x1="600" y1="0" x2="600" y2="800"/>
     </g>
   </svg>
 </div>
-
 <div class="wrap">
   <section class="card" id="left">
     <div class="brand">
