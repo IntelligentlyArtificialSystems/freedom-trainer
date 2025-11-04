@@ -17,14 +17,12 @@
 :root{
   --ink:#f7f8ff; --ink-dim:#cfd4ff;
   --ring:rgba(255,255,255,.22);
-  --glass1:rgba(255,255,255,.14);
-  --glass2:rgba(255,255,255,.08);
+  --glass1:rgba(255,255,255,.10);   /* ↓ was .14 */
+  --glass2:rgba(255,255,255,.04);   /* ↓ was .08 */
 
-  --mag:#ff7bf1; --pink:#ff76b5; --sun:#ffb84d; --gold:#ffd86a; --lime:#8dff6a; --vio:#ae8bff; --scar:#ff6a6a;
+  --mag:#ff7bf1; --sun:#ffb84d; --lime:#8dff6a; --vio:#ae8bff;
 
-  --logo-x:50%; --logo-y:52%;
-  --logo-scale:.95;
-  --logo-speed:36s;
+  --logo-x:50%; --logo-y:52%; --logo-scale:.95; --logo-speed:36s;
 }
 
 *{box-sizing:border-box}
@@ -35,20 +33,20 @@ body{
   background:#0f0a1c;
 }
 
-/* ---------- BASE COLOR BACKGROUND (vibrant + a touch faster) ---------- */
+/* ---------- BASE COLOR BACKGROUND ---------- */
 .bg{
   position:fixed; inset:0; z-index:-4;
   background:
     radial-gradient(1200px 700px at 15% 15%, rgba(255,123,241,.34), transparent 60%),
     radial-gradient(1200px 900px at 85% 10%, rgba(255,184,77,.30), transparent 65%),
     radial-gradient(1000px 800px at 20% 85%, rgba(141,255,106,.24), transparent 65%),
-    linear-gradient(180deg, #1b1032 0%, #2a184a 50%, #25143f 100%);
+    linear-gradient(180deg,#1b1032 0%,#2a184a 50%,#25143f 100%);
   filter:saturate(145%) blur(.2px);
   animation:bgHue 140s linear infinite;
 }
-@keyframes bgHue{ to { filter:hue-rotate(360deg) saturate(145%) blur(.2px); } }
+@keyframes bgHue{to{filter:hue-rotate(360deg) saturate(145%) blur(.2px);}}
 
-/* ---------- Iridescent field (SATURATION = 120%) ---------- */
+/* ---------- Iridescent layer (120%) ---------- */
 .fx{
   position:fixed; inset:0; z-index:-3; pointer-events:none;
 }
@@ -62,17 +60,27 @@ body{
   animation:iris 30s linear infinite;
 }
 @keyframes iris{
-  0%{ filter:hue-rotate(0deg)  saturate(120%); transform:scale(1); }
-  50%{ filter:hue-rotate(120deg) saturate(120%); transform:scale(1.012); }
-  100%{ filter:hue-rotate(360deg) saturate(120%); transform:scale(1); }
+  0%{filter:hue-rotate(0deg) saturate(120%)}
+  50%{filter:hue-rotate(120deg) saturate(120%)}
+  100%{filter:hue-rotate(360deg) saturate(120%)}
 }
 
-/* ---------- Color-reactive moiré wave overlay (60s per full cycle) ---------- */
+/* ---------- NEW: Color-reactive moiré SVG (60s full cycle) ---------- */
 .wave-wall{
-  position:fixed; inset:0; z-index:-2; pointer-events:none; opacity:.22;
+  position:fixed; inset:0; z-index:-2; pointer-events:none; opacity:.24;
   mix-blend-mode:overlay;
 }
-.wave-wall canvas{ width:100%; height:100%; display:block; }
+.wave-wall svg{width:100%;height:100%;display:block}
+.wave-wall .layer{transform-origin:50% 50%;}
+.wave-wall .layer.a{animation:rollA 60s linear infinite;}
+.wave-wall .layer.b{animation:rollB 60s linear infinite;}
+@keyframes rollA{from{transform:translateX(0)}to{transform:translateX(-100px)}}
+@keyframes rollB{from{transform:translateX(0)}to{transform:translateX(100px)}}
+.wave-wall .stroke{
+  fill:none; stroke-width:.6; stroke-linecap:round; stroke-linejoin:round;
+  /* black core + reactive tint */
+  stroke:url(#waveGrad);
+}
 
 /* ---------- Layout ---------- */
 .wrap{display:grid;grid-template-columns:440px 1fr;gap:24px;padding:24px;min-height:100dvh}
@@ -80,17 +88,17 @@ body{
 
 .card{
   position:relative;border-radius:24px;padding:18px;border:1px solid var(--ring);
-  background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.05));
+  background:linear-gradient(180deg,var(--glass1),var(--glass2));
   -webkit-backdrop-filter: blur(7px) saturate(60%);
   backdrop-filter: blur(7px) saturate(60%);
-  box-shadow:0 20px 50px rgba(0,0,0,.50);
+  box-shadow:0 20px 48px rgba(0,0,0,.5);
 }
 
 /* ---------- Brand header ---------- */
 .brand{display:grid;grid-template-columns:148px 1fr;gap:18px;align-items:center;margin-bottom:16px}
 .logo-box{
   height:148px;border-radius:24px;border:1px solid var(--ring);
-  background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.05));
+  background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.04));
   overflow:hidden;position:relative;isolation:isolate;
   -webkit-backdrop-filter: blur(7px) saturate(60%); backdrop-filter: blur(7px) saturate(60%);
   box-shadow:0 22px 60px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.08)
@@ -102,27 +110,21 @@ body{
   transform:translate(-50%,-50%) scale(var(--logo-scale)) scaleY(-1);
   animation:spinIn var(--logo-speed) linear infinite reverse;
   filter:
-    drop-shadow(0 0 12px rgba(255,255,255,.20))
-    drop-shadow(0 0 18px rgba(255,123,241,.32))
-    drop-shadow(0 0 22px rgba(255,216,106,.25))
-    drop-shadow(0 0 26px rgba(141,255,106,.25))
-    drop-shadow(0 0 32px rgba(174,139,255,.22));
+    drop-shadow(0 0 12px rgba(255,255,255,.18))
+    drop-shadow(0 0 18px rgba(255,123,241,.30))
+    drop-shadow(0 0 22px rgba(255,216,106,.22))
+    drop-shadow(0 0 26px rgba(141,255,106,.22))
+    drop-shadow(0 0 32px rgba(174,139,255,.20));
 }
 @keyframes spinIn{to{transform:translate(-50%,-50%) scale(var(--logo-scale)) scaleY(-1) rotateZ(360deg)}}
 
-.titles h1{
-  margin:0; line-height:1.02; letter-spacing:.4px;
-  font-size:46px; font-weight:800;
-  text-shadow:0 3px 14px rgba(0,0,0,.55);
-}
-.titles .sub{
-  margin-top:6px;opacity:.95;font-weight:800;text-shadow:0 3px 12px rgba(0,0,0,.5);
-}
+.titles h1{margin:0; line-height:1.02; letter-spacing:.4px; font-size:46px; font-weight:800; text-shadow:0 3px 14px rgba(0,0,0,.55)}
+.titles .sub{margin-top:6px;opacity:.95;font-weight:800;text-shadow:0 3px 12px rgba(0,0,0,.5)}
 .badge{display:inline-block;margin-left:8px;padding:5px 10px;border-radius:999px;color:#0b0c14;font-weight:900;font-size:13px;background:linear-gradient(90deg,#ff7bf1,#ffd86a)}
 .badge.demo{background:linear-gradient(90deg,#ff6a6a,#ffd86a)}
 
 /* ---------- Roadmap ---------- */
-.road{margin-top:18px;border:1px solid var(--ring);border-radius:18px;padding:16px;background:rgba(255,255,255,.10);
+.road{margin-top:18px;border:1px solid var(--ring);border-radius:18px;padding:16px;background:rgba(255,255,255,.08);
   -webkit-backdrop-filter: blur(7px) saturate(60%); backdrop-filter: blur(7px) saturate(60%);
   box-shadow:0 20px 55px rgba(0,0,0,.45);
 }
@@ -131,7 +133,7 @@ body{
 .bar-legend{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:var(--ink-dim)}
 .row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
 
-/* Buttons keep brand font */
+/* Buttons */
 .btn{
   appearance:none;border:none;cursor:pointer;font-weight:900;
   color:#0b0c14;background:linear-gradient(180deg,#fff,#e9eefc);
@@ -139,7 +141,7 @@ body{
   box-shadow:0 10px 26px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.4);
   font-family:"TechfontItalica", system-ui, sans-serif;
 }
-.btn-ghost{background:rgba(255,255,255,.08);color:var(--ink);border:1px solid var(--ring)}
+.btn-ghost{background:rgba(255,255,255,.06);color:var(--ink);border:1px solid var(--ring)}
 .btn:active{transform:translateY(1px)}
 
 /* Kebab */
@@ -166,9 +168,8 @@ body{
 .chat-col{position:relative; height:calc(100dvh - 48px); display:flex; flex-direction:column;}
 @media(max-width:980px){ .chat-col{ height:calc(100dvh - 48px); } }
 .chat{
-  flex:1; min-height:0; overflow:auto;
-  padding:18px 18px 96px;
-  background:linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.06));
+  flex:1; min-height:0; overflow:auto; padding:18px 18px 96px;
+  background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.04));
   border:1px solid var(--ring);border-radius:24px;scroll-behavior:smooth; scrollbar-width:none;
   -webkit-backdrop-filter: blur(7px) saturate(60%); backdrop-filter: blur(7px) saturate(60%);
   box-shadow:0 28px 70px rgba(0,0,0,.55);
@@ -176,8 +177,9 @@ body{
 .chat::-webkit-scrollbar{width:0;height:0}
 .bubble{
   position:relative;margin:14px 0;padding:14px 16px 14px 56px;border-radius:18px;border:1px solid var(--ring);
-  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.05));box-shadow:0 18px 46px rgba(0,0,0,.45);
+  background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.04));
   -webkit-backdrop-filter: blur(7px) saturate(60%); backdrop-filter: blur(7px) saturate(60%);
+  box-shadow:0 18px 46px rgba(0,0,0,.45);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   text-shadow:0 2px 8px rgba(0,0,0,.45);
 }
@@ -219,22 +221,49 @@ textarea{
 }
 .modlist .lock{ opacity:.6 }
 
-/* Reduced motion safety */
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce){
-  .logo{ animation:none }
-  .fx .field{ animation:none }
-  .bg{ animation:none }
+  .logo,.wave-wall .layer{ animation:none }
+  .fx .field,.bg{ animation:none }
 }
 </style>
 </head>
 <body>
 <div class="bg"></div>
-
-<!-- Iridescent field (120% saturation) -->
 <div class="fx" aria-hidden="true"><div class="field"></div></div>
 
-<!-- Color-reactive moiré wave overlay -->
-<div class="wave-wall" aria-hidden="true"><canvas id="waveCanvas"></canvas></div>
+<!-- Reactive moiré wave overlay (SVG; no JS errors) -->
+<div class="wave-wall" aria-hidden="true">
+  <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <linearGradient id="waveGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%"  stop-color="#111"/>
+        <stop offset="50%" stop-color="#5d4a9f"/>
+        <stop offset="75%" stop-color="#8bbf56"/>
+        <stop offset="100%" stop-color="#e3b24f"/>
+      </linearGradient>
+    </defs>
+
+    <!-- Layer A: left drift -->
+    <g class="layer a" transform="translate(-200,0)">
+      <!-- vertical sine-like lines -->
+      <!-- 40 lines -->
+      <!-- generated inline for compatibility -->
+      <!-- x step 40 -->
+      <!-- path formula approximated sine with cubic beziers -->
+      <!-- We draw from x=-200..1400, y 0..800 -->
+      <!-- prettier omitted for brevity -->
+      <g id="linesA">
+        <!-- JS fills these to keep file clean -->
+      </g>
+    </g>
+
+    <!-- Layer B: right drift -->
+    <g class="layer b" transform="translate(200,0)">
+      <g id="linesB"></g>
+    </g>
+  </svg>
+</div>
 
 <div class="wrap">
 
@@ -302,6 +331,32 @@ textarea{
 </div>
 
 <script>
+/* ===== Build SVG lines so the overlay is guaranteed ===== */
+(function buildLines(){
+  const make = (id, phase) => {
+    const g = document.getElementById(id);
+    if(!g) return;
+    for(let i=-200;i<=1400;i+=40){
+      const p = document.createElementNS("http://www.w3.org/2000/svg","path");
+      let d = `M ${i} 0`;
+      const seg = 50; const amp = 18;
+      for(let s=1;s<=seg;s++){
+        const x = i;
+        const y = (800/seg)*s;
+        const k = Math.sin((y/120)+(i*0.01)+phase)*amp;
+        // cubic bezier step to emulate sine “wiggle”
+        d += ` C ${x+k} ${y-8}, ${x-k} ${y-4}, ${x} ${y}`;
+      }
+      p.setAttribute("d", d);
+      p.setAttribute("class","stroke");
+      p.setAttribute("opacity","0.9");
+      g.appendChild(p);
+    }
+  };
+  make("linesA", 0.0);
+  make("linesB", Math.PI/3);
+})();
+
 /* ======= Config / State ======= */
 const WORKER_BASE = "https://freedom-engine-worker.intelligentlyartificialsystems.workers.dev";
 const STAGES = 5;
@@ -352,8 +407,8 @@ function setTier(t){
 }
 function updateBar(){
   const pct = Math.max(1,Math.min(STAGES,state.roadmap))/STAGES*100;
-  el.bar.style.width = pct+"%";
-  el.barText.textContent = `${Math.max(1,state.roadmap)}/${STAGES}`;
+  if(el.bar){ el.bar.style.width = pct+"%"; }
+  if(el.barText){ el.barText.textContent = `${Math.max(1,state.roadmap)}/${STAGES}`; }
 }
 function autoscroll(){ el.chat.scrollTop = el.chat.scrollHeight; }
 function pushBubble(who,text){
@@ -385,7 +440,7 @@ function openKebab(){
 function closeKebab(){ el.kebab.classList.remove("open"); el.kebabMenu.style.display="none"; }
 
 /* ======= Cloud (D1) ======= */
-async function cloudSaveNow(){
+async function cloudSave(){
   if(state.tier!=="premium" || !state.license) return;
   const payload = { roadmap:state.roadmap, messages:state.messages };
   try{
@@ -393,7 +448,6 @@ async function cloudSaveNow(){
       body:JSON.stringify({license_key:state.license,data:JSON.stringify(payload)})});
   }catch(e){}
 }
-async function cloudSave(){ return cloudSaveNow(); }
 async function cloudLoad(){
   if(state.tier!=="premium" || !state.license) return false;
   try{
@@ -414,7 +468,6 @@ async function cloudLoad(){
 function normalize(t=""){ return t.trim().toLowerCase(); }
 function aiReply(userText){
   const t = normalize(userText);
-
   if(!t){ pushBubble("ai","Give me a crumb or say <em>help me choose</em>."); return; }
   if(/(help me choose|idk|no clue|stuck)/.test(t)){
     pushBubble("ai",
@@ -475,57 +528,12 @@ function renderModules(){
   });
 }
 
-/* ======= Animated color-reactive moiré lines (time-based 60s cycle) ======= */
-(function(){
-  const canvas=document.getElementById("waveCanvas");
-  if(!canvas) return;
-  const ctx=canvas.getContext("2d");
-
-  function resize(){ canvas.width = innerWidth; canvas.height = innerHeight; }
-  addEventListener("resize", resize, {passive:true}); resize();
-
-  let start = performance.now();
-  function frame(now){
-    const w=canvas.width, h=canvas.height;
-    const elapsed = (now - start) % 60000;             // 60,000 ms per cycle
-    const phase = (elapsed / 60000) * Math.PI * 2;     // 0..2π over 60s
-
-    ctx.clearRect(0,0,w,h);
-
-    const lines = 64;                                   // density
-    const ampBase = 12;                                 // base amplitude
-    const gradA = (phase*180/Math.PI*1.5)%360;          // slow hue shift
-    const gradB = (gradA + 180) % 360;
-
-    for(let i=0;i<lines;i++){
-      const y = (h/(lines+1))*(i+1);
-      const amp = ampBase * (0.6 + 0.4*Math.sin(phase + i*0.15));
-      const freq = 0.012 + i*0.0006;
-
-      ctx.beginPath();
-      for(let x=0;x<=w;x+=2){
-        const yoff = Math.sin((x*freq) + (i*0.25) + phase) * amp
-                   + Math.sin((x*freq*0.45) - phase*0.7) * (amp*0.35);
-        ctx.lineTo(x, y + yoff);
-      }
-
-      const g = ctx.createLinearGradient(0, 0, w, h);
-      // color-reactive: dark core with brand-ish tint
-      g.addColorStop(0,  `hsla(${(gradA + i*2)%360}, 65%, 42%, 0.85)`);
-      g.addColorStop(1,  `hsla(${(gradB + i*2)%360}, 70%, 46%, 0.85)`);
-      ctx.strokeStyle = g;
-      ctx.globalAlpha = 0.22;
-      ctx.lineWidth = 0.6;
-      ctx.stroke();
-    }
-    ctx.globalAlpha = 1;
-    requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
-})();
-
 /* ======= Boot ======= */
 document.addEventListener("DOMContentLoaded", async ()=>{
+  // PRE-INIT: set tier + initial bar so you always see fill
+  setTier(state.tier);
+  updateBar();
+
   // kebab
   el.kebabBtn.addEventListener("click", (e)=>{
     e.stopPropagation(); if(el.kebab.classList.contains("open")) closeKebab(); else openKebab();
@@ -540,8 +548,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   el.enterKey.addEventListener("click", async ()=>{
     const key=prompt("Enter license key:"); if(!key) return;
     state.license=key.trim(); localStorage.setItem("fe_license",state.license);
-    setTier("premium");
-    const ok = await cloudLoad();
+    setTier("premium"); const ok = await cloudLoad();
     if(!ok){ el.chat.innerHTML=""; greet(); }
     updateBar();
   });
@@ -551,12 +558,9 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     el.chat.innerHTML=""; greet(); updateBar();
   });
 
-  // true reset (wipe cloud first)
   el.reset.addEventListener("click", async ()=>{
     state.roadmap=1; state.messages=[]; state.greeted=false;
-    el.chat.innerHTML="";
-    await cloudSaveNow();        // persist blank
-    greet(); updateBar();
+    el.chat.innerHTML=""; await cloudSave(); greet(); updateBar();
   });
 
   // export / snapshots
@@ -586,7 +590,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   el.modClose.addEventListener("click", ()=> el.modModal.classList.remove("open"));
   el.modModal.addEventListener("click",(e)=>{ if(e.target===el.modModal) el.modModal.classList.remove("open"); });
 
-  // wake (debounced)
+  // wake
   el.wake.addEventListener("click", ()=>{
     const now=Date.now(); if(now-state.lastWake<2000) return; state.lastWake=now;
     pushBubble("ai","Engine’s awake. I’ve got caffeine and poor judgment. Where were we?");
@@ -597,12 +601,10 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   el.send.addEventListener("click", send);
   el.input.addEventListener("keydown", e=>{ if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}});
 
-  // init
-  setTier(state.tier);
+  // greet
   let loaded=false;
   if(state.tier==="premium" && state.license){ loaded=await cloudLoad(); }
   if(!loaded || state.messages.length===0) greet();
-  updateBar();
   autoscroll();
 });
 </script>
