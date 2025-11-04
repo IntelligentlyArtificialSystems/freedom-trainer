@@ -59,7 +59,7 @@ body.is-premium .prem-geo{ display:block; }
 
 /* Premium: NEW iridescent wallpaper under everything */
 .prem-geo-bg{
-  position:fixed; inset:-10%; z-index:-3; pointer-events:none; display:none; opacity:.07; filter:saturate(140%);
+  position:fixed; inset:-10%; z-index:-3; pointer-events:none; display:none; opacity:.12; filter:saturate(140%);
 }
 body.is-premium .prem-geo-bg{ display:block; }
 .prem-geo-bg .field{
@@ -188,9 +188,18 @@ body.is-premium .prem-geo-bg{ display:block; }
   display:grid;grid-template-columns:1fr 110px;gap:10px;align-items:end;
   padding-top:10px;
 }
-textarea{width:100%;min-height:54px;max-height:180px;resize:vertical;padding:14px 16px;color:var(--ink);background:#120d20;border:1px solid var(--ring);border-radius:16px;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif !important}
-.send{height:54px;border-radius:16px;font-weight:900;background:linear-gradient(130deg,#ff7bf1,#ffd86a);color:#0b0c14;font-family:"TechfontItalica",system-ui}
+textarea{
+  width:100%;
+  min-height:54px;
+  max-height:180px;
+  resize:vertical;
+  padding:14px 16px;
+  color:var(--ink);
+  background:#120d20;
+  border:1px solid var(--ring);
+  border-radius:16px;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important;
+}
 
 /* ---------- Modal (Modules) ---------- */
 .modal{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:10000; }
@@ -629,10 +638,16 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     state.license=""; state.messages=[]; state.greeted=false; state.flow=null;
     el.chat.innerHTML=""; greet(); updateBar();
   });
-  el.reset.addEventListener("click", ()=>{
-    state.messages=[]; state.greeted=false; state.flow=null;
-    el.chat.innerHTML=""; greet(); updateBar(); cloudSave();
-  });
+  el.reset.el.reset.addEventListener("click", async ()=>{
+  state.messages = [];
+  state.greeted = false;
+  state.flow = null;
+  el.chat.innerHTML = "";
+  updateBar();
+  // force cloud write NOW (no debounce) so reload can't pull old data
+  await cloudSaveNow();
+  greet();
+});
 
   // export / snapshots
   document.getElementById("exportBtn").addEventListener("click", ()=>{
@@ -689,6 +704,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
 
   // init
   setTier(state.tier);
+  if(state.license){ document.body.classList.add("is-premium"); }
   let loaded=false;
   if(state.tier==="premium" && state.license){ loaded=await cloudLoad(); }
   if(!loaded || !state.messages.length) greet();
