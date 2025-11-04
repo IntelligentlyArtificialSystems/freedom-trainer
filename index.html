@@ -36,52 +36,60 @@ body{
   background:#0f0a1c;
 }
 
-/* ---------- Base background with subtle hue drift (UNCHANGED) ---------- */
+/* ---------- BASE COLOR BACKGROUND (kept; a bit more vibrant, slightly faster) ---------- */
 .bg{
   position:fixed; inset:0; z-index:-4;
   background:
-    radial-gradient(1200px 700px at 15% 15%, rgba(255,123,241,.32), transparent 60%),
-    radial-gradient(1200px 900px at 85% 10%, rgba(255,184,77,.28), transparent 65%),
-    radial-gradient(1000px 800px at 20% 85%, rgba(141,255,106,.22), transparent 65%),
+    radial-gradient(1200px 700px at 15% 15%, rgba(255,123,241,.34), transparent 60%),
+    radial-gradient(1200px 900px at 85% 10%, rgba(255,184,77,.30), transparent 65%),
+    radial-gradient(1000px 800px at 20% 85%, rgba(141,255,106,.24), transparent 65%),
     linear-gradient(180deg, #1b1032 0%, #2a184a 50%, #25143f 100%);
-  filter:saturate(125%) blur(.2px);
-  animation:bgHue 180s linear infinite;
+  filter:saturate(145%) blur(.2px);
+  animation:bgHue 140s linear infinite;   /* was 180s */
 }
-@keyframes bgHue{
-  to { filter:hue-rotate(360deg) saturate(125%) blur(.2px); }
-}
+@keyframes bgHue{ to { filter:hue-rotate(360deg) saturate(145%) blur(.2px); } }
 
-/* ---------- Unified FX layer (NEW sacred geometry wallpaper) ---------- */
+/* ---------- Iridescent field (kept; a touch faster) ---------- */
 .fx{
   position:fixed; inset:0; z-index:-3; pointer-events:none;
 }
-
-/* The color glow layer — kept subtle to not change your palette */
 .fx .field{
   position:absolute; inset:-10%;
   background:
-    radial-gradient(640px 640px at 25% 30%, #ff7bf11f, transparent 60%),
-    radial-gradient(820px 820px at 75% 70%, #8dff6a1f, transparent 65%),
-    radial-gradient(720px 720px at 50% 50%, #ffd86a1f, transparent 55%);
-  filter:saturate(140%);
-  animation:iris 36s linear infinite;
+    radial-gradient(640px 640px at 25% 30%, #ff7bf17a, transparent 60%),
+    radial-gradient(820px 820px at 75% 70%, #8dff6a7a, transparent 65%),
+    radial-gradient(720px 720px at 50% 50%, #ffd86a7a, transparent 55%);
+  filter:saturate(160%);
+  animation:iris 30s linear infinite;     /* was 36s */
 }
 @keyframes iris{
-  0%{ filter:hue-rotate(0deg) saturate(140%); transform:scale(1); }
-  50%{ filter:hue-rotate(120deg) saturate(140%); transform:scale(1.01); }
-  100%{ filter:hue-rotate(360deg) saturate(140%); transform:scale(1); }
+  0%{ filter:hue-rotate(0deg)  saturate(160%); transform:scale(1); }
+  50%{ filter:hue-rotate(120deg) saturate(160%); transform:scale(1.012); }
+  100%{ filter:hue-rotate(360deg) saturate(160%); transform:scale(1); }
 }
 
-/* Sacred geometry wallpaper SVG */
-.fx svg{ position:absolute; inset:0; width:100%; height:100%; opacity:.16; }
+/* ---------- NEW: Fibonacci (phyllotaxis) spiral wallpaper ---------- */
+.spiral-wall{
+  position:fixed; inset:0; z-index:-2; pointer-events:none; opacity:.22; /* subtle overlay */
+  mix-blend-mode:screen;
+}
+.spiral-wall svg{ width:100%; height:100%; }
 
-/* Slow drift + rotation on the tiled wallpaper group (subtle) */
-.wallpaper{
+/* group animations: ultra-slow spin + gentle breath */
+.spiral-spin{
   transform-origin:50% 50%;
-  animation:wallSpin 240s linear infinite, wallDrift 120s ease-in-out infinite alternate;
+  animation:spiralSpin 420s linear infinite, spiralBreath 16s ease-in-out infinite;
 }
-@keyframes wallSpin  { to { transform:rotate(360deg); } }
-@keyframes wallDrift { 0%{ transform: translate(0,0); } 50%{ transform: translate(1.2%, -1.2%);} 100%{ transform: translate(0,0);} }
+@keyframes spiralSpin{ to { transform:rotate(360deg); } }
+@keyframes spiralBreath{
+  0%{ transform:scale(1) }
+  50%{ transform:scale(1.008) }
+  100%{ transform:scale(1) }
+}
+
+/* dot styling */
+.dot{ fill:none; stroke:url(#grad); stroke-width:.6; }
+.dot.faint{ stroke-width:.4; opacity:.65; }
 
 /* ---------- Layout ---------- */
 .wrap{display:grid;grid-template-columns:440px 1fr;gap:24px;padding:24px;min-height:100dvh}
@@ -208,8 +216,8 @@ textarea{
 /* Reduced motion safety */
 @media (prefers-reduced-motion: reduce){
   .logo{ animation:none }
+  .spiral-spin{ animation:none }
   .fx .field{ animation:none }
-  .wallpaper{ animation:none }
   .bg{ animation:none }
 }
 </style>
@@ -217,65 +225,20 @@ textarea{
 <body>
 <div class="bg"></div>
 
-<!-- Unified FX layer: subtle iridescent wallpaper + sacred geometry wallpaper -->
+<!-- Iridescent field (kept) -->
 <div class="fx" aria-hidden="true">
   <div class="field"></div>
+</div>
 
-  <!-- Sacred geometry tiling (flower-of-life pattern) -->
-  <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+<!-- Fibonacci spiral wallpaper -->
+<div class="spiral-wall" aria-hidden="true">
+  <svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice">
     <defs>
-      <!-- multicolor stroke -->
-      <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
         <stop offset="0%"  stop-color="#ff7bf1"/><stop offset="50%" stop-color="#ffd86a"/><stop offset="100%" stop-color="#8dff6a"/>
       </linearGradient>
-
-      <!-- flower-of-life tile -->
-      <pattern id="flower" x="0" y="0" width="64" height="64" patternUnits="userSpaceOnUse">
-        <g fill="none" stroke="url(#g)" stroke-width="0.5" stroke-opacity="0.7">
-          <!-- central + ring of 6 (radius 16 at a hex grid) -->
-          <circle cx="32" cy="32" r="16"/>
-          <circle cx="32" cy="16" r="16"/>
-          <circle cx="32" cy="48" r="16"/>
-          <circle cx="16" cy="32" r="16"/>
-          <circle cx="48" cy="32" r="16"/>
-          <circle cx="20.6" cy="20.6" r="16"/>
-          <circle cx="43.4" cy="43.4" r="16"/>
-
-          <!-- faint outer lattice lines for a more “fractal” feel -->
-          <circle cx="16" cy="16" r="16" stroke-opacity="0.35"/>
-          <circle cx="48" cy="16" r="16" stroke-opacity="0.35"/>
-          <circle cx="16" cy="48" r="16" stroke-opacity="0.35"/>
-          <circle cx="48" cy="48" r="16" stroke-opacity="0.35"/>
-        </g>
-
-        <!-- slow rotation on the pattern itself -->
-        <animateTransform attributeName="patternTransform"
-          type="rotate" from="0 32 32" to="360 32 32"
-          dur="240s" repeatCount="indefinite"/>
-      </pattern>
-
-      <!-- a second layer at a different scale for parallax depth -->
-      <pattern id="flowerFine" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-        <g fill="none" stroke="url(#g)" stroke-width="0.35" stroke-opacity="0.45">
-          <circle cx="20" cy="20" r="10"/>
-          <circle cx="20" cy="10" r="10"/>
-          <circle cx="20" cy="30" r="10"/>
-          <circle cx="10" cy="20" r="10"/>
-          <circle cx="30" cy="20" r="10"/>
-          <circle cx="12.7" cy="12.7" r="10"/>
-          <circle cx="27.3" cy="27.3" r="10"/>
-        </g>
-        <animateTransform attributeName="patternTransform"
-          type="rotate" from="360 20 20" to="0 20 20"
-          dur="300s" repeatCount="indefinite"/>
-      </pattern>
     </defs>
-
-    <!-- two rects, different tile sizes, blended -->
-    <g class="wallpaper" opacity="1">
-      <rect x="-50" y="-50" width="200" height="200" fill="url(#flower)" />
-      <rect x="-50" y="-50" width="200" height="200" fill="url(#flowerFine)" opacity=".75"/>
-    </g>
+    <g id="spiralGroup" class="spiral-spin"></g>
   </svg>
 </div>
 
@@ -409,7 +372,7 @@ function pushBubble(who,text){
   requestAnimationFrame(autoscroll);
 }
 
-/* ======= Kebab placement (clamped to viewport) ======= */
+/* ======= Kebab placement ======= */
 function openKebab(){
   el.kebab.classList.add("open");
   const m = el.kebabMenu;
@@ -453,7 +416,7 @@ async function cloudLoad(){
   return false;
 }
 
-/* ======= Conversational flow (minimal) ======= */
+/* ======= Conversational flow (minimal, unchanged) ======= */
 function normalize(t=""){ return t.trim().toLowerCase(); }
 function aiReply(userText){
   const t = normalize(userText);
@@ -518,13 +481,47 @@ function renderModules(){
   });
 }
 
+/* ======= Build Fibonacci Spiral Wallpaper ======= */
+function buildPhyllo(){
+  const svgGroup = document.getElementById('spiralGroup');
+  if(!svgGroup) return;
+
+  const total = 900;              // number of dots (tuned for perf/looks)
+  const golden = Math.PI * (3 - Math.sqrt(5)); // ~2.399963 (golden angle in radians)
+  const c = 0.9;                  // radial scale factor
+  const center = 500;             // SVG viewBox center (1000x1000)
+
+  // Clear if rerun
+  while(svgGroup.firstChild) svgGroup.removeChild(svgGroup.firstChild);
+
+  for(let i=0;i<total;i++){
+    const r = c * Math.sqrt(i) * 14;        // radius grows with sqrt(i)
+    const theta = i * golden;
+    const x = center + r * Math.cos(theta);
+    const y = center + r * Math.sin(theta);
+
+    const circle = document.createElementNS("http://www.w3.org/2000/svg","circle");
+    circle.setAttribute("cx", x.toFixed(2));
+    circle.setAttribute("cy", y.toFixed(2));
+    // alternate dot sizes for texture
+    const rad = (i % 7 === 0) ? 1.25 : 0.9;
+    circle.setAttribute("r", rad);
+    circle.setAttribute("class", (i % 9 === 0) ? "dot" : "dot faint");
+    svgGroup.appendChild(circle);
+  }
+}
+
 /* ======= Boot ======= */
 document.addEventListener("DOMContentLoaded", async ()=>{
+  // build spiral once DOM is ready
+  buildPhyllo();
+
   // kebab
   el.kebabBtn.addEventListener("click", (e)=>{
     e.stopPropagation(); if(el.kebab.classList.contains("open")) closeKebab(); else openKebab();
   });
   window.addEventListener("resize", ()=>{ if(el.kebab.classList.contains("open")) openKebab(); });
+
   document.addEventListener("click", (e)=>{ if(!el.kebab.contains(e.target)) closeKebab(); });
 
   // demo/premium
@@ -545,11 +542,11 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     el.chat.innerHTML=""; greet(); updateBar();
   });
 
-  // true reset (no ghost history)
+  // true reset
   el.reset.addEventListener("click", async ()=>{
     state.roadmap=1; state.messages=[]; state.greeted=false;
     el.chat.innerHTML="";
-    await cloudSaveNow();        // write blank immediately
+    await cloudSaveNow();
     greet(); updateBar();
   });
 
@@ -580,7 +577,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   el.modClose.addEventListener("click", ()=> el.modModal.classList.remove("open"));
   el.modModal.addEventListener("click",(e)=>{ if(e.target===el.modModal) el.modModal.classList.remove("open"); });
 
-  // wake (debounced)
+  // wake
   el.wake.addEventListener("click", ()=>{
     const now=Date.now(); if(now-state.lastWake<2000) return; state.lastWake=now;
     pushBubble("ai","Engine’s awake. I’ve got caffeine and poor judgment. Where were we?");
