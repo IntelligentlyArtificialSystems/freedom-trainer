@@ -53,14 +53,29 @@ body{
 }
 body.is-premium .prem-geo{ display:block; }
 .prem-geo svg{ width:100%; height:100%; }
-.prem-geo .spin path{ transform-origin:50% 50%; animation:geoSpin 60s linear infinite; }
-@keyframes geoSpin{ to{ transform:rotate(360deg) } }
+/* Move each sacred-geometry shape */
+.prem-geo .spin *{
+  transform-origin:50% 50%;
+  transform-box: fill-box;            /* cross-browser */
+}
+.prem-geo .spin > circle:nth-of-type(1){ animation:geoSpin 50s linear infinite; }
+.prem-geo .spin > circle:nth-of-type(2){ animation:geoSpinRev 80s linear infinite; }
+.prem-geo .spin > path{                 animation:geoSpin 60s linear infinite; }
+.prem-geo .spin > g circle:nth-of-type(1){ animation:geoSpin 70s linear infinite; }
+.prem-geo .spin > g circle:nth-of-type(2){ animation:geoSpinRev 90s linear infinite; }
+.prem-geo .spin > g circle:nth-of-type(3){ animation:geoSpin 110s linear infinite; }
+
+@keyframes geoSpin    { to{ transform:rotate(360deg) } }
+@keyframes geoSpinRev { to{ transform:rotate(-360deg) } }
+
 
 /* Premium: iridescent wallpaper under everything */
+/* Always mounted; fade in for premium so it can't "disappear" */
 .prem-geo-bg{
-  position:fixed; inset:-10%; z-index:-3; pointer-events:none; display:none; opacity:.12; filter:saturate(140%);
+  position:fixed; inset:-10%; z-index:-3; pointer-events:none;
+  display:block; opacity:0; filter:saturate(140%); transition:opacity .35s ease;
 }
-body.is-premium .prem-geo-bg{ display:block; }
+body.is-premium .prem-geo-bg{ opacity:.15; }   /* bump for visibility */
 .prem-geo-bg .field{
   width:100%; height:100%;
   background:
@@ -176,10 +191,12 @@ body.is-premium .prem-geo-bg{ display:block; }
   position:relative;margin:14px 0;padding:14px 16px 14px 56px;border-radius:18px;border:1px solid var(--ring);
   background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.05));box-shadow:0 10px 30px rgba(0,0,0,.25)
 }
-.bubble .who{
-  position:absolute;left:12px;top:12px;width:32px;height:32px;display:grid;place-items:center;border-radius:10px;
-  background:#0e0a1fe6;border:1px solid var(--ring)
+.bubble{
+  position:relative;margin:14px 0;padding:14px 16px 14px 56px;border-radius:18px;border:1px solid var(--ring);
+  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.05));box-shadow:0 10px 30px rgba(0,0,0,.25);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;   /* default font in chat bubbles */
 }
+
 
 /* Composer is ANCHORED */
 .composer{
