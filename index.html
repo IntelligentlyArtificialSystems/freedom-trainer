@@ -446,7 +446,30 @@ async function verifyLicense(key){
   }
 }
 
+  
 // FE_WIT: adaptive, witty, deterministic 5-module flow
+  // FE_WIT: tiny NLU + quips
+const R = a => a[Math.floor(Math.random()*a.length)];
+const QUIPS = {
+  greet: ["Let’s make rent, not art.","Freedom through systems, not heroics.","Small offer, big exhale."],
+  nudge: ["Keep it tight.","One sentence. No TED talk.","Brevity buys groceries."],
+  ok: ["Locked.","Done.","Solid."],
+  poke: ["Try 1–5 or say 'help me choose'.","Numbers beat novels here.","Don’t overthink it."],
+  stall: ["I can work with crumbs.","Give me anything to chew on.","Throw me a bone, I’ll cook it."]
+};
+function detectIntent(t){
+  t=t.trim();
+  if(!t) return "empty";
+  if(/^(help|help me choose|stuck|idk|no clue)\b/i.test(t)) return "help";
+  if(/^\s*[1-5]\s*$/.test(t)) return "pick";
+  if(/^(ok|okay|looks good|accept)\b/i.test(t)) return "accept";
+  if(/^(done|shipped|posted)\b/i.test(t)) return "done";
+  if(/^reset\b/i.test(t)) return "reset";
+  return "text";
+}
+// personality mirroring (very light)
+function vibe(t){ return /\b(fuck|shit|hell)\b/i.test(t) ? "spicy" : "plain"; }
+
 function aiReply(userText){
   const t = userText || "";
   const mode = vibe(t);
