@@ -6,7 +6,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>The Freedom Engine — Personal AI Trainer</title>
-<!-- BUILD_ID: FOL4B-20251104-0907-02 -->
+<!-- BUILD_ID: MENTOR-20251104-0931-52 -->
 <style>
 
 :root{
@@ -319,26 +319,121 @@ textarea{
   </div>
 </div>
 
+
 <script>
-// Expose build id for tracking
-window.FE_BUILD = "ZFIX-FE-INDEX-20251104-0811-27";
-console.log("Freedom Engine build:", window.FE_BUILD);
-
-/* Fail-soft: don't let visual errors kill app */
-window.addEventListener('error', (e)=>{ try{ const chat=document.getElementById('chat'); if(chat){ const b=document.createElement('div'); b.className='bubble'; b.innerHTML='<div class="who">⚙️</div><em>Visual failed safely.</em>'; chat.appendChild(b);} }catch(_){}} , {once:true});
-
-/* Config / State */
+/* ======= Config / State ======= */
 const WORKER_BASE = "https://freedom-engine-worker.intelligentlyartificialsystems.workers.dev";
-const STAGES = 5;
-const state = { tier: localStorage.getItem("fe_tier") || "demo", license: localStorage.getItem("fe_license") || "", roadmap: 1, messages: [], greeted:false, lastWake:0 };
-const el = { bar:document.getElementById("bar"), barText:document.getElementById("barText"), chat:document.getElementById("chat"), input:document.getElementById("input"), send:document.getElementById("sendBtn"),
-  kebab:document.getElementById("kebab"), kebabBtn:document.getElementById("kebabBtn"), kebabMenu:document.getElementById("kebabMenu"), demoCTA:document.getElementById("demoCTA"),
-  tierBadge:document.getElementById("tierBadge"), enterKey:document.getElementById("enterKey"), buy:document.getElementById("buy"), ctaBuy:document.getElementById("ctaBuy"),
-  switchMode:document.getElementById("switchMode"), reset:document.getElementById("reset"), saveSnap:document.getElementById("saveSnap"), loadSnap:document.getElementById("loadSnap"),
-  modulesBtn:document.getElementById("modulesBtn"), modModal:document.getElementById("modModal"), modList:document.getElementById("modList"), modClose:document.getElementById("modClose"), wake:document.getElementById("wake") };
+const STAGES = 5; // modules
 
-/* UI */
-function setTier(t){ state.tier=t; localStorage.setItem("fe_tier",t); const isDemo = t==="demo";
+const state = {
+  tier: localStorage.getItem("fe_tier") || "demo",
+  license: localStorage.getItem("fe_license") || "",
+  stage: Number(localStorage.getItem("fe_stage") || 1),     // 1..5 modules completed (current)
+  messages: [],
+  greeted:false,
+  lastWake:0,
+  data: { lane:"", offer:"", avatar:"", channel:"", price:"" }
+};
+
+const el = {
+  bar:document.getElementById("bar"),
+  barText:document.getElementById("barText"),
+  chat:document.getElementById("chat"),
+  input:document.getElementById("input"),
+  send:document.getElementById("sendBtn"),
+  kebab:document.getElementById("kebab"),
+  kebabBtn:document.getElementById("kebabBtn"),
+  kebabMenu:document.getElementById("kebabMenu"),
+  demoCTA:document.getElementById("demoCTA"),
+  tierBadge:document.getElementById("tierBadge"),
+  enterKey:document.getElementById("enterKey"),
+  buy:document.getElementById("buy"),
+  ctaBuy:document.getElementById("ctaBuy"),
+  switchMode:document.getElementById("switchMode"),
+  reset:document.getElementById("reset"),
+  saveSnap:document.getElementById("saveSnap"),
+  loadSnap:document.getElementById("loadSnap"),
+  modulesBtn:document.getElementById("modulesBtn"),
+  modModal:document.getElementById("modModal"),
+  modList:document.getElementById("modList"),
+  modClose:document.getElementById("modClose"),
+  wake:document.getElementById("wake")
+};
+
+/* ======= Helpers ======= */
+function setStage(n){
+  const next = Math.max(1, Math.min(STAGES, Number(n)||1));
+  state.stage = next;
+  localStorage.setItem("fe_stage", String(state.stage));
+  updateBar();
+}
+function completeModule(){
+  // Gate demo at stage 2
+  if(state.tier === "demo" && state.stage >= 2){
+    showGate();
+    return;
+  }
+  setStage(state.stage + 1);
+  cloudSave();
+}
+function showGate(){
+  pushBubble("ai", `That unlocks in <b>Premium</b>. Your progress will cloud-save to your license. <button class='btn' id='bNow'>Unlock $29</button>`);
+  setTimeout(()=>{ document.getElementById('bNow')?.addEventListener('click',()=>window.open('https://intellartsystems.gumroad.com/l/the-freedom-engine','_blank')); },0);
+}
+function updateBar(){
+  const pct = Math.max(1,Math.min(STAGES,state.stage))/STAGES*100;
+  el.bar.style.width = pct+"%";
+  el.barText.textContent = `${Math.max(1,state.stage)}/${STAGES}`;
+}
+function autoscroll(){ el.chat.scrollTop = el.chat.scrollHeight; }
+function pushBubble(who,text){
+  if(!text)return;
+  const b=document.createElement("div");
+  b.className="bubble";
+  b.innerHTML=`<div class="who">${who==="user"?"💬":"⚙️"}</div>${text}`;
+  el.chat.appendChild(b);
+  state.messages.push({who,text});
+  requestAnimationFrame(autoscroll);
+}
+function nudge(html){ pushBubble("ai", html); }
+
+/* ======= Cloud (D1) & License ======= */
+async function verifyLicense(key){
+  try{
+    const r = await fetch(WORKER_BASE + "/verify",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({license_key:key})});
+    const j = await r.json();
+    return !!(j && j.ok && j.valid);
+  }catch(e){ return false; }
+}
+async function cloudSave(){
+  if(state.tier!=="premium" || !state.license) return;
+  const payload = { stage:state.stage, messages:state.messages, data:state.data };
+  try{
+    await fetch(WORKER_BASE+"/progress",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({license_key:state.license,data:JSON.stringify(payload)})});
+  }catch(e){}
+}
+async function cloudLoad(){
+  if(state.tier!=="premium" || !state.license) return false;
+  try{
+    const r=await fetch(WORKER_BASE+"/progress?license_key="+encodeURIComponent(state.license));
+    const j=await r.json();
+    if(j.ok && j.found && j.data){
+      const data=JSON.parse(j.data);
+      setStage(Number(data.stage||1));
+      state.messages = Array.isArray(data.messages)? data.messages.slice(-100):[];
+      state.data = Object.assign({ lane:"", offer:"", avatar:"", channel:"", price:"" }, data.data||{});
+      el.chat.innerHTML=""; state.messages.forEach(m=>pushBubble(m.who,m.text));
+      updateBar(); return true;
+    }
+  }catch(e){}
+  return false;
+}
+
+/* ======= Tier visuals ======= */
+function setTier(t){
+  state.tier=t; localStorage.setItem("fe_tier",t);
+  const isDemo = t==="demo";
   document.body.classList.toggle("is-premium", !isDemo);
   el.demoCTA.style.display = isDemo ? "block":"none";
   el.enterKey.style.display = isDemo ? "block":"none";
@@ -347,119 +442,223 @@ function setTier(t){ state.tier=t; localStorage.setItem("fe_tier",t); const isDe
   el.tierBadge.textContent  = isDemo ? "Demo":"Premium";
   el.tierBadge.classList.toggle("demo", isDemo);
 }
-function updateBar(){ const pct = Math.max(1,Math.min(STAGES,state.roadmap))/STAGES*100; if(el.bar) el.bar.style.width = pct+"%"; if(el.barText) el.barText.textContent = `${Math.max(1,state.roadmap)}/${STAGES}`; }
-function autoscroll(){ el.chat.scrollTop = el.chat.scrollHeight; }
-function pushBubble(who,text){ if(!text)return; const b=document.createElement("div"); b.className="bubble"; b.innerHTML=`<div class="who">${who==="user"?"💬":"⚙️"}</div>${text}`; el.chat.appendChild(b); state.messages.push({who,text}); requestAnimationFrame(autoscroll); }
 
-/* Kebab */
-function openKebab(){ el.kebab.classList.add("open"); const m = el.kebabMenu; const r = el.kebabBtn.getBoundingClientRect(); m.style.display="block"; const mw=m.offsetWidth,mh=m.offsetHeight,margin=8; const room=innerHeight - r.bottom;
-  let top = room > mh + margin ? (r.bottom + 8) : (r.top - mh - 8); let left = r.right - mw;
-  top = Math.max(margin, Math.min(innerHeight - mh - margin, top)); left = Math.max(margin, Math.min(innerWidth - mw - margin, left)); m.style.top=top+"px"; m.style.left=left+"px"; }
-function closeKebab(){ el.kebab.classList.remove("open"); el.kebabMenu.style.display="none"; }
-
-/* Cloud */
-async function cloudSave(){ if(state.tier!=="premium" || !state.license) return; const payload = { roadmap:state.roadmap, messages:state.messages };
-  try{ await fetch(WORKER_BASE+"/progress",{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({license_key:state.license,data:JSON.stringify(payload)})}); }catch(e){}
-}
-async function cloudLoad(){ if(state.tier!=="premium" || !state.license) return false; try{ const r=await fetch(WORKER_BASE+"/progress?license_key="+encodeURIComponent(state.license)); const j=await r.json();
-  if(j.ok && j.found && j.data){ const data=JSON.parse(j.data); state.roadmap = Number(data.roadmap)||1; state.messages = Array.isArray(data.messages)? data.messages.slice(-100):[]; el.chat.innerHTML=""; state.messages.forEach(m=>pushBubble(m.who,m.text)); updateBar(); return true; } }catch(e){} return false; }
-
-/* Conversation */
-function normalize(t=""){ return t.trim().toLowerCase(); }
-function aiReply(userText){ const t = normalize(userText);
-  if(!t){ pushBubble("ai","Give me a crumb or say <em>help me choose</em>."); return; }
-  if(/(help me choose|idk|no clue|stuck)/.test(t)){ pushBubble("ai",`Okay, options time. Reply 1–5:<br>
-       1) <b>Design</b> • logos/graphics<br>
-       2) <b>Writing</b> • copy/guides<br>
-       3) <b>Coaching</b> • audits/accelerators<br>
-       4) <b>Dev</b> • tiny tools/setups<br>
-       5) <b>Other</b> • pitch me your chaos`); return; }
-  const m=t.match(/^\s*([1-5])\s*$/);
-  if(m){ const lane=["","Design","Writing","Coaching","Dev","Other"][Number(m[1])]; state.roadmap=Math.max(2,state.roadmap); updateBar();
-    pushBubble("ai",`Locked: <b>${lane}</b>.<br>Now: what’s a <b>tiny deliverable in 48h</b> someone would pay for? One sentence.`); cloudSave(); return; }
-  pushBubble("ai",`Got it. I’ll translate that into a tiny paid offer.<br>Quick confirm: who’s the <b>one real human</b> you’d ship this to first? (Name or describe them.)`);
-  state.roadmap=Math.min(5,state.roadmap+1); updateBar(); cloudSave();
+/* ======= Mentor (module engine) ======= */
+function greet(){
+  if(state.greeted) return; state.greeted=true;
+  const msgByStage = {
+    1:`Welcome in. Pick a lane or say <em>“help me choose”</em>: • design • writing • coaching • dev • other`,
+    2:`Now we craft your <b>tiny paid offer</b> (48h ship). Give me one sentence with scope + outcome.`,
+    3:`Copy time. I’ll generate outreach + post drafts. Say <b>ready</b> when set.`,
+    4:`Launch maps. I’ll set your 72h loop. Say <b>ready</b> to print the checklist.`,
+    5:`Automation & scaling. Want the handoff steps? Say <b>ready</b>.`
+  };
+  pushBubble("ai", msgByStage[state.stage] || msgByStage[1]);
 }
 
-/* Greeting */
-function greet(){ if(state.greeted) return; state.greeted=true;
-  [...document.querySelectorAll(".bubble")].forEach(b=>{ if(b.dataset.greet==="1") b.remove(); });
-  const text = `
-    Welcome to the Freedom Engine. I’m your personal trainer for tiny paid offers.<br><br>
-    I’ll carry strategy, templates, and deadlines; you’ll do bite-size reps. We’ll ship one in ~72 hours.<br><br>
-    To get moving, pick a lane or say <em>“help me choose”</em>:<br>
-    • design • writing • coaching • dev • other
-  `;
-  const b=document.createElement("div"); b.className="bubble"; b.dataset.greet="1"; b.innerHTML=`<div class="who">⚙️</div>${text}`; el.chat.appendChild(b); requestAnimationFrame(autoscroll);
+function aiReply(userText){
+  const raw=(userText||"").trim(); const t=raw.toLowerCase();
+  if(!t){ nudge("Say <em>help me choose</em> or pick a lane (design / writing / coaching / dev / other)."); return; }
+
+  // global actions
+  if(/^(modules?|menu|roadmap)$/.test(t)){ renderModules(); el.modModal.classList.add("open"); return; }
+  if(/^reset$/i.test(t)){ return; }
+
+  switch(state.stage){
+    case 1: // Philosophy & Map (lane lock)
+      if(/help me choose|idk|stuck|no clue/.test(t)){
+        nudge(`Pick 1–5:<br>1) <b>Design</b><br>2) <b>Writing</b><br>3) <b>Coaching</b><br>4) <b>Dev</b><br>5) <b>Other</b>`); return;
+      }
+      const num = t.match(/^([1-5])$/);
+      const laneWord = /(design|writing|coaching|dev|development|other)/.exec(t);
+      if(num||laneWord){
+        const lane = num?["","Design","Writing","Coaching","Dev","Other"][Number(num[1])]:(laneWord[1]==="development"?"Dev":laneWord[1][0].toUpperCase()+laneWord[1].slice(1));
+        state.data.lane = lane;
+        nudge(`Locked: <b>${lane}</b>. Module 1 complete.`);
+        completeModule(); // bumps to module 2 (or gates in demo)
+        nudge(`Module 2 — <b>Offer Design</b>: describe a <b>tiny deliverable</b> you can ship in ~48h.`);
+        cloudSave(); return;
+      }
+      nudge("Tell me your lane (design / writing / coaching / dev / other) or say a number 1–5.");
+      return;
+
+    case 2: // Offer Design
+      // determine offer, avatar, channel, price in any order; complete when all present
+      const hasVerb = /(build|create|write|audit|design|setup|optimi[sz]e|fix|record|craft|review|map|coach|train|plan|launch|code|script|edit|template)/i.test(raw);
+      if(hasVerb && raw.split(/\s+/).length>=6 && !state.data.offer) state.data.offer=raw;
+      if(/(email|dm|post|call)/i.test(t)) state.data.channel=(/(email|dm|post|call)/i.exec(t)||[])[1].toLowerCase();
+      if(/\$?\b(29|39|49|59|69|79|89|99|149|199)\b/.test(t)) state.data.price=(/\b(\$?\d+)\b/.exec(t)||[])[1];
+      if(!state.data.avatar && raw.split(/\s+/).length<=18 && !hasVerb) state.data.avatar=raw;
+
+      const checklist = [
+        ['offer', 'One-sentence offer (scope+outcome)'],
+        ['avatar','One specific human (name/role)'],
+        ['channel','Email/DM/Post/Call'],
+        ['price','Flat price ($29–$199)']
+      ].map(([k,label])=>`<li>${state.data[k]?`✅`:`⬜`} ${label}</li>`).join("");
+
+      nudge(`<b>Module 2 checklist</b><ul>${checklist}</ul>`);
+
+      if(state.data.offer && state.data.avatar && state.data.channel && state.data.price){
+        nudge("Module 2 complete. On to <b>Copy Templates & AI Prompts</b>. Say <b>ready</b> to generate your first drafts.");
+        completeModule(); return;
+      }
+      nudge(`Fill the missing boxes by telling me: your <b>offer</b>, <b>avatar</b>, <b>channel</b>, and a <b>flat price</b>.`);
+      return;
+
+    case 3: // Copy Templates & Prompts
+      if(/^ready|go|show$/i.test(t)){
+        const {lane,offer,avatar,channel,price} = state.data;
+        const draft =
+          channel==="email" ? `Subject: quick idea for ${avatar}\n\nHey— I can ${offer} for ${price}. I can ship in 48h. Want it?` :
+          channel==="dm"    ? `Quick ${
+lane} idea: ${offer} — ${price}, 48h turnaround. Interested?` :
+          channel==="post"  ? `Tiny ${lane} offer: ${offer} — ${price}. One slot this week. Reply “info”.` :
+                              `Quick pitch for ${avatar}: ${offer} — ${price}. 48h turnaround. Good time to chat?`;
+        nudge(`<b>Outreach draft</b><pre style="white-space:pre-wrap">${draft}</pre>`);
+        nudge(`Need landing copy or thread prompts? Say <b>more copy</b>. Or say <b>done</b> when you’ve shipped one.`);
+        cloudSave(); return;
+      }
+      if(/^more copy$/i.test(t)){
+        nudge(`Landing blurb: “I ship a tiny ${
+state.data.lane} outcome in 48h: ${state.data.offer}. Flat ${state.data.price}. First come, first served.”`);
+        return;
+      }
+      if(/^done|sent|shipped$/i.test(t)){
+        nudge("Module 3 complete.");
+        completeModule(); return;
+      }
+      nudge("Say <b>ready</b> to print outreach drafts, or ask for <b>more copy</b>.");
+      return;
+
+    case 4: // Launch & Traffic Loops
+      if(/^ready|plan|checklist$/i.test(t)){
+        nudge(`<b>72h Launch Loop</b><ol>
+<li>Day 1 AM: outreach ${state.data.channel} to ${state.data.avatar}</li>
+<li>Day 1 PM: post teaser (“1 slot, ${state.data.price}”)</li>
+<li>Day 2: case/preview thread + re-DM</li>
+<li>Day 3: last call post + price-anchor next slot</li>
+</ol>`);
+        nudge("Say <b>done</b> to complete this module.");
+        return;
+      }
+      if(/^done$/i.test(t)){
+        nudge("Module 4 complete.");
+        completeModule(); return;
+      }
+      nudge("Say <b>ready</b> to print the 72h loop checklist.");
+      return;
+
+    case 5: // Automation & Scaling
+      if(/^ready|systems|automate$/i.test(t)){
+        nudge(`<b>Light Automation</b><ul>
+<li>Template bank: save your outreach + posts in a doc</li>
+<li>Recurring reminders: every M/W/F send 1 outreach</li>
+<li>Waitlist form: collect warm leads</li>
+</ul>`);
+        nudge("Say <b>finish</b> to mark the course complete.");
+        return;
+      }
+      if(/^finish|complete$/i.test(t)){
+        nudge("Course complete. Keep the loop running weekly. Need anything, just type it—I’ll adapt.");
+        cloudSave(); return;
+      }
+      nudge("Say <b>ready</b> to print the automation steps.");
+      return;
+  }
 }
 
-/* Modules */
-function renderModules(){ const isDemo = state.tier==="demo"; el.modList.innerHTML="";
-  const rows = [ {name:"Offer Sprint", desc:"Guided 72-hour micro-offer builder", locked:isDemo},
-                 {name:"Copy Booster", desc:"Emails, posts, and landing copy blocks", locked:isDemo},
-                 {name:"Launch Maps", desc:"Checklists + timelines", locked:isDemo} ];
-  rows.forEach(r=>{ const div=document.createElement("div"); div.className="mod"+(r.locked?" lock":""); div.innerHTML=`<div><b>${r.name}</b><br><span class="dim">${r.desc}</span></div>
-                   <div>${r.locked? "🔒" : "<button class='btn btn-ghost'>Enable</button>"}</div>`; el.modList.appendChild(div); });
+/* ======= Modules modal (labels reflect gating) ======= */
+function renderModules(){
+  const isDemo = state.tier==="demo";
+  el.modList.innerHTML="";
+  const rows = [
+    {name:"1) Philosophy & Map", desc:"Pick lane + map win", locked:false},
+    {name:"2) Offer Design", desc:"Offer, avatar, channel, price", locked:false},
+    {name:"3) Copy & Prompts", desc:"Outreach, landing, threads", locked:isDemo},
+    {name:"4) Launch Maps", desc:"72h loop checklist", locked:isDemo},
+    {name:"5) Automation", desc:"Reminders + scaling", locked:isDemo},
+  ];
+  rows.forEach((r,i)=>{
+    const div=document.createElement("div");
+    div.className="mod"+(r.locked?" lock":"");
+    div.innerHTML=`<div><b>${r.name}</b><br><span class="dim">${r.desc}</span></div>
+                   <div>${r.locked? "🔒" : (i+1<=state.stage? "✅" : "")}</div>`;
+    el.modList.appendChild(div);
+  });
 }
 
-/* Boot */
+/* ======= Boot ======= */
 document.addEventListener("DOMContentLoaded", async ()=>{
-  // Ensure bar visible even if later code hiccups
-  try{ setTier(state.tier); }catch(e){}
-  try{ updateBar(); }catch(e){}
-
   // kebab
-  el.kebabBtn.addEventListener("click", (e)=>{ e.stopPropagation(); if(el.kebab.classList.contains("open")) closeKebab(); else openKebab(); });
-  addEventListener("resize", ()=>{ if(el.kebab.classList.contains("open")) openKebab(); });
-  document.addEventListener("click", (e)=>{ if(!el.kebab.contains(e.target)) closeKebab(); });
+  el.kebabBtn?.addEventListener("click", (e)=>{ e.stopPropagation(); el.kebab.classList.toggle("open"); });
+  document.addEventListener("click", (e)=>{ if(!el.kebab.contains(e.target)) el.kebab.classList.remove("open"); });
 
   // demo/premium
   const gumroad="https://intellartsystems.gumroad.com/l/the-freedom-engine";
-  el.buy.addEventListener("click", ()=>open(gumroad,"_blank"));
-  el.ctaBuy?.addEventListener("click", ()=>open(gumroad,"_blank"));
-  el.enterKey.addEventListener("click", async ()=>{ const key=prompt("Enter license key:"); if(!key) return;
-    state.license=key.trim(); localStorage.setItem("fe_license",state.license); setTier("premium"); const ok = await cloudLoad(); if(!ok){ el.chat.innerHTML=""; greet(); } updateBar(); });
-  el.switchMode.addEventListener("click", ()=>{ localStorage.removeItem("fe_license"); setTier("demo");
-    state.license=""; state.roadmap=1; state.messages=[]; state.greeted=false; el.chat.innerHTML=""; greet(); updateBar(); });
+  el.buy?.addEventListener("click", ()=>window.open(gumroad,"_blank"));
+  el.ctaBuy?.addEventListener("click", ()=>window.open(gumroad,"_blank"));
+  el.enterKey?.addEventListener("click", async ()=>{
+    const key=prompt("Enter license key:"); if(!key) return;
+    const ok = await verifyLicense(key.trim());
+    if(!ok){ alert("Could not verify license. Double-check your key."); return; }
+    state.license=key.trim(); localStorage.setItem("fe_license",state.license);
+    setTier("premium");
+    const loaded = await cloudLoad();
+    if(!loaded){ el.chat.innerHTML=""; setStage(Math.max(1,state.stage)); }
+    greet(); updateBar();
+  });
+  el.switchMode?.addEventListener("click", ()=>{
+    localStorage.removeItem("fe_license"); setTier("demo");
+    state.license=""; setStage(1); state.messages=[]; state.greeted=false;
+    el.chat.innerHTML=""; greet(); updateBar();
+  });
+  el.reset?.addEventListener("click", async ()=>{
+    localStorage.removeItem("fe_stage");
+    state.messages=[]; state.greeted=false; state.data={ lane:"", offer:"", avatar:"", channel:"", price:"" };
+    setStage(1);
+    el.chat.innerHTML=""; greet(); updateBar(); await cloudSave();
+  });
 
-  el.reset.addEventListener("click", async ()=>{ state.roadmap=1; state.messages=[]; state.greeted=false;
-    el.chat.innerHTML=""; await cloudSave(); greet(); updateBar(); });
+  // snapshots
+  document.getElementById("exportBtn")?.addEventListener("click", ()=>{
+    const data={stage:state.stage,messages:state.messages,tier:state.tier,data:state.data};
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="freedom-engine-snapshot.json"; a.click(); URL.revokeObjectURL(a.href);
+  });
 
-  // export/snapshot
-  document.getElementById("exportBtn").addEventListener("click", ()=>{ const data={roadmap:state.roadmap,messages:state.messages,tier:state.tier}; const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-    const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="freedom-engine-snapshot.json"; a.click(); URL.revokeObjectURL(a.href); });
-  el.saveSnap.addEventListener("click", ()=>{ const data={roadmap:state.roadmap,messages:state.messages}; const blob=new Blob([JSON.stringify(data)],{type:"application/json"});
-    const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="fe-local-snapshot.json"; a.click(); URL.revokeObjectURL(a.href); });
-  el.loadSnap.addEventListener("click", ()=>{ const inp=document.createElement("input"); inp.type="file"; inp.accept="application/json";
+  el.saveSnap?.addEventListener("click", ()=>{
+    const data={stage:state.stage,messages:state.messages,data:state.data};
+    const blob=new Blob([JSON.stringify(data)],{type:"application/json"});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="fe-local-snapshot.json"; a.click(); URL.revokeObjectURL(a.href);
+  });
+  el.loadSnap?.addEventListener("click", ()=>{
+    const inp=document.createElement("input"); inp.type="file"; inp.accept="application/json";
     inp.onchange=async()=>{ const f=inp.files[0]; if(!f) return;
       try{ const d=JSON.parse(await f.text());
-        state.roadmap=Math.max(1,Math.min(5,Number(d.roadmap)||1)); state.messages=Array.isArray(d.messages)?d.messages.slice(-100):[];
+        setStage(Math.max(1,Math.min(5,Number(d.stage)||1)));
+        state.messages=Array.isArray(d.messages)?d.messages.slice(-100):[];
+        state.data=Object.assign({lane:"",offer:"",avatar:"",channel:"",price:""}, d.data||{});
         el.chat.innerHTML=""; state.messages.forEach(m=>pushBubble(m.who,m.text)); updateBar(); cloudSave();
       }catch{ alert("Bad snapshot file."); }
     }; inp.click();
   });
 
-  // modules
-  el.modulesBtn.addEventListener("click", ()=>{ renderModules(); el.modModal.classList.add("open"); });
-  el.modClose.addEventListener("click", ()=> el.modModal.classList.remove("open"));
-  el.modModal.addEventListener("click",(e)=>{ if(e.target===el.modModal) el.modModal.classList.remove("open"); });
-
   // wake
-  el.wake.addEventListener("click", ()=>{ const now=Date.now(); if(now-state.lastWake<2000) return; state.lastWake=now;
-    pushBubble("ai","Engine’s awake. I’ve got caffeine and poor judgment. Where were we?"); });
+  el.wake?.addEventListener("click", ()=>{ pushBubble("ai","Engine awake. Where were we?"); });
 
   // send
   function send(){const v=el.input.value.trim(); if(!v) return; pushBubble("user",v); el.input.value=""; aiReply(v);}
-  el.send.addEventListener("click", send);
-  el.input.addEventListener("keydown", e=>{ if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}});
+  el.send?.addEventListener("click", send);
+  el.input?.addEventListener("keydown", e=>{ if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}});
 
-  // greet/init
-  let loaded=false;
-  if(state.tier==="premium" && state.license){ loaded=await cloudLoad(); }
-  if(!loaded || state.messages.length===0) greet();
+  // init
+  setTier(state.tier);
+  if(state.tier==="premium" && state.license){ await cloudLoad(); }
+  if(state.messages.length===0) greet();
   updateBar(); autoscroll();
 });
 </script>
+
 </body>
 </html>
