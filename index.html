@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>The Freedom Engine — Personal AI Trainer</title>
-<!-- BUILD_ID: STACK-ABEF-FIX-20251104 -->
+<!-- BUILD_ID: VIS-RESTORE-v1 - STACK-ABEF-FIX-20251104 -->
 
 <style>
 /* ---------- Brand font ---------- */
@@ -18,8 +18,8 @@
 :root{
   --ink:#f7f8ff; --ink-dim:#cfd4ff;
   --ring:rgba(255,255,255,.22);
-  --glass1:rgba(255,255,255,.12);
-  --glass2:rgba(255,255,255,.05);
+  --glass1:rgba(255,255,255,.07);
+  --glass2:rgba(255,255,255,.025);
 
   --mag:#ff7bf1; --sun:#ffb84d; --lime:#8dff6a; --vio:#ae8bff; --scar:#ff6a6a;
 }
@@ -41,7 +41,7 @@ body{
     radial-gradient(1000px 800px at 20% 85%, rgba(141,255,106,.28), transparent 65%),
     linear-gradient(180deg, #1b1032 0%, #2a184a 50%, #25143f 100%);
   animation:hue 60s linear infinite;
-  filter:saturate(125%);
+  filter:saturate(135%);
 }
 @keyframes hue{ 0%{filter:hue-rotate(0deg)} 100%{filter:hue-rotate(360deg)} }
 
@@ -57,7 +57,7 @@ body{
 .wrap{display:grid;grid-template-columns:440px 1fr;gap:24px;padding:24px;min-height:100dvh}
 @media(max-width:980px){.wrap{grid-template-columns:1fr}}
 
-.card{
+.card{backdrop-filter:blur(7px) saturate(120%); 
   position:relative;border-radius:24px;padding:18px;border:1px solid var(--ring);
   background:linear-gradient(180deg,var(--glass1),var(--glass2));
   box-shadow:0 20px 60px rgba(0,0,0,.45);
@@ -72,7 +72,7 @@ body{
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 12px 40px rgba(0,0,0,.35)
 }
 .logo{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%) scale(.95) scaleY(-1);width:520px;height:520px;object-fit:contain;filter:drop-shadow(0 0 12px rgba(255,255,255,.22)) drop-shadow(0 0 18px rgba(255,123,241,.35)) drop-shadow(0 0 22px rgba(255,216,106,.28)) drop-shadow(0 0 26px rgba(141,255,106,.28)) drop-shadow(0 0 32px rgba(174,139,255,.25)); animation:spin 36s linear infinite reverse;}
-.titles h1{ margin:0; line-height:1.02; letter-spacing:.4px; font-size:46px; font-weight:800;
+.titles h1{ font-family:'Orbitron','TechfontItalica',system-ui,Segoe UI,Roboto,sans-serif; margin:0; line-height:1.02; letter-spacing:.4px; font-size:46px; font-weight:800;
   text-shadow:0 2px 0 rgba(0,0,0,.28), 0 12px 30px rgba(0,0,0,.45); }
 .titles .sub{ margin-top:6px;opacity:.92;font-weight:800; text-shadow:0 8px 20px rgba(0,0,0,.35); }
 .badge{display:inline-block;margin-left:8px;padding:5px 10px;border-radius:999px;color:#0b0c14;font-weight:900;font-size:13px;background:linear-gradient(90deg,#ff7bf1,#ffd86a)}
@@ -116,7 +116,7 @@ body{
 
 /* ---------- Chat ---------- */
 .chat-col{ position:relative; height:calc(100dvh - 48px); display:flex; flex-direction:column; }
-.chat{ flex:1; min-height:0; overflow:auto; padding:18px 18px 96px; background:linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.06)); border:1px solid var(--ring);border-radius:24px;scroll-behavior:smooth; scrollbar-width:none; }
+.chat{ backdrop-filter:blur(6px) saturate(120%); flex:1; min-height:0; overflow:auto; padding:18px 18px 96px; background:linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.06)); border:1px solid var(--ring);border-radius:24px;scroll-behavior:smooth; scrollbar-width:none; }
 .chat::-webkit-scrollbar{width:0;height:0}
 .bubble{ position:relative;margin:14px 0;padding:14px 16px 14px 56px;border-radius:18px;border:1px solid var(--ring); background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.05));box-shadow:0 10px 30px rgba(0,0,0,.25) }
 .bubble .who{ position:absolute;left:12px;top:12px;width:32px;height:32px;display:grid;place-items:center;border-radius:10px; background:#0e0a1fe6;border:1px solid var(--ring) }
@@ -139,22 +139,43 @@ textarea{width:100%;min-height:54px;max-height:180px;resize:vertical;padding:14p
 .modlist .mod{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px; border:1px solid var(--ring); border-radius:14px; margin:10px 0; }
 .modlist .lock{ opacity:.6 }
 </style>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 <div class="bg"></div>
 
-<!-- Sacred geometry overlay (transparent line circles) -->
+<!-- Sacred geometry overlay (denser concentric grid, subtle motion) -->
 <div class="overlay" aria-hidden="true">
   <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
     <defs>
       <linearGradient id="geo" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#111"/><stop offset="100%" stop-color="#333"/>
+        <stop offset="0%" stop-color="#0a0a0a"/><stop offset="100%" stop-color="#222"/>
       </linearGradient>
     </defs>
-    <g class="spin" fill="none" stroke="url(#geo)" stroke-width="0.3" opacity="0.6">
-      <circle cx="50" cy="50" r="12"/><circle cx="50" cy="50" r="22"/><circle cx="50" cy="50" r="32"/>
-      <circle cx="50" cy="50" r="42"/><circle cx="50" cy="50" r="52"/>
-      <path d="M50 15 L72 72 L28 72 Z"/>
+    <g class="spin" fill="none" stroke="url(#geo)" stroke-width="0.25" opacity="0.34">
+      <!-- concentric rings every 4 units -->
+      <circle cx="50" cy="50" r="6"/>
+      <circle cx="50" cy="50" r="10"/>
+      <circle cx="50" cy="50" r="14"/>
+      <circle cx="50" cy="50" r="18"/>
+      <circle cx="50" cy="50" r="22"/>
+      <circle cx="50" cy="50" r="26"/>
+      <circle cx="50" cy="50" r="30"/>
+      <circle cx="50" cy="50" r="34"/>
+      <circle cx="50" cy="50" r="38"/>
+      <circle cx="50" cy="50" r="42"/>
+      <circle cx="50" cy="50" r="46"/>
+      <circle cx="50" cy="50" r="50"/>
+      <circle cx="50" cy="50" r="54"/>
+      <!-- interlaced triangles for sacred-geometry vibe -->
+      <path d="M50 8 L90 86 L10 86 Z"/>
+      <path d="M50 20 L80 80 L20 80 Z" opacity="0.6"/>
+      <path d="M50 32 L70 74 L30 74 Z" opacity="0.45"/>
+      <!-- cardinal lines -->
+      <line x1="50" y1="0" x2="50" y2="100" opacity="0.2"/>
+      <line x1="0" y1="50" x2="100" y2="50" opacity="0.2"/>
+      <circle cx="50" cy="50" r="1" opacity="0.6"/>
     </g>
   </svg>
 </div>
