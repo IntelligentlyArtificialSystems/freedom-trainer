@@ -5,7 +5,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>The Freedom Engine — Personal AI Trainer</title>
-<!-- BUILD_ID: DIAG-20251104-0833-27 ZFIX-FE-INDEX-20251104-0828-52 FE-INDEX-20251104-0811-27 -->
+<!-- BUILD_ID: FX-20251104-0838-31 -->
 <style>
 @font-face{
   font-family:"TechfontItalica";
@@ -56,7 +56,7 @@ body{
 }
 
 /* Moiré SVG overlay (JS-free) */
-.wave-wall{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.95;}
+.wave-wall{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.28;}
 .wave-wall svg{width:100%;height:100%;display:block}
 
 /* Layout & Frost (reduced) */
@@ -187,32 +187,31 @@ textarea{
 <div class="bg"></div>
 <div class="fx" aria-hidden="true"><div class="field"></div></div>
 
-<!-- DIAG overlay (high contrast) -->
+
+<!-- Psychedelic spiral overlay -->
 <div class="wave-wall" aria-hidden="true">
   <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
-    <rect width="1200" height="800" fill="none"/>
-    <g fill="none" stroke="#000" stroke-width="2" opacity="0.85">
-      <!-- Big concentric arcs -->
-      <circle cx="600" cy="400" r="120"/>
-      <circle cx="600" cy="400" r="220"/>
-      <circle cx="600" cy="400" r="320"/>
-      <circle cx="600" cy="400" r="420"/>
-      <circle cx="600" cy="400" r="520"/>
-    </g>
-    <g fill="none" stroke="#000" stroke-width="2" opacity="0.7">
-      <!-- Logarithmic-ish spiral approximation -->
+    <defs>
+      <linearGradient id="spiralGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#ff7bf1"/>
+        <stop offset="50%" stop-color="#ffd86a"/>
+        <stop offset="100%" stop-color="#8dff6a"/>
+      </linearGradient>
+    </defs>
+    <g fill="none" stroke="url(#spiralGrad)" stroke-width="1.2" opacity="0.28">
       <path d="M600,400
-               m 0,-10
-               c 60,-10 110,40 120,100
-               c 15,90 -60,160 -150,160
-               c -110,0 -200,-90 -200,-200
-               c 0,-140 120,-240 260,-220" />
+               m0,-5
+               a5,5 0 1,1 10,0
+               a10,10 0 1,1 -20,0
+               a20,20 0 1,1 40,0
+               a40,40 0 1,1 -80,0
+               a80,80 0 1,1 160,0
+               a160,160 0 1,1 -320,0
+               a320,320 0 1,1 640,0
+               a480,480 0 1,1 -960,0" />
     </g>
-    <g stroke="#000" stroke-width="1" opacity="0.5">
-      <!-- Crosshair -->
-      <line x1="0" y1="400" x2="1200" y2="400"/>
-      <line x1="600" y1="0" x2="600" y2="800"/>
-    </g>
+    <animateTransform attributeName="transform" type="rotate"
+      from="0 600 400" to="360 600 400" dur="60s" repeatCount="indefinite"/>
   </svg>
 </div>
 <div class="wrap">
