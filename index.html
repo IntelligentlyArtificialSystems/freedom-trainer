@@ -193,6 +193,61 @@ textarea{
 .drop.open .drop-menu{ display:block; }
 </style>
 
+
+<!-- I2 clamp overrides: non-destructive, CSS-only. Keep sacred-geometry & frosted glass intact. -->
+<style id="i2-clamp-overrides">
+  html, body {
+    height: 100dvh;
+    overflow: hidden;
+    overscroll-behavior: none;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  body { overflow-x: hidden; }
+  * { box-sizing: border-box; max-width: 100%; min-height: 0; }
+  /* Ensure primary column or app root doesn't exceed viewport */
+  .chat-col, .app, .root, main, .layout, .column {
+    min-height: 0;
+  }
+  /* Primary scroll area keeps messages visible above composer */
+  .chat, .scroll, .content, .panel-scroll {
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+  /* Composer remains clamped to the bottom and scrolls internally if it grows */
+  .composer, .input-bar, .message-composer {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    max-height: 38dvh;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    backdrop-filter: saturate(1.2) blur(16px);
+  }
+  /* Modals/panels are viewport-clamped; inner content scrolls */
+  .modal, .overlay, .sheet {
+    position: fixed; inset: 0;
+  }
+  .modal .panel, .overlay .panel, .sheet .panel {
+    max-height: min(88vh, 88dvh);
+    margin: 16px;
+    overflow: auto;
+  }
+  /* Avoid accidental horizontal scroll on any nested container */
+  .row, .flex, .cards, .list, .log, .modules, .history {
+    min-width: 0;
+    overflow-x: hidden;
+  }
+  /* Tiny-height safeguard */
+  @media (max-height: 540px) {
+    :root { --tight-gap: 6px; }
+    .composer, .input-bar, .message-composer { padding: var(--tight-gap, 8px); }
+    .modal .panel, .overlay .panel, .sheet .panel { padding: var(--tight-gap, 8px); }
+  }
+</style>
+<!-- /I2 clamp overrides -->
 </head>
 <body data-build="ZFIX-FE-INDEX-20251104-0811-27">
 <div class="bg"></div>
