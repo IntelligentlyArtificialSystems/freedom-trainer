@@ -2,6 +2,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+<!-- BUILD: I2a (overlay-friendly frost, brighter UI, mobile polish) -->
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
@@ -15,6 +16,13 @@
   --glass1:rgba(255,255,255,.025);
   --glass2:rgba(255,255,255,.005);
   --logo-x:50%; --logo-y:52%; --logo-scale:.95; --logo-speed:36s;
+  --vibe-sat: 1.15;
+  --vibe-contrast: 1.08;
+  --frost-blur: 5px;
+  --frost-a1: .16;
+  --frost-a2: .10;
+  --shadow-1: 0 14px 38px rgba(0,0,0,.35);
+  --shadow-2: 0 6px 18px rgba(0,0,0,.25);
 }
 *{box-sizing:border-box} html,body{height:100%}
 body{
@@ -61,10 +69,10 @@ body{
 @media(max-width:980px){.wrap{grid-template-columns:1fr}}
 .card{
   position:relative;border-radius:24px;padding:18px;border:1px solid var(--ring);
-  background:linear-gradient(180deg,var(--glass1),var(--glass2));
-  -webkit-backdrop-filter: blur(1.75px) saturate(60%);
-  backdrop-filter: blur(1.75px) saturate(60%);
-  box-shadow:0 20px 48px rgba(0,0,0,.5);
+  background:linear-gradient(180deg, rgba(255,255,255,var(--frost-a1)), rgba(255,255,255,var(--frost-a2)));
+  -webkit-backdrop-filter: blur(var(--frost-blur)) saturate(1.05);
+  backdrop-filter: blur(var(--frost-blur)) saturate(1.05);
+  box-shadow:var(--shadow-1);
 }
 .brand{display:grid;grid-template-columns:148px 1fr;gap:18px;align-items:center;margin-bottom:16px}
 .logo-box{
@@ -135,9 +143,9 @@ body{
 .chat::-webkit-scrollbar{width:0;height:0}
 .bubble{
   position:relative;margin:14px 0;padding:14px 16px 14px 56px;border-radius:18px;border:1px solid var(--ring);
-  background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.005));
-  -webkit-backdrop-filter: blur(1.75px) saturate(60%); backdrop-filter: blur(1.75px) saturate(60%);
-  box-shadow:0 18px 46px rgba(0,0,0,.45);
+  background:linear-gradient(180deg, rgba(255,255,255, calc(var(--frost-a1) - .02)), rgba(255,255,255, calc(var(--frost-a2) - .02)));
+  -webkit-backdrop-filter: blur(calc(var(--frost-blur) - 1px)) saturate(1.05); backdrop-filter: blur(calc(var(--frost-blur) - 1px)) saturate(1.05);
+  box-shadow:var(--shadow-2);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   text-shadow:0 2px 8px rgba(0,0,0,.45);
 }
@@ -177,6 +185,27 @@ textarea{
   .logo{ animation:none }
   .fx .field{ animation:none }
   .bg{ animation:none }
+}
+
+.bg, .prem-geo-bg .field{
+  filter: saturate(var(--vibe-sat)) contrast(var(--vibe-contrast));
+}
+
+.btn, .send{
+  box-shadow: 0 8px 20px rgba(0,0,0,.28);
+}
+
+
+@media (max-width: 480px){
+  .wrap{ gap:14px; padding:14px; }
+  .brand{ grid-template-columns:108px 1fr; gap:12px; }
+  .logo-box{ height:108px; }
+  .titles h1{ font-size:34px; }
+  .card{ padding:12px; border-radius:18px; }
+  .chat{ padding:12px 12px 92px; }
+  .composer{ grid-template-columns:1fr 96px; gap:8px; }
+  textarea{ min-height:52px; font-size:15px; }
+  .drop-menu{ max-height:65dvh; }
 }
 </style>
 
