@@ -2,7 +2,6 @@
 <!doctype html>
 <html lang="en">
 <head>
-<!-- BUILD: I2a (overlay-friendly frost, brighter UI, mobile polish) -->
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
@@ -16,13 +15,6 @@
   --glass1:rgba(255,255,255,.025);
   --glass2:rgba(255,255,255,.005);
   --logo-x:50%; --logo-y:52%; --logo-scale:.95; --logo-speed:36s;
-  --vibe-sat: 1.15;
-  --vibe-contrast: 1.08;
-  --frost-blur: 5px;
-  --frost-a1: .16;
-  --frost-a2: .10;
-  --shadow-1: 0 14px 38px rgba(0,0,0,.35);
-  --shadow-2: 0 6px 18px rgba(0,0,0,.25);
 }
 *{box-sizing:border-box} html,body{height:100%}
 body{
@@ -69,10 +61,10 @@ body{
 @media(max-width:980px){.wrap{grid-template-columns:1fr}}
 .card{
   position:relative;border-radius:24px;padding:18px;border:1px solid var(--ring);
-  background:linear-gradient(180deg, rgba(255,255,255,var(--frost-a1)), rgba(255,255,255,var(--frost-a2)));
-  -webkit-backdrop-filter: blur(var(--frost-blur)) saturate(1.05);
-  backdrop-filter: blur(var(--frost-blur)) saturate(1.05);
-  box-shadow:var(--shadow-1);
+  background:linear-gradient(180deg,var(--glass1),var(--glass2));
+  -webkit-backdrop-filter: blur(1.75px) saturate(60%);
+  backdrop-filter: blur(1.75px) saturate(60%);
+  box-shadow:0 20px 48px rgba(0,0,0,.5);
 }
 .brand{display:grid;grid-template-columns:148px 1fr;gap:18px;align-items:center;margin-bottom:16px}
 .logo-box{
@@ -143,9 +135,9 @@ body{
 .chat::-webkit-scrollbar{width:0;height:0}
 .bubble{
   position:relative;margin:14px 0;padding:14px 16px 14px 56px;border-radius:18px;border:1px solid var(--ring);
-  background:linear-gradient(180deg, rgba(255,255,255, calc(var(--frost-a1) - .02)), rgba(255,255,255, calc(var(--frost-a2) - .02)));
-  -webkit-backdrop-filter: blur(calc(var(--frost-blur) - 1px)) saturate(1.05); backdrop-filter: blur(calc(var(--frost-blur) - 1px)) saturate(1.05);
-  box-shadow:var(--shadow-2);
+  background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.005));
+  -webkit-backdrop-filter: blur(1.75px) saturate(60%); backdrop-filter: blur(1.75px) saturate(60%);
+  box-shadow:0 18px 46px rgba(0,0,0,.45);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   text-shadow:0 2px 8px rgba(0,0,0,.45);
 }
@@ -187,26 +179,52 @@ textarea{
   .bg{ animation:none }
 }
 
-.bg, .prem-geo-bg .field{
-  filter: saturate(var(--vibe-sat)) contrast(var(--vibe-contrast));
+/* ===== I2b UI-only overrides (mobile-first) ===== */
+
+/* 1) Unify buttons to match Send */
+.btn,
+.btn-ghost,
+.cta .big {
+  background: linear-gradient(130deg,#b35fff,#ff7bf1 40%, #ffd86a 90%);
+  color:#0b0c14;
+  font-weight:900;
+  border:1px solid rgba(255,255,255,.35);
+  box-shadow:
+    0 12px 28px rgba(0,0,0,.45),
+    inset 0 0 0 1px rgba(255,255,255,.25);
+}
+.btn-ghost { color:#0b0c14; }
+.btn:hover,
+.btn-ghost:hover,
+.cta .big:hover { filter:saturate(115%) brightness(1.05); }
+.btn:active,
+.btn-ghost:active { transform: translateY(1px); }
+
+/* 2) Mobile sticky composer */
+:root { --composer-h: 72px; }
+@media (max-width:980px){
+  .chat-col{ padding-bottom: var(--composer-h); }
+  .composer{
+    position:fixed; left:16px; right:16px; bottom: max(10px, env(safe-area-inset-bottom));
+    grid-template-columns:1fr 110px;
+    gap:10px; align-items:end;
+    z-index: 10001;
+  }
+  .chat{ padding-bottom: calc(var(--composer-h) + 22px); }
+  textarea{ min-height: 48px; }
 }
 
-.btn, .send{
-  box-shadow: 0 8px 20px rgba(0,0,0,.28);
+/* 3) Bubble layout like reference */
+.bubble{
+  margin:12px 0;
+  padding:14px 16px 14px 56px;
+  border-radius:18px;
 }
+.bubble .who{ left:12px; top:12px; }
 
+/* 4) Prevent menus from clipping under panels */
+.drop-menu{ z-index: 10002; }
 
-@media (max-width: 480px){
-  .wrap{ gap:14px; padding:14px; }
-  .brand{ grid-template-columns:108px 1fr; gap:12px; }
-  .logo-box{ height:108px; }
-  .titles h1{ font-size:34px; }
-  .card{ padding:12px; border-radius:18px; }
-  .chat{ padding:12px 12px 92px; }
-  .composer{ grid-template-columns:1fr 96px; gap:8px; }
-  textarea{ min-height:52px; font-size:15px; }
-  .drop-menu{ max-height:65dvh; }
-}
 </style>
 
 <style id="kebab-fix">
@@ -220,6 +238,53 @@ textarea{
   z-index:2147483647 !important; pointer-events:auto;
 }
 .drop.open .drop-menu{ display:block; }
+
+/* ===== I2b UI-only overrides (mobile-first) ===== */
+
+/* 1) Unify buttons to match Send */
+.btn,
+.btn-ghost,
+.cta .big {
+  background: linear-gradient(130deg,#b35fff,#ff7bf1 40%, #ffd86a 90%);
+  color:#0b0c14;
+  font-weight:900;
+  border:1px solid rgba(255,255,255,.35);
+  box-shadow:
+    0 12px 28px rgba(0,0,0,.45),
+    inset 0 0 0 1px rgba(255,255,255,.25);
+}
+.btn-ghost { color:#0b0c14; }
+.btn:hover,
+.btn-ghost:hover,
+.cta .big:hover { filter:saturate(115%) brightness(1.05); }
+.btn:active,
+.btn-ghost:active { transform: translateY(1px); }
+
+/* 2) Mobile sticky composer */
+:root { --composer-h: 72px; }
+@media (max-width:980px){
+  .chat-col{ padding-bottom: var(--composer-h); }
+  .composer{
+    position:fixed; left:16px; right:16px; bottom: max(10px, env(safe-area-inset-bottom));
+    grid-template-columns:1fr 110px;
+    gap:10px; align-items:end;
+    z-index: 10001;
+  }
+  .chat{ padding-bottom: calc(var(--composer-h) + 22px); }
+  textarea{ min-height: 48px; }
+}
+
+/* 3) Bubble layout like reference */
+.bubble{
+  margin:12px 0;
+  padding:14px 16px 14px 56px;
+  border-radius:18px;
+}
+.bubble .who{ left:12px; top:12px; }
+
+/* 4) Prevent menus from clipping under panels */
+.drop-menu{ z-index: 10002; }
+
 </style>
 
 </head>
