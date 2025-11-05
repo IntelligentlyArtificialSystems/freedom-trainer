@@ -1,95 +1,604 @@
+
 <!doctype html>
 <html lang="en">
 <head>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>The Freedom Engine — Personal AI Trainer</title>
+<!-- BUILD_ID: MORPROBE-20251104-095750 -->
 <style>
+
 :root{
-  --ink:#f7f8ff; --ring:rgba(255,255,255,.22);
-  --glass1:rgba(255,255,255,.05); --glass2:rgba(255,255,255,.03);
-  --mag:#ff7bf1; --sun:#ffb84d; --lime:#8dff6a;
+  --ink:#f7f8ff; --ink-dim:#cfd4ff;
+  --ring:rgba(255,255,255,.22);
+  --glass1:rgba(255,255,255,.025);
+  --glass2:rgba(255,255,255,.005);
+  --logo-x:50%; --logo-y:52%; --logo-scale:.95; --logo-speed:36s;
 }
-body{margin:0;color:var(--ink);background:#0f0a1c;font-family:"TechfontItalica",system-ui;}
-.bg{position:fixed;inset:0;z-index:-4;background:linear-gradient(180deg,#1b1032 0%,#2a184a 50%,#25143f 100%);animation:shift 60s linear infinite;}
-@keyframes shift{0%{filter:hue-rotate(0deg);}50%{filter:hue-rotate(180deg);}100%{filter:hue-rotate(360deg);}}
-.overlay{position:fixed;inset:0;z-index:-3;opacity:.25;background-image:url('https://media.tenor.com/JO9Zp6ThYcsAAAAM/sacred-geometry.gif');background-size:cover;background-position:center;mix-blend-mode:overlay;}
-.wrap{display:grid;grid-template-columns:440px 1fr;gap:24px;padding:24px;min-height:100vh}
-.card{border-radius:24px;padding:18px;border:1px solid var(--ring);background:linear-gradient(180deg,var(--glass1),var(--glass2));backdrop-filter:blur(7px);box-shadow:0 20px 60px rgba(0,0,0,.45);}
+*{box-sizing:border-box} html,body{height:100%}
+body{
+  margin:0;color:var(--ink);
+  font-family:"Orbitron",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  background:#0f0a1c;
+}
+/* Base color background */
+.bg{
+  position:fixed; inset:0; z-index:0;
+  background:
+    radial-gradient(1200px 700px at 15% 15%, rgba(255,123,241,.34), transparent 60%),
+    radial-gradient(1200px 900px at 85% 10%, rgba(255,184,77,.30), transparent 65%),
+    radial-gradient(1000px 800px at 20% 85%, rgba(141,255,106,.24), transparent 65%),
+    linear-gradient(180deg,#1b1032 0%,#2a184a 50%,#25143f 100%);
+  filter:saturate(145%) blur(.2px);
+  animation:bgHue 140s linear infinite;
+}
+@keyframes bgHue{to{filter:hue-rotate(360deg) saturate(145%) blur(.2px);}}
+
+/* Iridescent field (120% saturation) */
+.fx{position:fixed; inset:0; z-index:1; pointer-events:none;}
+.fx .field{
+  position:absolute; inset:-10%;
+  background:
+    radial-gradient(640px 640px at 25% 30%, #ff7bf17a, transparent 60%),
+    radial-gradient(820px 820px at 75% 70%, #8dff6a7a, transparent 65%),
+    radial-gradient(720px 720px at 50% 50%, #ffd86a7a, transparent 55%);
+  filter:saturate(120%);
+  animation:iris 30s linear infinite;
+}
+@keyframes iris{
+  0%{filter:hue-rotate(0deg) saturate(120%)}
+  50%{filter:hue-rotate(120deg) saturate(120%)}
+  100%{filter:hue-rotate(360deg) saturate(120%)}
+}
+
+/* Moiré SVG overlay (JS-free) */
+.wave-wall{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.5;}
+.wave-wall svg{width:100%;height:100%;display:block}
+
+/* Layout & Frost (reduced) */
+.wrap{position:relative; z-index:3; display:grid;grid-template-columns:440px 1fr;gap:24px;padding:24px;min-height:100dvh}
+@media(max-width:980px){.wrap{grid-template-columns:1fr}}
+.card{
+  position:relative;border-radius:24px;padding:18px;border:1px solid var(--ring);
+  background:linear-gradient(180deg,var(--glass1),var(--glass2));
+  -webkit-backdrop-filter: blur(1.75px) saturate(60%);
+  backdrop-filter: blur(1.75px) saturate(60%);
+  box-shadow:0 20px 48px rgba(0,0,0,.5);
+}
 .brand{display:grid;grid-template-columns:148px 1fr;gap:18px;align-items:center;margin-bottom:16px}
-.logo-box{height:148px;border-radius:24px;border:1px solid var(--ring);background:rgba(255,255,255,.08);overflow:hidden;position:relative;}
-.logo{position:absolute;left:50%;top:50%;width:520px;height:520px;transform:translate(-50%,-50%) scale(.95) scaleY(-1);animation:spin 36s linear infinite reverse;}
-@keyframes spin{to{transform:translate(-50%,-50%) scale(.95) scaleY(-1) rotateZ(360deg);}}
-.titles h1{margin:0;font-size:46px;font-weight:800;}
-.titles .sub{margin-top:6px;opacity:.9;font-weight:700;}
-.badge{display:inline-block;margin-left:8px;padding:5px 10px;border-radius:999px;color:#0b0c14;font-weight:900;background:linear-gradient(90deg,#ff7bf1,#ffd86a)}
-.road{margin-top:18px;border:1px solid var(--ring);border-radius:18px;padding:16px;background:rgba(255,255,255,.08)}
+.logo-box{
+  height:148px;border-radius:24px;border:1px solid var(--ring);
+  background:linear-gradient(180deg,rgba(255,255,255,.005),rgba(255,255,255,.005));
+  overflow:hidden;position:relative;isolation:isolate;
+  -webkit-backdrop-filter: blur(1.75px) saturate(60%); backdrop-filter: blur(1.75px) saturate(60%);
+  box-shadow:0 22px 60px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.005)
+}
+.logo{
+  position:absolute; left:var(--logo-x); top:var(--logo-y);
+  width:520px;height:520px; object-fit:contain; pointer-events:none;
+  transform-origin:center center;
+  transform:translate(-50%,-50%) scale(var(--logo-scale)) scaleY(-1);
+  animation:spinIn var(--logo-speed) linear infinite reverse;
+  filter:
+    drop-shadow(0 0 12px rgba(255,255,255,.18))
+    drop-shadow(0 0 18px rgba(255,123,241,.30))
+    drop-shadow(0 0 22px rgba(255,216,106,.22))
+    drop-shadow(0 0 26px rgba(141,255,106,.22))
+    drop-shadow(0 0 32px rgba(174,139,255,.20));
+}
+@keyframes spinIn{to{transform:translate(-50%,-50%) scale(var(--logo-scale)) scaleY(-1) rotateZ(360deg)}}
+.titles h1{margin:0; line-height:1.02; letter-spacing:.4px; font-size:46px; font-weight:800; text-shadow:0 3px 14px rgba(0,0,0,.55)}
+.titles .sub{margin-top:6px;opacity:.95;font-weight:800;text-shadow:0 3px 12px rgba(0,0,0,.5)}
+.badge{display:inline-block;margin-left:8px;padding:5px 10px;border-radius:999px;color:#0b0c14;font-weight:900;font-size:13px;background:linear-gradient(90deg,#ff7bf1,#ffd86a)}
+.badge.demo{background:linear-gradient(90deg,#ff6a6a,#ffd86a)}
+.road{margin-top:18px;border:1px solid var(--ring);border-radius:18px;padding:16px;background:rgba(255,255,255,.005);
+  -webkit-backdrop-filter: blur(1.75px) saturate(60%); backdrop-filter: blur(1.75px) saturate(60%);
+  box-shadow:0 20px 55px rgba(0,0,0,.45);}
 .bar{height:12px;border-radius:999px;background:rgba(14,10,25,.6);border:1px solid var(--ring);overflow:hidden}
 .bar>span{display:block;height:100%;width:0%;transition:width .35s ease;background:linear-gradient(90deg,#ff7bf1,#ffb84d,#8dff6a,#ff6a6a)}
-.bar-legend{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:#aaa}
+.bar-legend{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:var(--ink-dim)}
 .row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
-.btn{appearance:none;border:none;cursor:pointer;font-weight:900;color:#0b0c14;background:linear-gradient(180deg,#fff,#e9eefc);
-border-radius:999px;padding:10px 14px;box-shadow:0 8px 20px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.4);}
-.btn-ghost{background:rgba(255,255,255,.08);color:var(--ink);border:1px solid var(--ring)}
-.chat-col{display:flex;flex-direction:column;height:calc(100vh - 48px)}
-.chat{flex:1;overflow:auto;padding:18px 18px 96px;border:1px solid var(--ring);border-radius:24px;background:rgba(255,255,255,.06)}
-.bubble{margin:14px 0;padding:14px 16px 14px 56px;border-radius:18px;border:1px solid var(--ring);
-background:rgba(255,255,255,.08);position:relative;}
-.bubble .who{position:absolute;left:12px;top:12px;width:32px;height:32px;display:grid;place-items:center;border-radius:10px;
-background:#0e0a1fe6;border:1px solid var(--ring)}
-.composer{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:1fr 110px;gap:10px;align-items:end;padding-top:10px;}
-textarea{width:100%;min-height:54px;resize:vertical;padding:14px 16px;color:var(--ink);background:#120d20;border:1px solid var(--ring);border-radius:16px;}
-.send{height:54px;border-radius:16px;font-weight:900;background:linear-gradient(130deg,#ff7bf1,#ffd86a);color:#0b0c14;}
+.btn{
+  appearance:none;border:none;cursor:pointer;font-weight:900;
+  color:#0b0c14;background:linear-gradient(180deg,#fff,#e9eefc);
+  border-radius:999px;padding:10px 14px;
+  box-shadow:0 10px 26px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.4);
+  font-family:"Orbitron", system-ui, sans-serif;
+}
+.btn-ghost{background:rgba(255,255,255,.0075);color:var(--ink);border:1px solid var(--ring)}
+.btn:active{transform:translateY(1px)}
+.drop{position:relative}
+.drop-menu{
+  position:fixed;display:none;min-width:280px;max-height:60dvh;overflow:auto;
+  background:#0e0a1fe6;backdrop-filter:blur(1.75px) saturate(60%);border:1px solid var(--ring);border-radius:16px;padding:8px;z-index:100000;
+  box-shadow:0 18px 50px rgba(0,0,0,.5);
+}
+.drop.open .drop-menu{display:block}
+.drop-menu .item{padding:10px 12px;border-radius:10px;font-weight:800;color:var(--ink);font-family:"Orbitron",system-ui}
+.drop-menu .item:hover{background:#ffffff18}
+.drop-menu .danger{background:#ff5b5b1a;border:1px solid #ff5b5b45}
+.cta{margin-top:14px;padding:16px;border-radius:16px;border:1px solid var(--ring);background:linear-gradient(180deg,rgba(50,10,35,.92),rgba(45,15,40,.88));text-align:center;
+  -webkit-backdrop-filter: blur(1.75px) saturate(60%); backdrop-filter: blur(1.75px) saturate(60%);
+  box-shadow:0 18px 55px rgba(0,0,0,.5);}
+.cta .big{width:100%;padding:14px 16px;border-radius:12px;font-size:18px;font-weight:900;background:linear-gradient(90deg,#ff7bf1,#ffd86a);color:#0b0c14;font-family:"Orbitron",system-ui}
+.cta small{display:block;margin-top:8px;color:var(--ink-dim);text-shadow:0 2px 10px rgba(0,0,0,.5)}
+.chat-col{position:relative; height:calc(100dvh - 48px); display:flex; flex-direction:column;}
+@media(max-width:980px){ .chat-col{ height:calc(100dvh - 48px); } }
+.chat{
+  flex:1; min-height:0; overflow:auto; padding:18px 18px 96px;
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.005));
+  border:1px solid var(--ring);border-radius:24px;scroll-behavior:smooth; scrollbar-width:none;
+  -webkit-backdrop-filter: blur(1.75px) saturate(60%); backdrop-filter: blur(1.75px) saturate(60%);
+  box-shadow:0 28px 70px rgba(0,0,0,.55);
+}
+.chat::-webkit-scrollbar{width:0;height:0}
+.bubble{
+  position:relative;margin:14px 0;padding:14px 16px 14px 56px;border-radius:18px;border:1px solid var(--ring);
+  background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.005));
+  -webkit-backdrop-filter: blur(1.75px) saturate(60%); backdrop-filter: blur(1.75px) saturate(60%);
+  box-shadow:0 18px 46px rgba(0,0,0,.45);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  text-shadow:0 2px 8px rgba(0,0,0,.45);
+}
+.bubble .who{
+  position:absolute;left:12px;top:12px;width:32px;height:32px;display:grid;place-items:center;border-radius:10px;background:#0e0a1fe6;border:1px solid var(--ring);
+  box-shadow:0 8px 18px rgba(0,0,0,.45);
+}
+.composer{
+  position:absolute; left:0; right:0; bottom:0;
+  display:grid;grid-template-columns:1fr 110px;gap:10px;align-items:end; padding-top:10px;
+}
+textarea{
+  width:100%; min-height:54px; max-height:180px; resize:vertical; padding:14px 16px;
+  color:var(--ink); background:#120d20; border:1px solid var(--ring); border-radius:16px;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important;
+  -webkit-backdrop-filter: blur(1.75px) saturate(60%); backdrop-filter: blur(1.75px) saturate(60%);
+  box-shadow:0 12px 30px rgba(0,0,0,.45);
+}
+.send{height:54px;border-radius:16px;font-weight:900;background:linear-gradient(130deg,#ff7bf1,#ffd86a);color:#0b0c14;font-family:"Orbitron",system-ui;
+  box-shadow:0 12px 28px rgba(0,0,0,.45);}
+.modal{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:10000; }
+.modal.open{ display:flex; }
+.modal::before{ content:""; position:absolute; inset:0; background:rgba(6,4,12,.6); backdrop-filter:blur(4px); }
+.panel{
+  position:relative; z-index:1; width:min(720px,92vw);
+  background:linear-gradient(180deg,var(--glass1),var(--glass2));
+  border:1px solid var(--ring); border-radius:20px; padding:16px;
+  -webkit-backdrop-filter: blur(1.75px) saturate(60%); backdrop-filter: blur(1.75px) saturate(60%);
+  box-shadow:0 30px 80px rgba(0,0,0,.6);
+}
+.modlist .mod{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px; border:1px solid var(--ring); border-radius:14px; margin:10px 0;
+  -webkit-backdrop-filter: blur(1.75px) saturate(60%); backdrop-filter: blur(1.75px) saturate(60%);
+  box-shadow:0 16px 42px rgba(0,0,0,.45);
+}
+.modlist .lock{ opacity:.6 }
+@media (prefers-reduced-motion: reduce){
+  .logo{ animation:none }
+  .fx .field{ animation:none }
+  .bg{ animation:none }
+}
 </style>
+
+<style id="kebab-fix">
+/* Kebab anti-clipping (portal + high z-index) */
+.drop-menu{
+  position:fixed !important;
+  display:none;
+  min-width:280px; max-height:60dvh; overflow:auto;
+  background:#0e0a1fe6; backdrop-filter:blur(10px);
+  border:1px solid var(--ring); border-radius:16px; padding:8px;
+  z-index:2147483647 !important; pointer-events:auto;
+}
+.drop.open .drop-menu{ display:block; }
+</style>
+
 </head>
-<body class="is-premium">
+<body data-build="ZFIX-FE-INDEX-20251104-0811-27">
 <div class="bg"></div>
-<div class="overlay"></div>
+<div class="fx" aria-hidden="true"><div class="field"></div></div>
+
+
+
+
+<!-- Flower-of-Life sacred geometry overlay -->
+<div class="wave-wall" aria-hidden="true">
+  <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <!-- Soft neon gradient for strokes -->
+      <linearGradient id="folGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%"  stop-color="#ff7bf1"/>
+        <stop offset="50%" stop-color="#ffd86a"/>
+        <stop offset="100%" stop-color="#8dff6a"/>
+      </linearGradient>
+
+      <!-- Glow filter -->
+      <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="2" result="b"/>
+        <feMerge>
+          <feMergeNode in="b"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+
+      <!-- Single Flower-of-Life tile (hexagonal packing of circles) -->
+      <g id="folTile" fill="none" stroke="url(#folGrad)" stroke-width="0.8" filter="url(#glow)">
+        <!-- Base hex radius -->
+        <!-- Draw 19 circles (1 center + first ring + second ring) -->
+        <circle cx="0" cy="0" r="40"/>
+        <!-- first ring -->
+        <circle cx="40" cy="0" r="40"/>
+        <circle cx="-40" cy="0" r="40"/>
+        <circle cx="20" cy="34.641" r="40"/>
+        <circle cx="-20" cy="34.641" r="40"/>
+        <circle cx="20" cy="-34.641" r="40"/>
+        <circle cx="-20" cy="-34.641" r="40"/>
+        <!-- second ring (outer) -->
+        <circle cx="80" cy="0" r="40"/>
+        <circle cx="-80" cy="0" r="40"/>
+        <circle cx="60" cy="34.641" r="40"/>
+        <circle cx="-60" cy="34.641" r="40"/>
+        <circle cx="60" cy="-34.641" r="40"/>
+        <circle cx="-60" cy="-34.641" r="40"/>
+        <circle cx="40" cy="69.282" r="40"/>
+        <circle cx="-40" cy="69.282" r="40"/>
+        <circle cx="0" cy="69.282" r="40"/>
+        <circle cx="40" cy="-69.282" r="40"/>
+        <circle cx="-40" cy="-69.282" r="40"/>
+        <circle cx="0" cy="-69.282" r="40"/>
+      </g>
+
+      <!-- Pattern using the tile on a hex grid -->
+      <pattern id="folPattern" patternUnits="userSpaceOnUse" width="140" height="121.243">
+        <!-- Two rows to tile hexagonally -->
+        <g opacity="0.9">
+          <use href="#folTile" x="70"  y="60.6215"/>
+          <use href="#folTile" x="0"   y="0"/>
+          <use href="#folTile" x="140" y="0"/>
+          <use href="#folTile" x="-70" y="60.6215"/>
+          <use href="#folTile" x="70"  y="-60.6215"/>
+        </g>
+      </pattern>
+    </defs>
+
+    <!-- Layer A: slow rotate + subtle zoom -->
+    <g id="FOLA">
+      <rect x="-300" y="-200" width="1800" height="1200" fill="url(#folPattern)" opacity="0.34"/>
+      <animateTransform attributeName="transform" type="rotate" from="0 600 400" to="360 600 400" dur="90s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" additive="sum" type="scale" from="1 1" to="1.05 1.05" dur="18s" repeatCount="indefinite" values="1;1.03;1;1.05;1"/>
+    </g>
+
+    <!-- Layer B: counter-rotate, lower opacity for parallax -->
+    <g id="FOLB" opacity="0.22" transform="translate(20,10)">
+      <rect x="-300" y="-200" width="1800" height="1200" fill="url(#folPattern)"/>
+      <animateTransform attributeName="transform" type="rotate" from="0 600 400" to="-360 600 400" dur="140s" repeatCount="indefinite"/>
+    </g>
+  </svg>
+</div>
 <div class="wrap">
-<section class="card" id="left">
-  <div class="brand">
-    <div class="logo-box"><img class="logo" src="ias-logo.png" alt=""></div>
-    <div class="titles"><h1>The Freedom Engine</h1><div class="sub">Personal AI Trainer <span class="badge">Premium</span></div></div>
-  </div>
-  <div class="road">
-    <div class="bar"><span id="bar"></span></div>
-    <div class="bar-legend"><span>Roadmap</span><span id="barText">1/5</span></div>
-    <div class="row">
-      <button class="btn btn-ghost" id="exportBtn">Export</button>
-      <button class="btn btn-ghost" id="modulesBtn">Expansions</button>
+  <section class="card" id="left">
+    <div class="brand">
+      <div class="logo-box">
+        <img class="logo" src="ias-logo.png" alt="IAS Logo">
+      </div>
+      <div class="titles">
+        <h1>The Freedom Engine</h1>
+        <div class="sub">Personal AI Trainer <span class="badge demo" id="tierBadge">Demo</span></div>
+      </div>
+    </div>
+
+    <div class="road">
+      <div class="bar"><span id="bar"></span></div>
+      <div class="bar-legend"><span>Roadmap</span><span id="barText">1/5</span></div>
+      <div class="row">
+        <button class="btn btn-ghost" id="exportBtn">Export</button>
+        <button class="btn btn-ghost" id="expBtn">Expansions</button>
+        <div class="drop" id="kebab">
+          <button class="btn btn-ghost" id="kebabBtn">…</button>
+          <div class="drop-menu" id="kebabMenu">
+            <div class="item" id="saveSnap">Save Snapshot</div>
+            <div class="item" id="loadSnap">Load Snapshot</div>
+            <div class="item" id="wake">Wake the Engine</div>
+            <div class="item danger" id="reset">Reset Progress</div>
+            <div class="item" id="switchMode">Switch to Demo / Sign Out</div>
+            <div class="item" id="enterKey">I have a license key</div>
+            <div class="item" id="buy">Buy</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta" id="demoCTA" style="display:none">
+      <button class="big" id="ctaBuy">$29 — Unlock Full Engine</button>
+      <small>Cloud saves + premium modules included.</small>
+    </div>
+  </section>
+
+  <section class="chat-col">
+    <div class="card chat" id="chat"></div>
+    <div class="composer">
+      <textarea id="input" placeholder="Answer here. Press Enter to send."></textarea>
+      <button class="send" id="sendBtn">Send</button>
+    </div>
+  </section>
+</div>
+
+<div class="modal" id="expModal" aria-hidden="true">
+  <div class="panel">
+    <h3 style="margin:6px 6px 10px 6px">Expansions</h3>
+    <div class="modlist" id="expList"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:12px">
+      <button class="btn btn-ghost" id="expClose">Close</button>
     </div>
   </div>
-</section>
-<section class="chat-col">
-  <div class="card chat" id="chat"></div>
-  <div class="composer">
-    <textarea id="input" placeholder="Answer here. Press Enter to send."></textarea>
-    <button class="send" id="sendBtn">Send</button>
-  </div>
-</section>
 </div>
+
+
+
 <script>
-const WORKER_BASE="https://freedom-engine-worker.intelligentlyartificialsystems.workers.dev";
-const STAGES=5;
-const state={roadmap:1,messages:[],stage:1,data:{}};
-const el={bar:document.getElementById("bar"),barText:document.getElementById("barText"),chat:document.getElementById("chat"),
-input:document.getElementById("input"),send:document.getElementById("sendBtn")};
-function updateBar(){const pct=Math.min(STAGES,state.roadmap)/STAGES*100;el.bar.style.width=pct+"%";el.barText.textContent=`${state.roadmap}/${STAGES}`;}
-function pushBubble(who,text){if(!text)return;const b=document.createElement("div");b.className="bubble";b.innerHTML=`<div class="who">${who==="user"?"💬":"⚙️"}</div>${text}`;el.chat.appendChild(b);el.chat.scrollTop=el.chat.scrollHeight;state.messages.push({who,text});}
-async function send(){
-  const v=el.input.value.trim();if(!v)return;pushBubble("user",v);el.input.value="";
-  try{
-    const r=await fetch(WORKER_BASE+"/chat",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({user:v,stage:state.stage,data:state.data,history:state.messages.slice(-10)})});
-    const j=await r.json();
-    if(!j.ok){pushBubble("ai","The Engine's connection faltered. Try again.");return;}
-    pushBubble("ai",j.reply);state.stage=j.stage||state.stage;state.roadmap=Math.min(STAGES,state.stage);updateBar();
-  }catch(e){pushBubble("ai","Network error. Try again later.");}
+/* === Freedom Engine Smart Brain - MORPROBE-ROLLBACK-LOCK === */
+const WORKER_BASE = "https://freedom-engine-worker.intelligentlyartificialsystems.workers.dev";
+const STAGES = 5;
+
+const state = {
+  tier: localStorage.getItem("fe_tier") || "demo",
+  license: localStorage.getItem("fe_license") || "",
+  stage: 1,
+  data: { lane:"", offer:"", avatar:"", channel:"", price:"" },
+  messages: [],
+  greeted:false,
+  lastWake:0,
+  pendingLock:false
+};
+
+const el = {
+  bar:document.getElementById("bar"),
+  barText:document.getElementById("barText"),
+  chat:document.getElementById("chat"),
+  input:document.getElementById("input"),
+  send:document.getElementById("sendBtn"),
+  kebab:document.getElementById("kebab"),
+  kebabBtn:document.getElementById("kebabBtn"),
+  kebabMenu:document.getElementById("kebabMenu"),
+  demoCTA:document.getElementById("demoCTA"),
+  tierBadge:document.getElementById("tierBadge"),
+  enterKey:document.getElementById("enterKey"),
+  buy:document.getElementById("buy"),
+  ctaBuy:document.getElementById("ctaBuy"),
+  switchMode:document.getElementById("switchMode"),
+  reset:document.getElementById("reset"),
+  saveSnap:document.getElementById("saveSnap"),
+  loadSnap:document.getElementById("loadSnap"),
+  wake:document.getElementById("wake"),
+  coachCard:document.getElementById("coachCard"),
+  modulesBtn:document.getElementById("modulesBtn") || document.getElementById("expBtn"),
+  modModal:document.getElementById("modModal") || document.getElementById("expModal"),
+  modList:document.getElementById("modList") || document.getElementById("expList"),
+  modClose:document.getElementById("modClose") || document.getElementById("expClose"),
+};
+
+const STOP = new Set("the a an and or to for of on in with from at into by about as is are was were be been being i you we they he she it my your our their me us them this that these those".split(" "));
+const normText = s => (s||"").toLowerCase().replace(/[^\w$@\- ]+/g," ").replace(/\s+/g," ").trim();
+const verbs=/(build|create|write|audit|design|setup|optimi[sz]e|fix|record|craft|review|map|coach|train|plan|launch|code|script|edit|template)/i;
+
+function setTier(t){
+  state.tier=t; localStorage.setItem("fe_tier",t);
+  const isDemo = t==="demo";
+  document.body.classList.toggle("is-premium", !isDemo);
+  if (el.demoCTA) el.demoCTA.style.display = isDemo ? "block":"none";
+  if (el.enterKey) el.enterKey.style.display = isDemo ? "block":"none";
+  if (el.buy)      el.buy.style.display      = isDemo ? "block":"none";
+  if (el.switchMode) el.switchMode.style.display = isDemo ? "none":"block";
+  if (el.tierBadge){ el.tierBadge.textContent = isDemo ? "Demo":"Premium"; el.tierBadge.classList.toggle("demo", isDemo); }
 }
-el.send.addEventListener("click",send);
-el.input.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}});
-pushBubble("ai","Welcome in. I'm your Freedom Engine mentor. We'll build a micro-offer business together. Pick a lane or say <em>help me choose</em>: design • writing • coaching • dev • other");
-updateBar();
+
+function updateBar(){
+  if(!el.bar||!el.barText) return;
+  const pct = Math.max(1,Math.min(STAGES,state.stage))/STAGES*100;
+  el.bar.style.width = pct+"%";
+  el.barText.textContent = `${Math.max(1,state.stage)}/${STAGES}`;
+}
+function setStage(n){ state.stage=Math.max(1,Math.min(STAGES,n)); updateBar(); }
+function pushBubble(who,text){ if(!text) return; const b=document.createElement("div"); b.className="bubble"; b.innerHTML=`<div class="who">${who==="user"?"💬":"⚙️"}</div>${text}`; el.chat.appendChild(b); state.messages.push({who,text}); requestAnimationFrame(()=>{ el.chat.scrollTop = el.chat.scrollHeight; }); }
+function nudge(html){ pushBubble("ai", html); }
+function renderCoachCard(){ if(!el.coachCard) return; const d=state.data||{}; const bits=[`<b>Stage:</b> ${state.stage}/5`, d.lane?`<b>Lane:</b> ${d.lane}`:"", d.offer?`<b>Offer:</b> ${d.offer}`:"", d.avatar?`<b>Avatar:</b> ${d.avatar}`:"", d.channel?`<b>Channel:</b> ${d.channel}`:"", d.price?`<b>Price:</b> $${String(d.price).replace(/^\$/,'')}`:""].filter(Boolean).map(s=>`<span class="pill">${s}</span>`).join(" "); el.coachCard.innerHTML= bits || `<span class="pill"><b>Stage:</b> ${state.stage}/5</span>`; }
+function safeReply(fn){ return (t)=>{ try{ fn(t); } catch(e){ console.error(e); pushBubble("ai","Glitch dodged. Say that again in plain words."); } finally { renderCoachCard(); } }; }
+
+function guessLane(raw){ const t=normText(raw); if(/\bdesign|logo|brand|graphic|thumbnail|banner|art\b/.test(t)) return "Design"; if(/\bwriting|copy|email|thread|blog|post|tweet|caption|script\b/.test(t)) return "Writing"; if(/\bcoach|coaching|audit|review|feedback|teardown\b/.test(t)) return "Coaching"; if(/\bdev|code|build|tool|automation|worker|script|site|landing\b/.test(t)) return "Dev"; return ""; }
+function guessChannel(raw){ const t=normText(raw); if(/\bemail|inbox|subject\b/.test(t)) return "email"; if(/\bdm|message|pm\b/.test(t)) return "dm"; if(/\bpost|tweet|thread|story\b/.test(t)) return "post"; if(/\bcall|phone|zoom\b/.test(t)) return "call"; return ""; }
+function guessPrice(raw){ const m=raw.match(/\$?\b(\d{2,4})\b/); return m? m[1] : ""; }
+
+async function cloudSave(){
+  if(state.tier!=="premium" || !state.license) return;
+  const payload={stage:state.stage,data:state.data,messages:state.messages};
+  try{
+    await fetch(WORKER_BASE+"/progress",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({license_key:state.license,data:JSON.stringify(payload)})});
+  }catch(e){}
+}
+async function cloudLoad(){
+  if(state.tier!=="premium" || !state.license) return false;
+  try{
+    const r=await fetch(WORKER_BASE+"/progress?license_key="+encodeURIComponent(state.license));
+    const j=await r.json();
+    if(j.ok && j.found && j.data){
+      const d=JSON.parse(j.data);
+      state.stage=Number(d.stage)||1;
+      state.data=Object.assign({lane:"",offer:"",avatar:"",channel:"",price:""}, d.data||{});
+      state.messages=Array.isArray(d.messages)?d.messages.slice(-100):[];
+      if(el.chat){ el.chat.innerHTML=""; state.messages.forEach(m=>pushBubble(m.who,m.text)); }
+      updateBar(); renderCoachCard(); return true;
+    }
+  }catch(e){}
+  return false;
+}
+
+function greet(){
+  if(state.greeted) return; state.greeted=true;
+  const intro=`Welcome in. Pick a lane or say <em>“help me choose”</em> · <b>design • writing • coaching • dev • other</b>`;
+  nudge(intro);
+}
+
+function aiReply(userText){
+  const raw=(userText||"").trim(); const t=raw.toLowerCase();
+  const tooShort = raw.split(/\s+/).filter(Boolean).length < 3;
+  const hasVerb  = verbs.test(raw);
+  if(!raw){ nudge("Give me a crumb or say <em>help me choose</em>."); return; }
+  if(tooShort && !hasVerb && !/^\d$/.test(t) && !/(ready|done|help|menu|expansions)/i.test(t)){ nudge("Too vague. What exactly will they get? One sentence with the action + outcome."); return; }
+
+  switch(state.stage){
+    case 1:{
+      const num=t.match(/^\s*([1-5])\s*$/); const word=t.match(/\b(design|writing|coaching|development|dev|other)\b/i); const laneGuess=guessLane(raw);
+      if(num||word||laneGuess){
+        const lane = num?["","Design","Writing","Coaching","Dev","Other"][Number(num[1])] : (word ? (word[1].toLowerCase().startsWith("dev")?"Dev":word[1][0].toUpperCase()+word[1].slice(1)) : laneGuess);
+        state.data.lane=lane||"Other"; nudge(`Locked: <b>${state.data.lane}</b>.<br>What’s a <b>tiny deliverable in ~48h</b> someone would pay for? One sentence.`); setStage(2); cloudSave(); return;
+      }
+      nudge(`Tell me your lane (design / writing / coaching / dev / other) or say a number 1–5.`); return;
+    }
+    case 2:{
+      if(!state.data.offer && hasVerb && raw.length>20) state.data.offer=raw;
+      const ch=guessChannel(raw); if(ch) state.data.channel=ch;
+      const pr=guessPrice(raw);   if(pr) state.data.price=pr;
+      if(!state.data.avatar && !hasVerb && raw.length<=140) state.data.avatar=raw;
+
+      const missing=[]; if(!state.data.offer)missing.push("offer"); if(!state.data.avatar)missing.push("avatar"); if(!state.data.channel)missing.push("channel"); if(!state.data.price)missing.push("price");
+      if(missing.length){
+        const Q={offer:"What exactly do they get in 48h? (scope + outcome)", avatar:"Who is the first buyer you’d ship to? (name/role)", channel:"Fastest way to reach them? (email/DM/post/call)", price:"Flat price you won’t resent ($29–$199)?"}[missing[0]];
+        nudge(Q); renderCoachCard(); return;
+      }
+
+      if(!state.pendingLock){ state.pendingLock=true; nudge(`Recap: <b>${state.data.offer}</b> → <i>${state.data.avatar}</i> via <b>${state.data.channel}</b> at <b>$${String(state.data.price).replace(/^\$/,'')}</b>.<br>Lock it? <b>yes</b> / <b>no</b>`); return; }
+      if(/^y(es)?$/i.test(t)){ state.pendingLock=false; nudge("Module 2 complete. On to <b>Copy Templates & AI Prompts</b>. Say <b>ready</b> to generate drafts."); completeModule(); return; }
+      if(/^n(o)?$/i.test(t)){ state.pendingLock=false; nudge("No problem. Tell me what to change—offer, avatar, channel, or price."); return; }
+      return;
+    }
+    case 3:{
+      if(/ready/i.test(t)){ nudge("Drafting your outreach + landing hero using your data… (demo preview)."); if(state.tier==="demo"){ nudge(`You’ve reached the end of the demo. <b>Unlock Premium</b> to continue through Modules 3–5.`); return; } nudge("Module 3 complete. Say <b>ready</b> for Launch & Traffic Loops."); completeModule(); return; }
+      nudge("Say <b>ready</b> to generate drafts."); return;
+    }
+    case 4:{
+      if(/ready/i.test(t)){ nudge("72-hour launch checklist generated. (demo preview)"); if(state.tier==="demo"){ nudge(`Unlock Premium to get the full launch map + traffic loops.`); return; } nudge("Module 4 complete. Say <b>ready</b> for Automation & Scaling."); completeModule(); return; }
+      nudge("Say <b>ready</b> to print the 72h checklist."); return;
+    }
+    case 5:{
+      if(/ready/i.test(t)){ nudge("Light automations queued. (demo preview)"); if(state.tier==="demo"){ nudge(`Unlock Premium to wire automations + cloud saves.`); return; } nudge("Module 5 complete. You’re done. Open Expansions for add-ons."); completeModule(); return; }
+      nudge("Say <b>ready</b> to wire the first automation."); return;
+    }
+  }
+}
+
+function completeModule(){
+  if(state.stage < STAGES){
+    if(state.tier==="demo" && state.stage>=2){ setStage(2); nudge(`Demo limit reached. <b>Buy</b> to continue.`); return; }
+    setStage(state.stage+1);
+  }
+  cloudSave(); renderCoachCard();
+}
+
+document.addEventListener("DOMContentLoaded", async ()=>{
+  // Kebab portal: move menu to body once to avoid clipping
+  try{ const km=document.getElementById("kebabMenu"); if(km && km.parentElement!==document.body){ document.body.appendChild(km); } }catch(e){}
+
+  // Gumroad
+  const gumroad="https://intellartsystems.gumroad.com/l/the-freedom-engine";
+  if (document.getElementById("buy")) document.getElementById("buy").addEventListener("click", ()=>window.open(gumroad,"_blank"));
+  if (document.getElementById("ctaBuy")) document.getElementById("ctaBuy").addEventListener("click", ()=>window.open(gumroad,"_blank"));
+
+  if (el.enterKey) el.enterKey.addEventListener("click", async ()=>{
+    const key=prompt("Enter license key:"); if(!key) return;
+    state.license=key.trim(); localStorage.setItem("fe_license",state.license);
+    setTier("premium"); const ok=await cloudLoad();
+    if(!ok && el.chat){ el.chat.innerHTML=""; state.messages=[]; greet(); }
+    updateBar(); renderCoachCard();
+  });
+
+  if (el.switchMode) el.switchMode.addEventListener("click", ()=>{
+    localStorage.removeItem("fe_license"); setTier("demo");
+    state.license=""; setStage(1);
+    state.data={lane:"",offer:"",avatar:"",channel:"",price:""};
+    state.messages=[]; state.greeted=false; state.pendingLock=false;
+    if(el.chat) el.chat.innerHTML=""; greet(); updateBar(); renderCoachCard();
+  });
+
+  if (el.reset) el.reset.addEventListener("click", ()=>{
+    setStage(1); state.data={lane:"",offer:"",avatar:"",channel:"",price:""};
+    state.messages=[]; state.greeted=false; state.pendingLock=false;
+    if(el.chat) el.chat.innerHTML="";
+    greet(); updateBar(); renderCoachCard(); cloudSave();
+  });
+
+  if (document.getElementById("exportBtn")) document.getElementById("exportBtn").addEventListener("click", ()=>{
+    const data={stage:state.stage,data:state.data,messages:state.messages,tier:state.tier};
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="freedom-engine-snapshot.json"; a.click(); URL.revokeObjectURL(a.href);
+  });
+  if (el.saveSnap) el.saveSnap.addEventListener("click", ()=>{
+    const data={stage:state.stage,data:state.data,messages:state.messages};
+    const blob=new Blob([JSON.stringify(data)],{type:"application/json"});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="fe-local-snapshot.json"; a.click(); URL.revokeObjectURL(a.href);
+  });
+  if (el.loadSnap) el.loadSnap.addEventListener("click", ()=>{
+    const inp=document.createElement("input"); inp.type="file"; inp.accept="application/json";
+    inp.onchange=async()=>{ const f=inp.files[0]; if(!f) return;
+      try{ const d=JSON.parse(await f.text());
+        setStage(Math.max(1,Math.min(5,Number(d.stage)||1)));
+        state.data=Object.assign({lane:"",offer:"",avatar:"",channel:"",price:""}, d.data||{});
+        state.messages=Array.isArray(d.messages)?d.messages.slice(-100):[];
+        if(el.chat){ el.chat.innerHTML=""; state.messages.forEach(m=>pushBubble(m.who,m.text)); }
+        updateBar(); renderCoachCard(); cloudSave();
+      }catch{ alert("Bad snapshot file."); }
+    }; inp.click();
+  });
+
+  if (el.wake) el.wake.addEventListener("click", ()=>{
+    const now=Date.now(); if(now-state.lastWake<2000) return; state.lastWake=now;
+    nudge("Engine’s awake. Where were we?");
+  });
+
+  const _aiCore = safeReply(aiReply);
+  function send(){
+  const v = el.input && el.input.value ? el.input.value.trim() : "";
+  if(!v) return;
+
+  pushBubble("user", v);
+  if(el.input) el.input.value = "";
+
+  fetch(WORKER_BASE + "/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      user: v,
+      stage: state.stage || state.roadmap || 1,
+      data: state.data || {},
+      history: state.messages ? state.messages.slice(-10) : []
+    })
+  })
+  .then(r => r.json())
+  .then(j => {
+    if(!j || !j.ok){ pushBubble("ai","Network hiccup. Say that again."); return; }
+    if(j.updates && typeof j.updates === "object"){
+      state.data = Object.assign({ lane:"",offer:"",avatar:"",channel:"",price:"" }, state.data || {}, j.updates);
+    }
+    if(typeof j.stage === "number"){
+      state.stage = j.stage;
+      if(typeof setStage === "function"){ setStage(j.stage); }
+      if(state.roadmap != null){ state.roadmap = Math.min(5, j.stage); }
+      if(typeof updateBar === "function"){ updateBar(); }
+    }
+    pushBubble("ai", j.reply || "Noted.");
+    if(typeof cloudSave === "function"){ try{ cloudSave(); }catch(e){} }
+  })
+  .catch(() => pushBubble("ai","Server nap. Try once more."));
+}
+  if (el.send) el.send.addEventListener("click", send);
+  if (el.input) el.input.addEventListener("keydown", e=>{ if(e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); send(); }});
+
+  setTier(state.tier);
+  let loaded=false; if(state.tier==="premium" && state.license){ loaded=await cloudLoad(); }
+  if(!loaded || state.messages.length===0) greet();
+  updateBar(); renderCoachCard();
+});
 </script>
+
+
 </body>
 </html>
