@@ -248,6 +248,120 @@ textarea{
   }
 </style>
 <!-- /I2 clamp overrides -->
+
+<!-- I3: Mobile performance + color-consistent buttons + full clamp + single-screen layout (non-destructive) -->
+<style id="i3-mobile-perf-and-layout">
+  :root{
+    /* Pastel spectrum that matches existing background; adjustable by theme */
+    --ui-grad-1: #7f5af0;
+    --ui-grad-2: #ff7ac6;
+    --ui-surface: rgba(255,255,255,.06);
+    --ui-border: rgba(255,255,255,.18);
+    --ui-text: #ffffff;
+    --ui-shadow: 0 6px 24px rgba(0,0,0,.35);
+  }
+
+  /* 1) Performance guards */
+  .sacred-geometry, .bg-overlay, .overlay-geometry, [data-geometry], [data-decor]{
+    pointer-events: none;
+  }
+  /* Cap heavy filters on live surfaces */
+  .composer, .header, .nav, .panel, .card, .window {
+    -webkit-backdrop-filter: blur(12px) saturate(1.1);
+    backdrop-filter: blur(12px) saturate(1.1);
+  }
+  /* Paint isolation where many children animate */
+  .panel, .card, .window, .cta, .price-card { contain: layout paint style; }
+
+  /* 2) Buttons that match the background theme */
+  .btn, button, [role="button"], .cta-btn {
+    background: linear-gradient(135deg, var(--ui-grad-1), var(--ui-grad-2));
+    border: 1px solid var(--ui-border);
+    color: var(--ui-text);
+    border-radius: 14px;
+    padding: .8rem 1.1rem;
+    font-weight: 700;
+    letter-spacing: .3px;
+    box-shadow: var(--ui-shadow);
+  }
+  .btn:disabled, button:disabled { opacity: .65; box-shadow: none; }
+  .btn:hover, button:hover, [role="button"]:hover {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+  }
+  .btn:active, button:active, [role="button"]:active { transform: translateY(0); }
+
+  /* 3) Clamp ALL windows / panels */
+  .window, .panel, .card, .module, .modal, .sheet, .drawer {
+    max-height: min(88vh, 88dvh);
+    overflow: auto;
+    margin: 12px;
+    border-radius: 18px;
+  }
+
+  /* 4) Global overscroll protection (reinforce I2) */
+  html, body { height: 100dvh; overflow: hidden; overscroll-behavior: none; }
+
+  /* Ensure primary scroll area never hides behind composer */
+  .chat, #chat, .messages, .scroll, .content {
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+    min-height: 0;
+  }
+
+  /* Keep the composer pinned & internally scrollable if it grows */
+  .composer, .input-bar, .message-composer {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    max-height: 38dvh;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+    background: linear-gradient(135deg, rgba(20,20,35,.72), rgba(30,18,40,.72));
+    border-top: 1px solid var(--ui-border);
+  }
+
+  /* 5) Mobile single-screen layout: compact grid */
+  @media (max-width: 768px){
+    body, .app, #app, .root, main {
+      display: grid !important;
+      grid-template-rows: auto auto auto 1fr;
+      grid-template-columns: 1fr;
+      height: 100dvh;
+    }
+    .header, .hero, .titlebar { grid-row: 1; }
+    .progress, .roadmap, .meter { grid-row: 2; }
+    .cta, .purchase, .price-card, .cta-bar { 
+      grid-row: 3;
+      display: grid;
+      grid-auto-flow: column;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--ui-surface);
+      border: 1px solid var(--ui-border);
+      border-radius: 16px;
+      margin: 8px 12px;
+    }
+    .chat, #chat, .messages, .content { grid-row: 4; }
+    /* Tighten vertical rhythm */
+    .hero, .titlebar, .section, .panel, .card { padding: 10px; }
+    .price-card .btn, .cta .btn, .cta [role="button"]{ padding: .7rem 1rem; }
+    /* Disable decorative infinite anims on mobile to kill jank */
+    .decorative, .bg-anim, [data-decor], .sacred, .geometry, .overlay-geometry {
+      animation-duration: .01ms !important;
+      animation-iteration-count: 1 !important;
+    }
+  }
+
+  /* 6) Tiny-height safeguard */
+  @media (max-height: 540px){
+    .cta, .purchase, .price-card { margin: 6px; border-radius: 12px; }
+    .composer, .input-bar, .message-composer { padding: 6px; }
+  }
+</style>
+<!-- /I3 overrides -->
 </head>
 <body data-build="ZFIX-FE-INDEX-20251104-0811-27">
 <div class="bg"></div>
@@ -622,5 +736,25 @@ document.addEventListener("DOMContentLoaded", async ()=>{
 </script>
 
 
+
+<!-- I3 helpers: mark offscreen panels for content-visibility and trim excessive will-change -->
+<script id="i3-helpers">
+(function(){
+  try{
+    // Reduce accidental global will-change (causes endless layers)
+    document.querySelectorAll('*').forEach(el=>{
+      const wc = getComputedStyle(el).willChange;
+      if (wc && wc !== 'auto' && !el.hasAttribute('data-anim-critical')) {
+        el.style.willChange = 'auto';
+      }
+    });
+    // Content-visibility on heavy panels not initially in view
+    document.querySelectorAll('.panel, .card, .module').forEach(el=>{
+      el.style.contentVisibility = 'auto';
+      el.style.containIntrinsicSize = '800px 600px';
+    });
+  }catch(e){ /* no-op */ }
+})();
+</script>
 </body>
 </html>
