@@ -362,6 +362,145 @@ textarea{
   }
 </style>
 <!-- /I3 overrides -->
+
+<!-- I4: Mobile hard clamp + all-UI-on-screen + smoother perf (non-destructive) -->
+<style id="i4-mobile-fit">
+  :root{
+    --i4-gap: 10px;
+    --i4-radius: 16px;
+    --i4-blur: 12px;
+    --composer-h: 96px; /* live-updated by JS */
+  }
+
+  /* 0) Global: one-screen page on mobile */
+  html, body { height: 100dvh; overflow: hidden; overscroll-behavior: none; }
+  * { box-sizing: border-box; min-height: 0; max-width: 100%; }
+
+  /* 1) Buttons unify to background gradient theme */
+  .btn, button, [role="button"], .cta-btn {
+    background: linear-gradient(135deg, #7f5af0, #ff7ac6);
+    color: #fff; font-weight: 700; letter-spacing: .3px;
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 14px; padding: .75rem 1rem;
+  }
+  .btn:disabled, button:disabled { opacity: .65; }
+  .btn:hover, button:hover { filter: brightness(1.05); transform: translateY(-1px); }
+  .btn:active, button:active { transform: translateY(0); }
+
+  /* 2) Clamp every floating window/panel */
+  .panel, .card, .modal, .sheet, .drawer, .window, .module {
+    max-height: min(88vh, 88dvh); overflow: auto; margin: 12px; border-radius: var(--i4-radius);
+  }
+
+  /* 3) Primary scroll areas never hide under composer */
+  .chat, #chat, .messages, .content, .scroll {
+    overflow: auto; -webkit-overflow-scrolling: touch;
+    padding-bottom: var(--composer-h);
+  }
+
+  /* 4) Composer stays pinned and light */
+  .composer, .input-bar, .message-composer {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    max-height: 38dvh; overflow: auto; -webkit-overflow-scrolling: touch;
+    backdrop-filter: blur(var(--i4-blur)) saturate(1.1);
+    -webkit-backdrop-filter: blur(var(--i4-blur)) saturate(1.1);
+    border-top: 1px solid rgba(255,255,255,.18);
+    background: linear-gradient(135deg, rgba(20,20,35,.72), rgba(30,18,40,.72));
+  }
+
+  /* 5) Mobile single-screen grid + compact spacing */
+  @media (max-width: 768px){
+    body, .app, #app, main, .root {
+      display: grid !important;
+      grid-template-rows: auto auto auto 1fr;
+      grid-template-columns: 1fr;
+      height: 100dvh;
+      gap: var(--i4-gap);
+      padding: var(--i4-gap);
+      padding-bottom: calc(var(--i4-gap) + env(safe-area-inset-bottom));
+    }
+    .header, .hero, .titlebar { grid-row: 1; margin: 0 !important; }
+    .progress, .roadmap, .meter { grid-row: 2; margin: 0 !important; }
+    .cta, .purchase, .price-card, .cta-bar { 
+      grid-row: 3; margin: 0 !important;
+      display: grid; grid-auto-flow: column; align-items: center; gap: 8px;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.18);
+      border-radius: var(--i4-radius); padding: 8px 12px;
+    }
+    .chat, #chat, .messages, .content { grid-row: 4; }
+    .hero, .section, .card, .panel { padding: 10px !important; }
+    /* Progress bar slim */
+    .meter, .progress { height: auto; }
+    .meter > *, .progress > * { height: 10px !important; border-radius: 999px; }
+    /* Type/spacing clamp for small heights */
+    :where(h1,h2,h3){ line-height: 1.1; margin: .25em 0 .5em 0; }
+    p { margin: .4em 0; }
+  }
+
+  /* 6) Tiny-height safeguard */
+  @media (max-height: 640px){
+    :root{ --i4-gap: 8px; --i4-radius: 12px; }
+    .cta, .purchase, .price-card { padding: 6px 10px; }
+  }
+
+  /* 7) Lag reduction on large surfaces */
+  .panel, .card, .window, .cta { contain: layout paint style; }
+  .sacred-geometry, .bg-overlay, [data-geometry], [data-decor]{ pointer-events: none; }
+</style>
+<!-- /I4 overrides -->
+
+<!-- I5: Fix header clipping, composer layering, left fade, chat height + progress alignment -->
+<style id="i5-fixes">
+  :root{
+    --top-stack-h: 140px; /* live-updated by JS */
+    --composer-h: 96px;   /* already set by I4 JS; re-used */
+  }
+
+  /* Ensure sacred overlay always covers viewport (no left fade/cutoff) */
+  .sacred-geometry, .bg-overlay, .overlay-geometry, [data-geometry="sacred"] {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    background-repeat: no-repeat !important;
+    background-size: cover !important;
+    background-position: center !important;
+    pointer-events: none !important;
+    z-index: 0 !important;
+  }
+
+  /* Layer order: header/progress (3), chat (2), composer (4), overlays (1) */
+  .header, .hero, .titlebar, .progress, .roadmap, .meter { position: relative; z-index: 3; }
+  .chat, #chat, .messages, .content { position: relative; z-index: 2; }
+  .composer, .input-bar, .message-composer { position: fixed; z-index: 4; }
+
+  /* Prevent top clipping by reserving explicit space for the top stack */
+  .chat, #chat, .messages, .content {
+    /* Height will be set by JS via max-height on small screens */
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  /* Align/compact progress bar visually */
+  .progress, .roadmap, .meter {
+    margin-inline: auto !important;
+    width: min(94vw, 680px) !important;
+    max-width: 94vw !important;
+  }
+  .meter > *, .progress > * {
+    height: 10px !important;
+    border-radius: 999px !important;
+  }
+
+  /* Chat area height bounded between header/progress and composer */
+  @media (max-width: 768px){
+    .chat, #chat, .messages, .content {
+      max-height: calc(100dvh - var(--top-stack-h) - var(--composer-h));
+      min-height: 120px;
+      overflow: auto;
+    }
+  }
+</style>
 </head>
 <body data-build="ZFIX-FE-INDEX-20251104-0811-27">
 <div class="bg"></div>
@@ -754,6 +893,63 @@ document.addEventListener("DOMContentLoaded", async ()=>{
       el.style.containIntrinsicSize = '800px 600px';
     });
   }catch(e){ /* no-op */ }
+})();
+</script>
+
+<!-- I4: live composer height + fit observers -->
+<script id="i4-fit-js">
+(function(){
+  function setComposerH(){
+    var c = document.querySelector('.composer, .input-bar, .message-composer');
+    var h = c ? c.offsetHeight : 96;
+    document.documentElement.style.setProperty('--composer-h', h + 'px');
+  }
+  setComposerH();
+  var ro = new ResizeObserver(setComposerH);
+  var target = document.querySelector('.composer, .input-bar, .message-composer');
+  if(target){ ro.observe(target); }
+  if (window.visualViewport){
+    visualViewport.addEventListener('resize', setComposerH);
+    visualViewport.addEventListener('scroll', setComposerH);
+  }
+  window.addEventListener('orientationchange', setComposerH);
+  window.addEventListener('resize', setComposerH);
+})();
+</script>
+
+<!-- I5: Measure top stack (header + progress + CTA) and set --top-stack-h -->
+<script id="i5-measure">
+(function(){
+  function px(n){ return Math.max(0, Math.round(n)) + 'px'; }
+  function h(el){ return el ? el.getBoundingClientRect().height : 0; }
+  function measureTop(){
+    var header = document.querySelector('.header, .hero, .titlebar');
+    var progress = document.querySelector('.progress, .roadmap, .meter');
+    var cta = document.querySelector('.cta, .purchase, .price-card, .cta-bar');
+    var total = h(header) + h(progress) + h(cta) + 16; /* small gap */
+    if (total < 60) total = 60; /* sanity */
+    document.documentElement.style.setProperty('--top-stack-h', px(total));
+    // Also nudge chat height immediately
+    var chats = document.querySelectorAll('.chat, #chat, .messages, .content');
+    chats.forEach(function(el){
+      el.style.maxHeight = 'calc(100dvh - var(--top-stack-h) - var(--composer-h))';
+    });
+  }
+  measureTop();
+  var obsTargets = [
+    '.header','.hero','.titlebar','.progress','.roadmap','.meter','.cta','.purchase','.price-card','.cta-bar'
+  ];
+  var ro = new ResizeObserver(measureTop);
+  obsTargets.forEach(function(sel){
+    var n = document.querySelector(sel);
+    if (n) ro.observe(n);
+  });
+  window.addEventListener('resize', measureTop);
+  if (window.visualViewport){
+    visualViewport.addEventListener('resize', measureTop);
+    visualViewport.addEventListener('scroll', measureTop);
+  }
+  window.addEventListener('orientationchange', measureTop);
 })();
 </script>
 </body>
