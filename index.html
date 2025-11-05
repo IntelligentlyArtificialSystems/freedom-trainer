@@ -1,955 +1,423 @@
-
 <!doctype html>
 <html lang="en">
 <head>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>The Freedom Engine — Personal AI Trainer</title>
-<!-- BUILD_ID: MORPROBE-20251104-095750 -->
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>The Freedom Engine — index.html (I17, visuals locked, Edge Brain v2.1)</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
 <style>
-
 :root{
-  --ink:#f7f8ff; --ink-dim:#cfd4ff;
+  --ink:#f7f8ff;
+  --ink-dim:#cfd4ff;
   --ring:rgba(255,255,255,.22);
-  --glass1:rgba(255,255,255,.025);
-  --glass2:rgba(255,255,255,.005);
-  --logo-x:50%; --logo-y:52%; --logo-scale:.95; --logo-speed:36s;
+  --glass1:rgba(255,255,255,.035);
+  --glass2:rgba(255,255,255,.01);
+  --shadow:0 18px 48px rgba(0,0,0,.55);
+  --radius:24px;
 }
-*{box-sizing:border-box} html,body{height:100%}
-body{
-  margin:0;color:var(--ink);
-  font-family:"Orbitron",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-  background:#0f0a1c;
-}
-/* Base color background */
-.bg{
+
+*{box-sizing:border-box}
+html,body{height:100dvh;margin:0}
+body{ color:var(--ink); font-family:"Orbitron",system-ui,-apple-system,Segoe UI,Roboto,sans-serif; overflow:hidden; background:#0f0a1c; }
+
+/* ===== I1 BACKGROUND (wider gamut + 2x speed) ===== */
+#fe-bg{
   position:fixed; inset:0; z-index:0;
   background:
-    radial-gradient(1200px 700px at 15% 15%, rgba(255,123,241,.34), transparent 60%),
-    radial-gradient(1200px 900px at 85% 10%, rgba(255,184,77,.30), transparent 65%),
-    radial-gradient(1000px 800px at 20% 85%, rgba(141,255,106,.24), transparent 65%),
+    radial-gradient(1200px 820px at 12% 18%, rgba(248, 64, 220, .34), transparent 62%),
+    radial-gradient(1200px 820px at 86% 22%, rgba(255, 196, 61,  .30), transparent 65%),
+    radial-gradient(1200px 900px at 24% 86%, rgba( 62, 205, 255, .28), transparent 65%),
+    radial-gradient(1400px 900px at 80% 90%, rgba( 75, 255, 180, .22), transparent 68%),
     linear-gradient(180deg,#1b1032 0%,#2a184a 50%,#25143f 100%);
-  filter:saturate(145%) blur(.2px);
-  animation:bgHue 140s linear infinite;
+  animation: hueCycle 45s linear infinite;
+  will-change: filter;
 }
-@keyframes bgHue{to{filter:hue-rotate(360deg) saturate(145%) blur(.2px);}}
+@keyframes hueCycle{ from{ filter:hue-rotate(0deg) } to{ filter:hue-rotate(360deg) } }
 
-/* Iridescent field (120% saturation) */
-.fx{position:fixed; inset:0; z-index:1; pointer-events:none;}
-.fx .field{
-  position:absolute; inset:-10%;
-  background:
-    radial-gradient(640px 640px at 25% 30%, #ff7bf17a, transparent 60%),
-    radial-gradient(820px 820px at 75% 70%, #8dff6a7a, transparent 65%),
-    radial-gradient(720px 720px at 50% 50%, #ffd86a7a, transparent 55%);
-  filter:saturate(120%);
-  animation:iris 30s linear infinite;
+/* ===== Sacred Geometry (LOCKED) ===== */
+#fe-geo{ position:fixed; inset:0; z-index:1; pointer-events:none; opacity:.85; overflow:visible }
+#fe-geo svg{width:100%;height:100%;display:block; overflow:visible}
+
+/* ===== App Frame ===== */
+#fe{
+  position:relative; z-index:3; height:100%;
+  padding:14px; display:grid; grid-template-rows:auto auto auto 1fr; gap:12px;
+  min-height:0;
+  padding-bottom:106px; /* space for fixed composer */
 }
-@keyframes iris{
-  0%{filter:hue-rotate(0deg) saturate(120%)}
-  50%{filter:hue-rotate(120deg) saturate(120%)}
-  100%{filter:hue-rotate(360deg) saturate(120%)}
-}
-
-/* Moiré SVG overlay (JS-free) */
-.wave-wall{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.5;}
-.wave-wall svg{width:100%;height:100%;display:block}
-
-/* Layout & Frost (reduced) */
-.wrap{position:relative; z-index:3; display:grid;grid-template-columns:440px 1fr;gap:24px;padding:24px;min-height:100dvh}
-@media(max-width:980px){.wrap{grid-template-columns:1fr}}
 .card{
-  position:relative;border-radius:24px;padding:18px;border:1px solid var(--ring);
+  border-radius:var(--radius);
+  padding:14px;
+  border:1px solid var(--ring);
   background:linear-gradient(180deg,var(--glass1),var(--glass2));
-  -webkit-backdrop-filter: blur(1.75px) saturate(60%);
-  backdrop-filter: blur(1.75px) saturate(60%);
-  box-shadow:0 20px 48px rgba(0,0,0,.5);
+  -webkit-backdrop-filter: blur(2px) saturate(60%);
+  backdrop-filter: blur(2px) saturate(60%);
+  box-shadow:var(--shadow);
 }
-.brand{display:grid;grid-template-columns:148px 1fr;gap:18px;align-items:center;margin-bottom:16px}
-.logo-box{
-  height:148px;border-radius:24px;border:1px solid var(--ring);
-  background:linear-gradient(180deg,rgba(255,255,255,.005),rgba(255,255,255,.005));
-  overflow:hidden;position:relative;isolation:isolate;
-  -webkit-backdrop-filter: blur(1.75px) saturate(60%); backdrop-filter: blur(1.75px) saturate(60%);
-  box-shadow:0 22px 60px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.005)
-}
-.logo{
-  position:absolute; left:var(--logo-x); top:var(--logo-y);
-  width:520px;height:520px; object-fit:contain; pointer-events:none;
-  transform-origin:center center;
-  transform:translate(-50%,-50%) scale(var(--logo-scale)) scaleY(-1);
-  animation:spinIn var(--logo-speed) linear infinite reverse;
-  filter:
-    drop-shadow(0 0 12px rgba(255,255,255,.18))
-    drop-shadow(0 0 18px rgba(255,123,241,.30))
-    drop-shadow(0 0 22px rgba(255,216,106,.22))
-    drop-shadow(0 0 26px rgba(141,255,106,.22))
-    drop-shadow(0 0 32px rgba(174,139,255,.20));
-}
-@keyframes spinIn{to{transform:translate(-50%,-50%) scale(var(--logo-scale)) scaleY(-1) rotateZ(360deg)}}
-.titles h1{margin:0; line-height:1.02; letter-spacing:.4px; font-size:46px; font-weight:800; text-shadow:0 3px 14px rgba(0,0,0,.55)}
-.titles .sub{margin-top:6px;opacity:.95;font-weight:800;text-shadow:0 3px 12px rgba(0,0,0,.5)}
-.badge{display:inline-block;margin-left:8px;padding:5px 10px;border-radius:999px;color:#0b0c14;font-weight:900;font-size:13px;background:linear-gradient(90deg,#ff7bf1,#ffd86a)}
-.badge.demo{background:linear-gradient(90deg,#ff6a6a,#ffd86a)}
-.road{margin-top:18px;border:1px solid var(--ring);border-radius:18px;padding:16px;background:rgba(255,255,255,.005);
-  -webkit-backdrop-filter: blur(1.75px) saturate(60%); backdrop-filter: blur(1.75px) saturate(60%);
-  box-shadow:0 20px 55px rgba(0,0,0,.45);}
-.bar{height:12px;border-radius:999px;background:rgba(14,10,25,.6);border:1px solid var(--ring);overflow:hidden}
-.bar>span{display:block;height:100%;width:0%;transition:width .35s ease;background:linear-gradient(90deg,#ff7bf1,#ffb84d,#8dff6a,#ff6a6a)}
-.bar-legend{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:var(--ink-dim)}
-.row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
-.btn{
-  appearance:none;border:none;cursor:pointer;font-weight:900;
-  color:#0b0c14;background:linear-gradient(180deg,#fff,#e9eefc);
-  border-radius:999px;padding:10px 14px;
-  box-shadow:0 10px 26px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.4);
-  font-family:"Orbitron", system-ui, sans-serif;
-}
-.btn-ghost{background:rgba(255,255,255,.0075);color:var(--ink);border:1px solid var(--ring)}
-.btn:active{transform:translateY(1px)}
-.drop{position:relative}
-.drop-menu{
-  position:fixed;display:none;min-width:280px;max-height:60dvh;overflow:auto;
-  background:#0e0a1fe6;backdrop-filter:blur(1.75px) saturate(60%);border:1px solid var(--ring);border-radius:16px;padding:8px;z-index:100000;
-  box-shadow:0 18px 50px rgba(0,0,0,.5);
-}
-.drop.open .drop-menu{display:block}
-.drop-menu .item{padding:10px 12px;border-radius:10px;font-weight:800;color:var(--ink);font-family:"Orbitron",system-ui}
-.drop-menu .item:hover{background:#ffffff18}
-.drop-menu .danger{background:#ff5b5b1a;border:1px solid #ff5b5b45}
-.cta{margin-top:14px;padding:16px;border-radius:16px;border:1px solid var(--ring);background:linear-gradient(180deg,rgba(50,10,35,.92),rgba(45,15,40,.88));text-align:center;
-  -webkit-backdrop-filter: blur(1.75px) saturate(60%); backdrop-filter: blur(1.75px) saturate(60%);
-  box-shadow:0 18px 55px rgba(0,0,0,.5);}
-.cta .big{width:100%;padding:14px 16px;border-radius:12px;font-size:18px;font-weight:900;background:linear-gradient(90deg,#ff7bf1,#ffd86a);color:#0b0c14;font-family:"Orbitron",system-ui}
-.cta small{display:block;margin-top:8px;color:var(--ink-dim);text-shadow:0 2px 10px rgba(0,0,0,.5)}
-.chat-col{position:relative; height:calc(100dvh - 48px); display:flex; flex-direction:column;}
-@media(max-width:980px){ .chat-col{ height:calc(100dvh - 48px); } }
-.chat{
-  flex:1; min-height:0; overflow:auto; padding:18px 18px 96px;
-  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.005));
-  border:1px solid var(--ring);border-radius:24px;scroll-behavior:smooth; scrollbar-width:none;
-  -webkit-backdrop-filter: blur(1.75px) saturate(60%); backdrop-filter: blur(1.75px) saturate(60%);
-  box-shadow:0 28px 70px rgba(0,0,0,.55);
-}
-.chat::-webkit-scrollbar{width:0;height:0}
-.bubble{
-  position:relative;margin:14px 0;padding:14px 16px 14px 56px;border-radius:18px;border:1px solid var(--ring);
-  background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.005));
-  -webkit-backdrop-filter: blur(1.75px) saturate(60%); backdrop-filter: blur(1.75px) saturate(60%);
-  box-shadow:0 18px 46px rgba(0,0,0,.45);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  text-shadow:0 2px 8px rgba(0,0,0,.45);
-}
-.bubble .who{
-  position:absolute;left:12px;top:12px;width:32px;height:32px;display:grid;place-items:center;border-radius:10px;background:#0e0a1fe6;border:1px solid var(--ring);
-  box-shadow:0 8px 18px rgba(0,0,0,.45);
-}
-.composer{
-  position:absolute; left:0; right:0; bottom:0;
-  display:grid;grid-template-columns:1fr 110px;gap:10px;align-items:end; padding-top:10px;
-}
-textarea{
-  width:100%; min-height:54px; max-height:180px; resize:vertical; padding:14px 16px;
-  color:var(--ink); background:#120d20; border:1px solid var(--ring); border-radius:16px;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important;
-  -webkit-backdrop-filter: blur(1.75px) saturate(60%); backdrop-filter: blur(1.75px) saturate(60%);
-  box-shadow:0 12px 30px rgba(0,0,0,.45);
-}
-.send{height:54px;border-radius:16px;font-weight:900;background:linear-gradient(130deg,#ff7bf1,#ffd86a);color:#0b0c14;font-family:"Orbitron",system-ui;
-  box-shadow:0 12px 28px rgba(0,0,0,.45);}
-.modal{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:10000; }
-.modal.open{ display:flex; }
-.modal::before{ content:""; position:absolute; inset:0; background:rgba(6,4,12,.6); backdrop-filter:blur(4px); }
-.panel{
-  position:relative; z-index:1; width:min(720px,92vw);
-  background:linear-gradient(180deg,var(--glass1),var(--glass2));
-  border:1px solid var(--ring); border-radius:20px; padding:16px;
-  -webkit-backdrop-filter: blur(1.75px) saturate(60%); backdrop-filter: blur(1.75px) saturate(60%);
-  box-shadow:0 30px 80px rgba(0,0,0,.6);
-}
-.modlist .mod{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px; border:1px solid var(--ring); border-radius:14px; margin:10px 0;
-  -webkit-backdrop-filter: blur(1.75px) saturate(60%); backdrop-filter: blur(1.75px) saturate(60%);
-  box-shadow:0 16px 42px rgba(0,0,0,.45);
-}
-.modlist .lock{ opacity:.6 }
-@media (prefers-reduced-motion: reduce){
-  .logo{ animation:none }
-  .fx .field{ animation:none }
-  .bg{ animation:none }
-}
-</style>
+.title{margin:0 0 6px;line-height:1.02;letter-spacing:.4px;font-size:24px;font-weight:900;text-shadow:0 2px 12px rgba(0,0,0,.55)}
+.sub{margin:0;color:var(--ink-dim);font-size:13px;font-weight:700;opacity:.95;text-shadow:0 2px 10px rgba(0,0,0,.5)}
 
-<style id="kebab-fix">
-/* Kebab anti-clipping (portal + high z-index) */
-.drop-menu{
-  position:fixed !important;
-  display:none;
-  min-width:280px; max-height:60dvh; overflow:auto;
-  background:#0e0a1fe6; backdrop-filter:blur(10px);
-  border:1px solid var(--ring); border-radius:16px; padding:8px;
-  z-index:2147483647 !important; pointer-events:auto;
-}
-.drop.open .drop-menu{ display:block; }
-</style>
+/* Progress */
+.meter{border-radius:20px; padding:10px; border:1px solid var(--ring); background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02))}
+.bar{height:10px;border:1px solid var(--ring);border-radius:20px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));position:relative;overflow:hidden}
+.fill{height:100%;background:linear-gradient(90deg,#ff7bf1,#ffd86a);width:0%}
+.nub{position:absolute;top:50%;transform:translateY(-50%);width:12px;height:12px;border-radius:50%;right:4px;background:#fff;box-shadow:0 0 10px rgba(255,255,255,.6)}
+.progtext{color:var(--ink-dim);font-size:12px;margin-top:6px; font-family:"Orbitron",system-ui !important; font-feature-settings:"zero" 0}
 
+/* Chat */
+#fe-chat{ overflow:auto; min-height:0; }
+#chatlog{padding:12px 12px 16px 12px; font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial;}
+.msg{margin:0 0 10px; max-width:96%; display:flex; align-items:flex-start; gap:8px}
+.msg .i{width:22px; height:22px; flex:0 0 22px; display:flex; align-items:center; justify-content:center}
+.msg .i .emo{font-size:20px; line-height:1; filter:drop-shadow(0 2px 6px rgba(0,0,0,.45))}
+.msg .b{flex:1}
+.ai .b{background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.04));border:1px solid var(--ring);padding:12px;border-radius:18px; box-shadow:0 12px 28px rgba(0,0,0,.45);}
+.you .b{margin-left:auto;background:linear-gradient(90deg,#ff7bf1,#ffd86a);color:#111;border:0;padding:10px 12px;border-radius:18px}
 
-<!-- I2 clamp overrides: non-destructive, CSS-only. Keep sacred-geometry & frosted glass intact. -->
-<style id="i2-clamp-overrides">
-  html, body {
-    height: 100dvh;
-    overflow: hidden;
-    overscroll-behavior: none;
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
-  }
-  body { overflow-x: hidden; }
-  * { box-sizing: border-box; max-width: 100%; min-height: 0; }
-  /* Ensure primary column or app root doesn't exceed viewport */
-  .chat-col, .app, .root, main, .layout, .column {
-    min-height: 0;
-  }
-  /* Primary scroll area keeps messages visible above composer */
-  .chat, .scroll, .content, .panel-scroll {
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: calc(96px + env(safe-area-inset-bottom));
-  }
-  /* Composer remains clamped to the bottom and scrolls internally if it grows */
-  .composer, .input-bar, .message-composer {
-    position: fixed;
-    left: 0; right: 0; bottom: 0;
-    max-height: 38dvh;
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
-    backdrop-filter: saturate(1.2) blur(16px);
-  }
-  /* Modals/panels are viewport-clamped; inner content scrolls */
-  .modal, .overlay, .sheet {
-    position: fixed; inset: 0;
-  }
-  .modal .panel, .overlay .panel, .sheet .panel {
-    max-height: min(88vh, 88dvh);
-    margin: 16px;
-    overflow: auto;
-  }
-  /* Avoid accidental horizontal scroll on any nested container */
-  .row, .flex, .cards, .list, .log, .modules, .history {
-    min-width: 0;
-    overflow-x: hidden;
-  }
-  /* Tiny-height safeguard */
-  @media (max-height: 540px) {
-    :root { --tight-gap: 6px; }
-    .composer, .input-bar, .message-composer { padding: var(--tight-gap, 8px); }
-    .modal .panel, .overlay .panel, .sheet .panel { padding: var(--tight-gap, 8px); }
-  }
-</style>
-<!-- /I2 clamp overrides -->
-
-<!-- I3: Mobile performance + color-consistent buttons + full clamp + single-screen layout (non-destructive) -->
-<style id="i3-mobile-perf-and-layout">
-  :root{
-    /* Pastel spectrum that matches existing background; adjustable by theme */
-    --ui-grad-1: #7f5af0;
-    --ui-grad-2: #ff7ac6;
-    --ui-surface: rgba(255,255,255,.06);
-    --ui-border: rgba(255,255,255,.18);
-    --ui-text: #ffffff;
-    --ui-shadow: 0 6px 24px rgba(0,0,0,.35);
-  }
-
-  /* 1) Performance guards */
-  .sacred-geometry, .bg-overlay, .overlay-geometry, [data-geometry], [data-decor]{
-    pointer-events: none;
-  }
-  /* Cap heavy filters on live surfaces */
-  .composer, .header, .nav, .panel, .card, .window {
-    -webkit-backdrop-filter: blur(12px) saturate(1.1);
-    backdrop-filter: blur(12px) saturate(1.1);
-  }
-  /* Paint isolation where many children animate */
-  .panel, .card, .window, .cta, .price-card { contain: layout paint style; }
-
-  /* 2) Buttons that match the background theme */
-  .btn, button, [role="button"], .cta-btn {
-    background: linear-gradient(135deg, var(--ui-grad-1), var(--ui-grad-2));
-    border: 1px solid var(--ui-border);
-    color: var(--ui-text);
-    border-radius: 14px;
-    padding: .8rem 1.1rem;
-    font-weight: 700;
-    letter-spacing: .3px;
-    box-shadow: var(--ui-shadow);
-  }
-  .btn:disabled, button:disabled { opacity: .65; box-shadow: none; }
-  .btn:hover, button:hover, [role="button"]:hover {
-    filter: brightness(1.05);
-    transform: translateY(-1px);
-  }
-  .btn:active, button:active, [role="button"]:active { transform: translateY(0); }
-
-  /* 3) Clamp ALL windows / panels */
-  .window, .panel, .card, .module, .modal, .sheet, .drawer {
-    max-height: min(88vh, 88dvh);
-    overflow: auto;
-    margin: 12px;
-    border-radius: 18px;
-  }
-
-  /* 4) Global overscroll protection (reinforce I2) */
-  html, body { height: 100dvh; overflow: hidden; overscroll-behavior: none; }
-
-  /* Ensure primary scroll area never hides behind composer */
-  .chat, #chat, .messages, .scroll, .content {
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: calc(96px + env(safe-area-inset-bottom));
-    min-height: 0;
-  }
-
-  /* Keep the composer pinned & internally scrollable if it grows */
-  .composer, .input-bar, .message-composer {
-    position: fixed;
-    left: 0; right: 0; bottom: 0;
-    max-height: 38dvh;
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: max(8px, env(safe-area-inset-bottom));
-    background: linear-gradient(135deg, rgba(20,20,35,.72), rgba(30,18,40,.72));
-    border-top: 1px solid var(--ui-border);
-  }
-
-  /* 5) Mobile single-screen layout: compact grid */
-  @media (max-width: 768px){
-    body, .app, #app, .root, main {
-      display: grid !important;
-      grid-template-rows: auto auto auto 1fr;
-      grid-template-columns: 1fr;
-      height: 100dvh;
-    }
-    .header, .hero, .titlebar { grid-row: 1; }
-    .progress, .roadmap, .meter { grid-row: 2; }
-    .cta, .purchase, .price-card, .cta-bar { 
-      grid-row: 3;
-      display: grid;
-      grid-auto-flow: column;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      background: var(--ui-surface);
-      border: 1px solid var(--ui-border);
-      border-radius: 16px;
-      margin: 8px 12px;
-    }
-    .chat, #chat, .messages, .content { grid-row: 4; }
-    /* Tighten vertical rhythm */
-    .hero, .titlebar, .section, .panel, .card { padding: 10px; }
-    .price-card .btn, .cta .btn, .cta [role="button"]{ padding: .7rem 1rem; }
-    /* Disable decorative infinite anims on mobile to kill jank */
-    .decorative, .bg-anim, [data-decor], .sacred, .geometry, .overlay-geometry {
-      animation-duration: .01ms !important;
-      animation-iteration-count: 1 !important;
-    }
-  }
-
-  /* 6) Tiny-height safeguard */
-  @media (max-height: 540px){
-    .cta, .purchase, .price-card { margin: 6px; border-radius: 12px; }
-    .composer, .input-bar, .message-composer { padding: 6px; }
-  }
-</style>
-<!-- /I3 overrides -->
-
-<!-- I4: Mobile hard clamp + all-UI-on-screen + smoother perf (non-destructive) -->
-<style id="i4-mobile-fit">
-  :root{
-    --i4-gap: 10px;
-    --i4-radius: 16px;
-    --i4-blur: 12px;
-    --composer-h: 96px; /* live-updated by JS */
-  }
-
-  /* 0) Global: one-screen page on mobile */
-  html, body { height: 100dvh; overflow: hidden; overscroll-behavior: none; }
-  * { box-sizing: border-box; min-height: 0; max-width: 100%; }
-
-  /* 1) Buttons unify to background gradient theme */
-  .btn, button, [role="button"], .cta-btn {
-    background: linear-gradient(135deg, #7f5af0, #ff7ac6);
-    color: #fff; font-weight: 700; letter-spacing: .3px;
-    border: 1px solid rgba(255,255,255,.18);
-    border-radius: 14px; padding: .75rem 1rem;
-  }
-  .btn:disabled, button:disabled { opacity: .65; }
-  .btn:hover, button:hover { filter: brightness(1.05); transform: translateY(-1px); }
-  .btn:active, button:active { transform: translateY(0); }
-
-  /* 2) Clamp every floating window/panel */
-  .panel, .card, .modal, .sheet, .drawer, .window, .module {
-    max-height: min(88vh, 88dvh); overflow: auto; margin: 12px; border-radius: var(--i4-radius);
-  }
-
-  /* 3) Primary scroll areas never hide under composer */
-  .chat, #chat, .messages, .content, .scroll {
-    overflow: auto; -webkit-overflow-scrolling: touch;
-    padding-bottom: var(--composer-h);
-  }
-
-  /* 4) Composer stays pinned and light */
-  .composer, .input-bar, .message-composer {
-    position: fixed; left: 0; right: 0; bottom: 0;
-    max-height: 38dvh; overflow: auto; -webkit-overflow-scrolling: touch;
-    backdrop-filter: blur(var(--i4-blur)) saturate(1.1);
-    -webkit-backdrop-filter: blur(var(--i4-blur)) saturate(1.1);
-    border-top: 1px solid rgba(255,255,255,.18);
-    background: linear-gradient(135deg, rgba(20,20,35,.72), rgba(30,18,40,.72));
-  }
-
-  /* 5) Mobile single-screen grid + compact spacing */
-  @media (max-width: 768px){
-    body, .app, #app, main, .root {
-      display: grid !important;
-      grid-template-rows: auto auto auto 1fr;
-      grid-template-columns: 1fr;
-      height: 100dvh;
-      gap: var(--i4-gap);
-      padding: var(--i4-gap);
-      padding-bottom: calc(var(--i4-gap) + env(safe-area-inset-bottom));
-    }
-    .header, .hero, .titlebar { grid-row: 1; margin: 0 !important; }
-    .progress, .roadmap, .meter { grid-row: 2; margin: 0 !important; }
-    .cta, .purchase, .price-card, .cta-bar { 
-      grid-row: 3; margin: 0 !important;
-      display: grid; grid-auto-flow: column; align-items: center; gap: 8px;
-      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.18);
-      border-radius: var(--i4-radius); padding: 8px 12px;
-    }
-    .chat, #chat, .messages, .content { grid-row: 4; }
-    .hero, .section, .card, .panel { padding: 10px !important; }
-    /* Progress bar slim */
-    .meter, .progress { height: auto; }
-    .meter > *, .progress > * { height: 10px !important; border-radius: 999px; }
-    /* Type/spacing clamp for small heights */
-    :where(h1,h2,h3){ line-height: 1.1; margin: .25em 0 .5em 0; }
-    p { margin: .4em 0; }
-  }
-
-  /* 6) Tiny-height safeguard */
-  @media (max-height: 640px){
-    :root{ --i4-gap: 8px; --i4-radius: 12px; }
-    .cta, .purchase, .price-card { padding: 6px 10px; }
-  }
-
-  /* 7) Lag reduction on large surfaces */
-  .panel, .card, .window, .cta { contain: layout paint style; }
-  .sacred-geometry, .bg-overlay, [data-geometry], [data-decor]{ pointer-events: none; }
-</style>
-<!-- /I4 overrides -->
-
-<!-- I5: Fix header clipping, composer layering, left fade, chat height + progress alignment -->
-<style id="i5-fixes">
-  :root{
-    --top-stack-h: 140px; /* live-updated by JS */
-    --composer-h: 96px;   /* already set by I4 JS; re-used */
-  }
-
-  /* Ensure sacred overlay always covers viewport (no left fade/cutoff) */
-  .sacred-geometry, .bg-overlay, .overlay-geometry, [data-geometry="sacred"] {
-    position: fixed !important;
-    inset: 0 !important;
-    width: 100vw !important;
-    height: 100dvh !important;
-    background-repeat: no-repeat !important;
-    background-size: cover !important;
-    background-position: center !important;
-    pointer-events: none !important;
-    z-index: 0 !important;
-  }
-
-  /* Layer order: header/progress (3), chat (2), composer (4), overlays (1) */
-  .header, .hero, .titlebar, .progress, .roadmap, .meter { position: relative; z-index: 3; }
-  .chat, #chat, .messages, .content { position: relative; z-index: 2; }
-  .composer, .input-bar, .message-composer { position: fixed; z-index: 4; }
-
-  /* Prevent top clipping by reserving explicit space for the top stack */
-  .chat, #chat, .messages, .content {
-    /* Height will be set by JS via max-height on small screens */
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-  }
-
-  /* Align/compact progress bar visually */
-  .progress, .roadmap, .meter {
-    margin-inline: auto !important;
-    width: min(94vw, 680px) !important;
-    max-width: 94vw !important;
-  }
-  .meter > *, .progress > * {
-    height: 10px !important;
-    border-radius: 999px !important;
-  }
-
-  /* Chat area height bounded between header/progress and composer */
-  @media (max-width: 768px){
-    .chat, #chat, .messages, .content {
-      max-height: calc(100dvh - var(--top-stack-h) - var(--composer-h));
-      min-height: 120px;
-      overflow: auto;
-    }
-  }
+/* Composer */
+.composer{position:fixed;left:0;right:0;bottom:0;height:90px;padding:10px 14px;z-index:6;
+  background:linear-gradient(180deg, rgba(16,10,28,.78), rgba(16,10,28,.95));
+  border-top:1px solid var(--ring); backdrop-filter: blur(12px);
+  display:grid; grid-template-columns:1fr auto; gap:8px}
+.composer input[type=text]{width:100%;padding:12px;border-radius:16px;border:1px solid var(--ring);
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));color:var(--ink);
+  font:16px/1.1 "Orbitron", system-ui;}
+.composer button.primary{padding:12px 18px;border-radius:16px;border:1px solid var(--ring);
+  color:#111;background:linear-gradient(90deg,#ff7bf1,#ffd86a);font-weight:900;letter-spacing:.3px;box-shadow:0 10px 28px rgba(0,0,0,.45)}
 </style>
 </head>
-<body data-build="ZFIX-FE-INDEX-20251104-0811-27">
-<div class="bg"></div>
-<div class="fx" aria-hidden="true"><div class="field"></div></div>
+<body>
 
+<!-- Moving hue background -->
+<div id="fe-bg"></div>
 
-
-
-<!-- Flower-of-Life sacred geometry overlay -->
-<div class="wave-wall" aria-hidden="true">
-  <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+<!-- Sacred Geometry (LOCKED) -->
+<div id="fe-geo" aria-hidden="true">
+  <svg viewBox="0 0 100 100" preserveAspectRatio="none">
     <defs>
-      <!-- Soft neon gradient for strokes -->
-      <linearGradient id="folGrad" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%"  stop-color="#ff7bf1"/>
+      <linearGradient id="neon" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#ff7bf1"/>
         <stop offset="50%" stop-color="#ffd86a"/>
-        <stop offset="100%" stop-color="#8dff6a"/>
+        <stop offset="100%" stop-color="#79ffd9"/>
       </linearGradient>
-
-      <!-- Glow filter -->
       <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-        <feGaussianBlur stdDeviation="2" result="b"/>
-        <feMerge>
-          <feMergeNode in="b"/>
-          <feMergeNode in="SourceGraphic"/>
-        </feMerge>
+        <feGaussianBlur stdDeviation="0.35" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
       </filter>
-
-      <!-- Single Flower-of-Life tile (hexagonal packing of circles) -->
-      <g id="folTile" fill="none" stroke="url(#folGrad)" stroke-width="0.8" filter="url(#glow)">
-        <!-- Base hex radius -->
-        <!-- Draw 19 circles (1 center + first ring + second ring) -->
-        <circle cx="0" cy="0" r="40"/>
-        <!-- first ring -->
-        <circle cx="40" cy="0" r="40"/>
-        <circle cx="-40" cy="0" r="40"/>
-        <circle cx="20" cy="34.641" r="40"/>
-        <circle cx="-20" cy="34.641" r="40"/>
-        <circle cx="20" cy="-34.641" r="40"/>
-        <circle cx="-20" cy="-34.641" r="40"/>
-        <!-- second ring (outer) -->
-        <circle cx="80" cy="0" r="40"/>
-        <circle cx="-80" cy="0" r="40"/>
-        <circle cx="60" cy="34.641" r="40"/>
-        <circle cx="-60" cy="34.641" r="40"/>
-        <circle cx="60" cy="-34.641" r="40"/>
-        <circle cx="-60" cy="-34.641" r="40"/>
-        <circle cx="40" cy="69.282" r="40"/>
-        <circle cx="-40" cy="69.282" r="40"/>
-        <circle cx="0" cy="69.282" r="40"/>
-        <circle cx="40" cy="-69.282" r="40"/>
-        <circle cx="-40" cy="-69.282" r="40"/>
-        <circle cx="0" cy="-69.282" r="40"/>
-      </g>
-
-      <!-- Pattern using the tile on a hex grid -->
-      <pattern id="folPattern" patternUnits="userSpaceOnUse" width="140" height="121.243">
-        <!-- Two rows to tile hexagonally -->
-        <g opacity="0.9">
-          <use href="#folTile" x="70"  y="60.6215"/>
-          <use href="#folTile" x="0"   y="0"/>
-          <use href="#folTile" x="140" y="0"/>
-          <use href="#folTile" x="-70" y="60.6215"/>
-          <use href="#folTile" x="70"  y="-60.6215"/>
-        </g>
+      <pattern id="fol" width="8" height="8" patternUnits="userSpaceOnUse">
+        <circle cx="4" cy="4" r="4" fill="none" stroke="url(#neon)" stroke-width=".2" filter="url(#glow)" />
+        <circle cx="0" cy="4" r="4" fill="none" stroke="url(#neon)" stroke-width=".2" filter="url(#glow)" />
+        <circle cx="8" cy="4" r="4" fill="none" stroke="url(#neon)" stroke-width=".2" filter="url(#glow)" />
+        <circle cx="4" cy="0" r="4" fill="none" stroke="url(#neon)" stroke-width=".2" filter="url(#glow)" />
+        <circle cx="4" cy="8" r="4" fill="none" stroke="url(#neon)" stroke-width=".2" filter="url(#glow)" />
+        <circle cx="0" cy="0" r="4" fill="none" stroke="url(#neon)" stroke-width=".2" filter="url(#glow)" />
+        <circle cx="8" cy="0" r="4" fill="none" stroke="url(#neon)" stroke-width=".2" filter="url(#glow)" />
+        <circle cx="0" cy="8" r="4" fill="none" stroke="url(#neon)" stroke-width=".2" filter="url(#glow)" />
+        <circle cx="8" cy="8" r="4" fill="none" stroke="url(#neon)" stroke-width=".2" filter="url(#glow)" />
       </pattern>
+      <symbol id="tile" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <rect x="0" y="0" width="100" height="100" fill="url(#fol)"/>
+      </symbol>
     </defs>
-
-    <!-- Layer A: slow rotate + subtle zoom -->
-    <g id="FOLA">
-      <rect x="-300" y="-200" width="1800" height="1200" fill="url(#folPattern)" opacity="0.34"/>
-      <animateTransform attributeName="transform" type="rotate" from="0 600 400" to="360 600 400" dur="90s" repeatCount="indefinite"/>
-      <animateTransform attributeName="transform" additive="sum" type="scale" from="1 1" to="1.05 1.05" dur="18s" repeatCount="indefinite" values="1;1.03;1;1.05;1"/>
+    <!-- OVERSCAN 140% -->
+    <g opacity=".34">
+      <use href="#tile" x="-20" y="-20" width="140" height="140">
+        <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 50 50" to="360 50 50" dur="160s" repeatCount="indefinite"/>
+        <animateTransform additive="sum" attributeName="transform" attributeType="XML" type="scale" values="1;1.02;1" dur="30s" repeatCount="indefinite"/>
+      </use>
     </g>
-
-    <!-- Layer B: counter-rotate, lower opacity for parallax -->
-    <g id="FOLB" opacity="0.22" transform="translate(20,10)">
-      <rect x="-300" y="-200" width="1800" height="1200" fill="url(#folPattern)"/>
-      <animateTransform attributeName="transform" type="rotate" from="0 600 400" to="-360 600 400" dur="140s" repeatCount="indefinite"/>
+    <g opacity=".22">
+      <use href="#tile" x="-20" y="-20" width="140" height="140">
+        <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="360 50 50" to="0 50 50" dur="110s" repeatCount="indefinite"/>
+        <animateTransform additive="sum" attributeName="transform" attributeType="XML" type="scale" values="1;1.018;1" dur="26s" repeatCount="indefinite"/>
+      </use>
     </g>
   </svg>
 </div>
-<div class="wrap">
-  <section class="card" id="left">
-    <div class="brand">
-      <div class="logo-box">
-        <img class="logo" src="ias-logo.png" alt="IAS Logo">
+
+<!-- App frame -->
+<div id="fe">
+  <div id="fe-header" class="card">
+    <h1 class="title">Module 1 — Foundations</h1>
+    <p class="sub">Build a micro-offer from zero to sellable — with a coach who actually gives a damn.</p>
+  </div>
+
+  <div id="fe-meter" class="meter card">
+    <div class="bar"><div class="fill" id="fe-progress"></div><div class="nub" id="fe-nub" style="display:none"></div></div>
+    <div class="progtext" id="fe-progress-text">Progress: 0%</div>
+  </div>
+
+  <div id="fe-cta" class="card" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+      <div>
+        <div style="font-weight:800">Unlock the Full Engine</div>
+        <div class="sub" style="font-size:12px">Finish Modules 3–5 and ship your offer.</div>
       </div>
-      <div class="titles">
-        <h1>The Freedom Engine</h1>
-        <div class="sub">Personal AI Trainer <span class="badge demo" id="tierBadge">Demo</span></div>
-      </div>
-    </div>
-
-    <div class="road">
-      <div class="bar"><span id="bar"></span></div>
-      <div class="bar-legend"><span>Roadmap</span><span id="barText">1/5</span></div>
-      <div class="row">
-        <button class="btn btn-ghost" id="exportBtn">Export</button>
-        <button class="btn btn-ghost" id="expBtn">Expansions</button>
-        <div class="drop" id="kebab">
-          <button class="btn btn-ghost" id="kebabBtn">…</button>
-          <div class="drop-menu" id="kebabMenu">
-            <div class="item" id="saveSnap">Save Snapshot</div>
-            <div class="item" id="loadSnap">Load Snapshot</div>
-            <div class="item" id="wake">Wake the Engine</div>
-            <div class="item danger" id="reset">Reset Progress</div>
-            <div class="item" id="switchMode">Switch to Demo / Sign Out</div>
-            <div class="item" id="enterKey">I have a license key</div>
-            <div class="item" id="buy">Buy</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="cta" id="demoCTA" style="display:none">
-      <button class="big" id="ctaBuy">$29 — Unlock Full Engine</button>
-      <small>Cloud saves + premium modules included.</small>
-    </div>
-  </section>
-
-  <section class="chat-col">
-    <div class="card chat" id="chat"></div>
-    <div class="composer">
-      <textarea id="input" placeholder="Answer here. Press Enter to send."></textarea>
-      <button class="send" id="sendBtn">Send</button>
-    </div>
-  </section>
-</div>
-
-<div class="modal" id="expModal" aria-hidden="true">
-  <div class="panel">
-    <h3 style="margin:6px 6px 10px 6px">Expansions</h3>
-    <div class="modlist" id="expList"></div>
-    <div style="display:flex;justify-content:flex-end;margin-top:12px">
-      <button class="btn btn-ghost" id="expClose">Close</button>
+      <a class="ai cta-button" href="https://intellartsystems.gumroad.com/l/the-freedom-engine" target="_blank" rel="noopener">Unlock →</a>
     </div>
   </div>
+
+  <div id="fe-chat" class="card"><div id="chatlog"></div></div>
 </div>
 
+<div class="composer" id="fe-composer">
+  <input id="composer" type="text" placeholder="Type your answer… then press Enter  (type RESET to clear)" autocomplete="off" />
+  <button class="primary" id="send">Send</button>
+</div>
 
+<!-- transformers.js (loads when needed) -->
+<script defer src="https://cdn.jsdelivr.net/npm/@xenova/transformers@2.15.0"></script>
 
 <script>
-/* === Freedom Engine Smart Brain - MORPROBE-ROLLBACK-LOCK === */
-const WORKER_BASE = "https://freedom-engine-worker.intelligentlyartificialsystems.workers.dev";
-const STAGES = 5;
+/* ==================== Freedom Engine Runtime (Edge Brain v2.1) ==================== */
+(function(){
+  const STORAGE_KEY = "fe_state";
+  const STATE_VERSION = 15;
+  const $ = s=>document.querySelector(s);
 
-const state = {
-  tier: localStorage.getItem("fe_tier") || "demo",
-  license: localStorage.getItem("fe_license") || "",
-  stage: 1,
-  data: { lane:"", offer:"", avatar:"", channel:"", price:"" },
-  messages: [],
-  greeted:false,
-  lastWake:0,
-  pendingLock:false
-};
+  function load(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)||""); }catch(e){ return null; } }
+  function save(st){ localStorage.setItem(STORAGE_KEY, JSON.stringify(st)); }
+  function clear(){ localStorage.removeItem(STORAGE_KEY); location.reload(); }
 
-const el = {
-  bar:document.getElementById("bar"),
-  barText:document.getElementById("barText"),
-  chat:document.getElementById("chat"),
-  input:document.getElementById("input"),
-  send:document.getElementById("sendBtn"),
-  kebab:document.getElementById("kebab"),
-  kebabBtn:document.getElementById("kebabBtn"),
-  kebabMenu:document.getElementById("kebabMenu"),
-  demoCTA:document.getElementById("demoCTA"),
-  tierBadge:document.getElementById("tierBadge"),
-  enterKey:document.getElementById("enterKey"),
-  buy:document.getElementById("buy"),
-  ctaBuy:document.getElementById("ctaBuy"),
-  switchMode:document.getElementById("switchMode"),
-  reset:document.getElementById("reset"),
-  saveSnap:document.getElementById("saveSnap"),
-  loadSnap:document.getElementById("loadSnap"),
-  wake:document.getElementById("wake"),
-  coachCard:document.getElementById("coachCard"),
-  modulesBtn:document.getElementById("modulesBtn") || document.getElementById("expBtn"),
-  modModal:document.getElementById("modModal") || document.getElementById("expModal"),
-  modList:document.getElementById("modList") || document.getElementById("expList"),
-  modClose:document.getElementById("modClose") || document.getElementById("expClose"),
-};
+  if(location.hash.includes("fresh")){ localStorage.removeItem(STORAGE_KEY); history.replaceState(null, "", location.pathname); }
 
-const STOP = new Set("the a an and or to for of on in with from at into by about as is are was were be been being i you we they he she it my your our their me us them this that these those".split(" "));
-const normText = s => (s||"").toLowerCase().replace(/[^\w$@\- ]+/g," ").replace(/\s+/g," ").trim();
-const verbs=/(build|create|write|audit|design|setup|optimi[sz]e|fix|record|craft|review|map|coach|train|plan|launch|code|script|edit|template)/i;
+  const prev = load();
+  const def = { v:STATE_VERSION, stage:1, stepIndex:0, transcript:[], data:{}, licenseUnlocked:false };
+  const state = (!prev || prev.v !== STATE_VERSION) ? def : prev;
 
-function setTier(t){
-  state.tier=t; localStorage.setItem("fe_tier",t);
-  const isDemo = t==="demo";
-  document.body.classList.toggle("is-premium", !isDemo);
-  if (el.demoCTA) el.demoCTA.style.display = isDemo ? "block":"none";
-  if (el.enterKey) el.enterKey.style.display = isDemo ? "block":"none";
-  if (el.buy)      el.buy.style.display      = isDemo ? "block":"none";
-  if (el.switchMode) el.switchMode.style.display = isDemo ? "none":"block";
-  if (el.tierBadge){ el.tierBadge.textContent = isDemo ? "Demo":"Premium"; el.tierBadge.classList.toggle("demo", isDemo); }
-}
+  const chat=$("#chatlog");
+  const scroller=$("#fe-chat");
+  const input=$("#composer");
+  const btn=$("#send");
+  const progress=$("#fe-progress");
+  const progressText=$("#fe-progress-text");
+  const nub=$("#fe-nub");
+  const cta=$("#fe-cta");
+  const headerTitle = document.querySelector("#fe-header .title");
 
-function updateBar(){
-  if(!el.bar||!el.barText) return;
-  const pct = Math.max(1,Math.min(STAGES,state.stage))/STAGES*100;
-  el.bar.style.width = pct+"%";
-  el.barText.textContent = `${Math.max(1,state.stage)}/${STAGES}`;
-}
-function setStage(n){ state.stage=Math.max(1,Math.min(STAGES,n)); updateBar(); }
-function pushBubble(who,text){ if(!text) return; const b=document.createElement("div"); b.className="bubble"; b.innerHTML=`<div class="who">${who==="user"?"💬":"⚙️"}</div>${text}`; el.chat.appendChild(b); state.messages.push({who,text}); requestAnimationFrame(()=>{ el.chat.scrollTop = el.chat.scrollHeight; }); }
-function nudge(html){ pushBubble("ai", html); }
-function renderCoachCard(){ if(!el.coachCard) return; const d=state.data||{}; const bits=[`<b>Stage:</b> ${state.stage}/5`, d.lane?`<b>Lane:</b> ${d.lane}`:"", d.offer?`<b>Offer:</b> ${d.offer}`:"", d.avatar?`<b>Avatar:</b> ${d.avatar}`:"", d.channel?`<b>Channel:</b> ${d.channel}`:"", d.price?`<b>Price:</b> $${String(d.price).replace(/^\$/,'')}`:""].filter(Boolean).map(s=>`<span class="pill">${s}</span>`).join(" "); el.coachCard.innerHTML= bits || `<span class="pill"><b>Stage:</b> ${state.stage}/5</span>`; }
-function safeReply(fn){ return (t)=>{ try{ fn(t); } catch(e){ console.error(e); pushBubble("ai","Glitch dodged. Say that again in plain words."); } finally { renderCoachCard(); } }; }
+  const ICON_AI = '<div class="emo" aria-hidden="true">⚙️</div>';
+  const ICON_YOU = '<div class="emo" aria-hidden="true">💬</div>';
 
-function guessLane(raw){ const t=normText(raw); if(/\bdesign|logo|brand|graphic|thumbnail|banner|art\b/.test(t)) return "Design"; if(/\bwriting|copy|email|thread|blog|post|tweet|caption|script\b/.test(t)) return "Writing"; if(/\bcoach|coaching|audit|review|feedback|teardown\b/.test(t)) return "Coaching"; if(/\bdev|code|build|tool|automation|worker|script|site|landing\b/.test(t)) return "Dev"; return ""; }
-function guessChannel(raw){ const t=normText(raw); if(/\bemail|inbox|subject\b/.test(t)) return "email"; if(/\bdm|message|pm\b/.test(t)) return "dm"; if(/\bpost|tweet|thread|story\b/.test(t)) return "post"; if(/\bcall|phone|zoom\b/.test(t)) return "call"; return ""; }
-function guessPrice(raw){ const m=raw.match(/\$?\b(\d{2,4})\b/); return m? m[1] : ""; }
+  function scrollToBottom(){ scroller.scrollTo({ top: scroller.scrollHeight, behavior: "smooth" }); }
 
-async function cloudSave(){
-  if(state.tier!=="premium" || !state.license) return;
-  const payload={stage:state.stage,data:state.data,messages:state.messages};
-  try{
-    await fetch(WORKER_BASE+"/progress",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({license_key:state.license,data:JSON.stringify(payload)})});
-  }catch(e){}
-}
-async function cloudLoad(){
-  if(state.tier!=="premium" || !state.license) return false;
-  try{
-    const r=await fetch(WORKER_BASE+"/progress?license_key="+encodeURIComponent(state.license));
-    const j=await r.json();
-    if(j.ok && j.found && j.data){
-      const d=JSON.parse(j.data);
-      state.stage=Number(d.stage)||1;
-      state.data=Object.assign({lane:"",offer:"",avatar:"",channel:"",price:""}, d.data||{});
-      state.messages=Array.isArray(d.messages)?d.messages.slice(-100):[];
-      if(el.chat){ el.chat.innerHTML=""; state.messages.forEach(m=>pushBubble(m.who,m.text)); }
-      updateBar(); renderCoachCard(); return true;
+  function node(role, text){
+    const wrap = document.createElement("div");
+    wrap.className = "msg " + (role==="you"?"you":"ai");
+    const icon = document.createElement("div"); icon.className = "i"; icon.innerHTML = role==="you" ? ICON_YOU : ICON_AI;
+    const bubble = document.createElement("div"); bubble.className = "b"; bubble.textContent = String(text||"");
+    wrap.appendChild(icon); wrap.appendChild(bubble);
+    return wrap;
+  }
+  function say(text, role="ai"){ const el=node(role, text); chat.appendChild(el); scrollToBottom();
+    state.transcript.push({ role: role==="you"?"user":"ai", text: String(text||"") }); save(state); }
+  function renderTranscript(){ chat.innerHTML=""; (state.transcript||[]).forEach(m=> chat.appendChild(node(m.role==="user"?"you":"ai", m.text))); scrollToBottom(); }
+  function you(text){ say(text, "you"); }
+
+  /* ===== Progress UI ===== */
+  function setProgress(){
+    const pct = Math.min((state.stage-1)*20, 100);
+    progress.style.width = pct + "%";
+    progressText.textContent = "Progress: " + pct + "%";
+    nub.style.display = pct>0 ? "block" : "none";
+    nub.style.left = "calc(" + pct + "% - 6px)";
+    cta.style.display = (state.stage >=3 ? "block" : "none");
+    const titles = { 1:"Module 1 — Foundations", 2:"Module 2 — Framing", 3:"Module 3 — Design (Locked)", 4:"Module 4 — Delivery (Locked)", 5:"Module 5 — Launch (Locked)" };
+    headerTitle.textContent = titles[state.stage] || "The Freedom Engine";
+  }
+
+  /* ==================== Edge Brain v2.1 ==================== */
+  let embedder = null, loadingEmbedder = false;
+  async function ensureEmbedder(){
+    if(embedder) return embedder;
+    if(loadingEmbedder) { while(!embedder) { await new Promise(r=>setTimeout(r,50)); } return embedder; }
+    loadingEmbedder = true;
+    try{
+      const { pipeline } = window.transformers || {};
+      if(!pipeline){ loadingEmbedder=false; return null; }
+      embedder = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
+      return embedder;
+    }catch(e){ console.warn("Embedder load failed", e); loadingEmbedder=false; return null; }
+  }
+
+  // Math helpers
+  function dot(a,b){ let s=0; for(let i=0;i<a.length;i++) s += a[i]*b[i]; return s; }
+  function norm(a){ return Math.sqrt(dot(a,a))||1; }
+  function cos(a,b){ return dot(a,b)/(norm(a)*norm(b)); }
+
+  // Example bank (expanded/confusion/guidance). Each: { in, out, slot? }
+  const BANK = [
+    {in:"help", out:"Got you. We’ll keep it simple. First: what skill or asset are you using here—editing, writing, design, outreach, automation?", slot:"seed"},
+    {in:"confused huh wtf", out:"You're fine. Pick one tiny win you can deliver in a day. A) 10 hooks B) mini audit C) template setup. Reply A/B/C.", slot:null},
+    {in:"leads quick niche choose lane", out:"Solid. What niche do you want those leads from? Pick a lane so we can make it punchy.", slot:"audience"},
+    {in:"design logos quick", out:"Nice. Who exactly? Freelancers, Etsy sellers, local shops? Pick one.", slot:"audience"},
+    {in:"busy moms reels 49", out:"Draft: For busy moms, I’ll batch 10 reels for $49 so they post without stress. Want this as the starter offer?", slot:"price"},
+    {in:"coaches", out:"Coaches—great. What single outcome will you give them in 48–72 hours? Keep it tight.", slot:"audience"},
+    {in:"landing page in a day", out:"Crisp. Promise locked: one-page site in 24 hours. What’s the simple price to test first?", slot:"promise"},
+    {in:"price 29 49 99", out:"Starter price: pick $29, $49, or $99. We'll test and adjust.", slot:"price"},
+    {in:"outcome more sales vague", out:"Too broad. Pick a measurable win: X leads, Y signups, or Z booked calls. Which?", slot:"outcome"},
+    {in:"logo for tattoo artists", out:"Niche picked: tattoo artists. What’s the quick promise? (e.g., 1-day logo, 3 concepts)", slot:"audience"},
+    {in:"checklist", out:"Checklists are great. Who’s it for, and what problem does it fix immediately?", slot:"seed"},
+    {in:"course creators", out:"Course creators—nice. Smallest promise you can deliver this week?", slot:"audience"},
+    {in:"templates for realtors", out:"Templates for realtors—good lane. Price test: $29, $49, or $99?", slot:"audience"},
+    {in:"sales page audit", out:"Audit is sharp. Outcome target: A) 5 key fixes B) score + roadmap C) rewrite top 3 sections?", slot:"promise"},
+    {in:"grow instagram big", out:"Too big. Bite-size promise: A) 10 hooks B) 10 reels batch C) 14‑day calendar. Reply A/B/C.", slot:"outcome"},
+    {in:"unsure stuck idk", out:"Pick a person you can help this week. That’s your audience. Say it in 3 words.", slot:"audience"},
+    {in:"how much should I charge", out:"Starter price: pick $29, $49, or $99. We’ll test fast.", slot:"price"},
+    {in:"freelancers niche chosen", out:"Freelancers—locked. Choose the smallest promise you can deliver in 48 hours.", slot:"audience"}
+  ];
+
+  // Regex & heuristics
+  const RX_PRICE = /(?:\$)?(\d+)(?:\s*usd)?/i;
+  const RX_AUDIENCE = /(coaches|creators?|freelancers?|realtors?|moms?|tattoo\s*artists?|smbs?|local\s*shops?|students?|designers?)/i;
+  const RX_CHOICE = /\b([abc])\b/i;
+  const RX_HELPY = /\b(help|huh|confused|wtf|lost|idk|unsure|not sure)\b/i;
+  const RX_LEADS = /\bleads?\b/i;
+
+  function extractSlots(text){
+    const out = {};
+    const price = text.match(RX_PRICE); if(price){ out.price = price[1]; }
+    const aud = text.match(RX_AUDIENCE); if(aud){ out.audience = aud[1]; }
+    if(RX_LEADS.test(text)) out.outcome = out.outcome || "qualified leads";
+    if(/logo|audit|template|checklist|landing\s*page|sales\s*page|reels?|hooks?|calendar/i.test(text)) out.seed = out.seed || "your skill";
+    if(/landing\s*page|audit|logo|reels?|hooks?|calendar|templates?/i.test(text)) out.promise = out.promise || "fast deliverable";
+    return out;
+  }
+  function fillSlots(obj){ for(const k of ["seed","outcome","audience","promise","price"]){ if(obj[k]) state.data[k] = obj[k]; } save(state); }
+
+  // Top‑k retrieval with confidence
+  async function suggestReply(userText){
+    const txt = userText.trim();
+    // quick exits
+    if(/^next|continue$/i.test(txt)) return { out:"Moving on. Got anything else to add? If not, I’ll prompt.", slot:null, score:1 };
+    if(RX_HELPY.test(txt)) return { out:"You're good. Pick one tiny win you can deliver in a day. A) 10 hooks B) mini audit C) template setup. Reply A/B/C.", slot:null, score:.9 };
+
+    const e = await ensureEmbedder();
+    let vecU = null;
+    if(e){
+      vecU = (await e(txt, { pooling: 'mean', normalize: true })).data;
     }
-  }catch(e){}
-  return false;
-}
-
-function greet(){
-  if(state.greeted) return; state.greeted=true;
-  const intro=`Welcome in. Pick a lane or say <em>“help me choose”</em> · <b>design • writing • coaching • dev • other</b>`;
-  nudge(intro);
-}
-
-function aiReply(userText){
-  const raw=(userText||"").trim(); const t=raw.toLowerCase();
-  const tooShort = raw.split(/\s+/).filter(Boolean).length < 3;
-  const hasVerb  = verbs.test(raw);
-  if(!raw){ nudge("Give me a crumb or say <em>help me choose</em>."); return; }
-  if(tooShort && !hasVerb && !/^\d$/.test(t) && !/(ready|done|help|menu|expansions)/i.test(t)){ nudge("Too vague. What exactly will they get? One sentence with the action + outcome."); return; }
-
-  switch(state.stage){
-    case 1:{
-      const num=t.match(/^\s*([1-5])\s*$/); const word=t.match(/\b(design|writing|coaching|development|dev|other)\b/i); const laneGuess=guessLane(raw);
-      if(num||word||laneGuess){
-        const lane = num?["","Design","Writing","Coaching","Dev","Other"][Number(num[1])] : (word ? (word[1].toLowerCase().startsWith("dev")?"Dev":word[1][0].toUpperCase()+word[1].slice(1)) : laneGuess);
-        state.data.lane=lane||"Other"; nudge(`Locked: <b>${state.data.lane}</b>.<br>What’s a <b>tiny deliverable in ~48h</b> someone would pay for? One sentence.`); setStage(2); cloudSave(); return;
+    // compute top-k
+    let scored = [];
+    for(const item of BANK){
+      let score = 0;
+      if(e){
+        if(!item._vec){ item._vec = (await e(item.in, { pooling: 'mean', normalize: true })).data; }
+        score = cos(vecU, item._vec);
+      }else{
+        const overlap = item.in.split(/\W+/).filter(w => w && txt.toLowerCase().includes(w.toLowerCase())).length;
+        score = overlap / Math.max(1, item.in.split(/\W+/).length);
       }
-      nudge(`Tell me your lane (design / writing / coaching / dev / other) or say a number 1–5.`); return;
+      scored.push({ ...item, score });
     }
-    case 2:{
-      if(!state.data.offer && hasVerb && raw.length>20) state.data.offer=raw;
-      const ch=guessChannel(raw); if(ch) state.data.channel=ch;
-      const pr=guessPrice(raw);   if(pr) state.data.price=pr;
-      if(!state.data.avatar && !hasVerb && raw.length<=140) state.data.avatar=raw;
+    scored.sort((a,b)=>b.score-a.score);
+    const top = scored.slice(0,3);
+    const best = top[0];
 
-      const missing=[]; if(!state.data.offer)missing.push("offer"); if(!state.data.avatar)missing.push("avatar"); if(!state.data.channel)missing.push("channel"); if(!state.data.price)missing.push("price");
-      if(missing.length){
-        const Q={offer:"What exactly do they get in 48h? (scope + outcome)", avatar:"Who is the first buyer you’d ship to? (name/role)", channel:"Fastest way to reach them? (email/DM/post/call)", price:"Flat price you won’t resent ($29–$199)?"}[missing[0]];
-        nudge(Q); renderCoachCard(); return;
+    // confidence thresholds
+    const HIGH = .52, MID = .36;
+    if(best && best.score >= HIGH){
+      return best;
+    }
+    if(best && best.score >= MID){
+      // blend: offer the best suggestion + a follow-up question
+      return { out: best.out, slot: best.slot, score: best.score };
+    }
+    // Low confidence → universal clarifier + examples
+    return { out:"Give me one plain sentence about what you’ll deliver fast and for who. If stuck: A) 10 hooks B) mini audit C) template setup. Reply A/B/C.", slot:null, score:0 };
+  }
+
+  function nextQuestion(){
+    if(!state.data.seed) return "What skill or asset are you using for this offer? Keep it concrete.";
+    if(!state.data.outcome) return "What’s the small, visible outcome they’ll get in 48–72 hours?";
+    if(!state.data.audience) return "Who exactly is this for? Pick a lane so it lands.";
+    if(!state.data.promise) return "Smallest promise you can deliver quickly? (e.g., 10 hooks / 1-day audit / 1-page site)";
+    if(!state.data.price) return "Starter price to test: $29, $49, or $99?";
+    return "Type NEXT when you’re ready for Module 2 or refine any detail.";
+  }
+  function reflect(prevOut){ return prevOut.length>160 ? prevOut.slice(0,150)+'…' : prevOut; }
+
+  function draftOffer(){
+    const a = state.data.audience||"your audience";
+    const p = state.data.promise||state.data.outcome||"a clear win";
+    const pr = state.data.price ? ("$"+String(state.data.price).replace(/[^0-9.]/g,'')) : "$–";
+    const seed = state.data.seed||"your skill";
+    return `Draft micro-offer → For ${a}, I’ll deliver ${p} using ${seed}. Starter price: ${pr}.`;
+  }
+
+  async function brainTurn(userText){
+    fillSlots(extractSlots(userText));
+
+    const ch = userText.match(RX_CHOICE);
+    if(ch){
+      const c = ch[1].toLowerCase();
+      if(!state.data.outcome && /[abc]/.test(c)){
+        const map = { a:"15 leads", b:"20 email subs", c:"3 booked calls" };
+        state.data.outcome = map[c]; save(state);
+        say(`Outcome locked: ${map[c]}.`, "ai");
+        say(nextQuestion(), "ai");
+        return;
       }
+    }
 
-      if(!state.pendingLock){ state.pendingLock=true; nudge(`Recap: <b>${state.data.offer}</b> → <i>${state.data.avatar}</i> via <b>${state.data.channel}</b> at <b>$${String(state.data.price).replace(/^\$/,'')}</b>.<br>Lock it? <b>yes</b> / <b>no</b>`); return; }
-      if(/^y(es)?$/i.test(t)){ state.pendingLock=false; nudge("Module 2 complete. On to <b>Copy Templates & AI Prompts</b>. Say <b>ready</b> to generate drafts."); completeModule(); return; }
-      if(/^n(o)?$/i.test(t)){ state.pendingLock=false; nudge("No problem. Tell me what to change—offer, avatar, channel, or price."); return; }
+    const s = await suggestReply(userText);
+    if(s.slot && !state.data[s.slot]){
+      say(reflect(s.out), "ai");
+    } else {
+      // If slot already filled or no slot, still speak but avoid repetition
+      say(reflect(s.out), "ai");
+    }
+
+    const filled = ["seed","outcome","audience","promise","price"].filter(k => !!state.data[k]).length;
+    if(filled >= 3){
+      say(draftOffer(), "ai");
+      if(filled < 5) say(nextQuestion(), "ai");
+      else say("Type NEXT when you’re ready for Module 2.", "ai");
+    }
+  }
+
+  function runIntro(){
+    setProgress();
+    chat.innerHTML = "";
+    state.transcript = [];
+    save(state);
+    say("Welcome in. I'm your Freedom Trainer — laid-back, direct, and here to help you build your first micro-offer.", "ai");
+    say(nextQuestion(), "ai");
+  }
+
+  if(state.transcript && state.transcript.length>0 && state.stage<=2){
+    renderTranscript();
+  } else {
+    runIntro();
+  }
+
+  // Long-press reset on header
+  let pressTimer;
+  const header = document.querySelector("#fe-header");
+  const start = ()=>{ pressTimer=setTimeout(clear, 2000); };
+  const cancel = ()=>{ clearTimeout(pressTimer); };
+  ["mousedown","touchstart"].forEach(ev=> header.addEventListener(ev, start));
+  ["mouseup","mouseleave","touchend","touchcancel"].forEach(ev=> header.addEventListener(ev, cancel));
+
+  // Input handling
+  let sendLock=false;
+  function handleUserInput(val){
+    if(sendLock) return;
+    sendLock=true; setTimeout(()=>sendLock=false, 400);
+    const raw=(val||"").trim(); if(!raw) return;
+    if(raw.toUpperCase()==="RESET"){ clear(); return; }
+    you(raw);
+
+    if(/^next|continue$/i.test(raw)){
+      if(state.stage >= 3 && !state.licenseUnlocked){ say("Locked. Use Unlock above, then type NEXT.", "ai"); return; }
+      state.stage = Math.min(state.stage+1, 5); state.stepIndex = 0; save(state); setProgress();
+      say("Module switched. Keep going.", "ai");
       return;
     }
-    case 3:{
-      if(/ready/i.test(t)){ nudge("Drafting your outreach + landing hero using your data… (demo preview)."); if(state.tier==="demo"){ nudge(`You’ve reached the end of the demo. <b>Unlock Premium</b> to continue through Modules 3–5.`); return; } nudge("Module 3 complete. Say <b>ready</b> for Launch & Traffic Loops."); completeModule(); return; }
-      nudge("Say <b>ready</b> to generate drafts."); return;
-    }
-    case 4:{
-      if(/ready/i.test(t)){ nudge("72-hour launch checklist generated. (demo preview)"); if(state.tier==="demo"){ nudge(`Unlock Premium to get the full launch map + traffic loops.`); return; } nudge("Module 4 complete. Say <b>ready</b> for Automation & Scaling."); completeModule(); return; }
-      nudge("Say <b>ready</b> to print the 72h checklist."); return;
-    }
-    case 5:{
-      if(/ready/i.test(t)){ nudge("Light automations queued. (demo preview)"); if(state.tier==="demo"){ nudge(`Unlock Premium to wire automations + cloud saves.`); return; } nudge("Module 5 complete. You’re done. Open Expansions for add-ons."); completeModule(); return; }
-      nudge("Say <b>ready</b> to wire the first automation."); return;
-    }
+    brainTurn(raw);
   }
-}
 
-function completeModule(){
-  if(state.stage < STAGES){
-    if(state.tier==="demo" && state.stage>=2){ setStage(2); nudge(`Demo limit reached. <b>Buy</b> to continue.`); return; }
-    setStage(state.stage+1);
-  }
-  cloudSave(); renderCoachCard();
-}
-
-document.addEventListener("DOMContentLoaded", async ()=>{
-  // Kebab portal: move menu to body once to avoid clipping
-  try{ const km=document.getElementById("kebabMenu"); if(km && km.parentElement!==document.body){ document.body.appendChild(km); } }catch(e){}
-
-  // Gumroad
-  const gumroad="https://intellartsystems.gumroad.com/l/the-freedom-engine";
-  if (document.getElementById("buy")) document.getElementById("buy").addEventListener("click", ()=>window.open(gumroad,"_blank"));
-  if (document.getElementById("ctaBuy")) document.getElementById("ctaBuy").addEventListener("click", ()=>window.open(gumroad,"_blank"));
-
-  if (el.enterKey) el.enterKey.addEventListener("click", async ()=>{
-    const key=prompt("Enter license key:"); if(!key) return;
-    state.license=key.trim(); localStorage.setItem("fe_license",state.license);
-    setTier("premium"); const ok=await cloudLoad();
-    if(!ok && el.chat){ el.chat.innerHTML=""; state.messages=[]; greet(); }
-    updateBar(); renderCoachCard();
-  });
-
-  if (el.switchMode) el.switchMode.addEventListener("click", ()=>{
-    localStorage.removeItem("fe_license"); setTier("demo");
-    state.license=""; setStage(1);
-    state.data={lane:"",offer:"",avatar:"",channel:"",price:""};
-    state.messages=[]; state.greeted=false; state.pendingLock=false;
-    if(el.chat) el.chat.innerHTML=""; greet(); updateBar(); renderCoachCard();
-  });
-
-  if (el.reset) el.reset.addEventListener("click", ()=>{
-    setStage(1); state.data={lane:"",offer:"",avatar:"",channel:"",price:""};
-    state.messages=[]; state.greeted=false; state.pendingLock=false;
-    if(el.chat) el.chat.innerHTML="";
-    greet(); updateBar(); renderCoachCard(); cloudSave();
-  });
-
-  if (document.getElementById("exportBtn")) document.getElementById("exportBtn").addEventListener("click", ()=>{
-    const data={stage:state.stage,data:state.data,messages:state.messages,tier:state.tier};
-    const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-    const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="freedom-engine-snapshot.json"; a.click(); URL.revokeObjectURL(a.href);
-  });
-  if (el.saveSnap) el.saveSnap.addEventListener("click", ()=>{
-    const data={stage:state.stage,data:state.data,messages:state.messages};
-    const blob=new Blob([JSON.stringify(data)],{type:"application/json"});
-    const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="fe-local-snapshot.json"; a.click(); URL.revokeObjectURL(a.href);
-  });
-  if (el.loadSnap) el.loadSnap.addEventListener("click", ()=>{
-    const inp=document.createElement("input"); inp.type="file"; inp.accept="application/json";
-    inp.onchange=async()=>{ const f=inp.files[0]; if(!f) return;
-      try{ const d=JSON.parse(await f.text());
-        setStage(Math.max(1,Math.min(5,Number(d.stage)||1)));
-        state.data=Object.assign({lane:"",offer:"",avatar:"",channel:"",price:""}, d.data||{});
-        state.messages=Array.isArray(d.messages)?d.messages.slice(-100):[];
-        if(el.chat){ el.chat.innerHTML=""; state.messages.forEach(m=>pushBubble(m.who,m.text)); }
-        updateBar(); renderCoachCard(); cloudSave();
-      }catch{ alert("Bad snapshot file."); }
-    }; inp.click();
-  });
-
-  if (el.wake) el.wake.addEventListener("click", ()=>{
-    const now=Date.now(); if(now-state.lastWake<2000) return; state.lastWake=now;
-    nudge("Engine’s awake. Where were we?");
-  });
-
-  const _aiCore = safeReply(aiReply);
-  function send(){ const v=el.input && el.input.value ? el.input.value.trim() : ""; if(!v) return; pushBubble("user",v); if(el.input) el.input.value=""; _aiCore(v); }
-  if (el.send) el.send.addEventListener("click", send);
-  if (el.input) el.input.addEventListener("keydown", e=>{ if(e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); send(); }});
-
-  setTier(state.tier);
-  let loaded=false; if(state.tier==="premium" && state.license){ loaded=await cloudLoad(); }
-  if(!loaded || state.messages.length===0) greet();
-  updateBar(); renderCoachCard();
-});
-</script>
-
-
-
-<!-- I3 helpers: mark offscreen panels for content-visibility and trim excessive will-change -->
-<script id="i3-helpers">
-(function(){
-  try{
-    // Reduce accidental global will-change (causes endless layers)
-    document.querySelectorAll('*').forEach(el=>{
-      const wc = getComputedStyle(el).willChange;
-      if (wc && wc !== 'auto' && !el.hasAttribute('data-anim-critical')) {
-        el.style.willChange = 'auto';
-      }
-    });
-    // Content-visibility on heavy panels not initially in view
-    document.querySelectorAll('.panel, .card, .module').forEach(el=>{
-      el.style.contentVisibility = 'auto';
-      el.style.containIntrinsicSize = '800px 600px';
-    });
-  }catch(e){ /* no-op */ }
-})();
-</script>
-
-<!-- I4: live composer height + fit observers -->
-<script id="i4-fit-js">
-(function(){
-  function setComposerH(){
-    var c = document.querySelector('.composer, .input-bar, .message-composer');
-    var h = c ? c.offsetHeight : 96;
-    document.documentElement.style.setProperty('--composer-h', h + 'px');
-  }
-  setComposerH();
-  var ro = new ResizeObserver(setComposerH);
-  var target = document.querySelector('.composer, .input-bar, .message-composer');
-  if(target){ ro.observe(target); }
-  if (window.visualViewport){
-    visualViewport.addEventListener('resize', setComposerH);
-    visualViewport.addEventListener('scroll', setComposerH);
-  }
-  window.addEventListener('orientationchange', setComposerH);
-  window.addEventListener('resize', setComposerH);
-})();
-</script>
-
-<!-- I5: Measure top stack (header + progress + CTA) and set --top-stack-h -->
-<script id="i5-measure">
-(function(){
-  function px(n){ return Math.max(0, Math.round(n)) + 'px'; }
-  function h(el){ return el ? el.getBoundingClientRect().height : 0; }
-  function measureTop(){
-    var header = document.querySelector('.header, .hero, .titlebar');
-    var progress = document.querySelector('.progress, .roadmap, .meter');
-    var cta = document.querySelector('.cta, .purchase, .price-card, .cta-bar');
-    var total = h(header) + h(progress) + h(cta) + 16; /* small gap */
-    if (total < 60) total = 60; /* sanity */
-    document.documentElement.style.setProperty('--top-stack-h', px(total));
-    // Also nudge chat height immediately
-    var chats = document.querySelectorAll('.chat, #chat, .messages, .content');
-    chats.forEach(function(el){
-      el.style.maxHeight = 'calc(100dvh - var(--top-stack-h) - var(--composer-h))';
-    });
-  }
-  measureTop();
-  var obsTargets = [
-    '.header','.hero','.titlebar','.progress','.roadmap','.meter','.cta','.purchase','.price-card','.cta-bar'
-  ];
-  var ro = new ResizeObserver(measureTop);
-  obsTargets.forEach(function(sel){
-    var n = document.querySelector(sel);
-    if (n) ro.observe(n);
-  });
-  window.addEventListener('resize', measureTop);
-  if (window.visualViewport){
-    visualViewport.addEventListener('resize', measureTop);
-    visualViewport.addEventListener('scroll', measureTop);
-  }
-  window.addEventListener('orientationchange', measureTop);
+  btn.addEventListener("click", ()=>{ const v=input.value; input.value=""; input.focus(); handleUserInput(v); });
+  input.addEventListener("keydown", (e)=>{ if(e.key==="Enter"){ const v=e.target.value; e.target.value=""; handleUserInput(v); } });
 })();
 </script>
 </body>
